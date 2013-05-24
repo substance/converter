@@ -1,0 +1,17 @@
+{
+  "name": "substance-transformer",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node server"
+  },
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.x"
+  },
+  "dependencies": {
+    "express": "3.0.x",
+    "underscore": "1.4.x",
+    "xmlhttprequest": "1.5.0"
+  }
+}
