@@ -5,7 +5,7 @@ var https  = require('https');
 var http  = require('http');
 var _ = require('underscore');
 // var Github = require('./lib/github');
-// var Document = require('./lib/document/document');
+var Document = require('./lib/document/document');
 var util = require('./lib/util/util');
 
 // Should output substance doc
