@@ -72,6 +72,7 @@ function convert(pandocAST, cb) {
       // HorizontalRule doesnt come as an object
       var nodeType = elem;
     }
+
     // Headings
     if (nodeType === 'Header') {
       // Insert a new heading
@@ -84,6 +85,7 @@ function convert(pandocAST, cb) {
           "content": getText(elem[nodeType][1])
         }
       }]);
+
     // Text
     } else if (nodeType === 'Para') {
       // Insert a new text node
@@ -95,6 +97,21 @@ function convert(pandocAST, cb) {
           "content": getText(elem[nodeType])
         }
       }]);
+
+    // Text
+    } else if (nodeType === 'Plain') {
+      // todo: implement
+      doc.apply(["insert", {
+        "id": "text:"+getId(),
+        "type": "text",
+        "target": "back",
+        "data": {
+          "subtype": "plain", // quick hack to find the nodes in the json later
+          "content": getText(elem[nodeType])
+        }
+      }]);
+
+    // List
     } else if (nodeType === 'BulletList') {
       // todo: implement properly
       var list = "";
@@ -109,7 +126,9 @@ function convert(pandocAST, cb) {
           "subtype": "list", // quick hack to find the nodes in the json later 
           "content": list
         }
-      }]);      
+      }]);
+
+    // Raw
     } else if (nodeType === 'RawBlock') {
       // todo: implement
       doc.apply(["insert", {
@@ -121,24 +140,10 @@ function convert(pandocAST, cb) {
           "content": elem[nodeType][1]
         }
       }]);
-      // console.log('RawBlock', elem[nodeType]);
 
-    } else if (nodeType === 'Plain') {
-      // todo: implement
-
-      doc.apply(["insert", {
-        "id": "text:"+getId(),
-        "type": "text",
-        "target": "back",
-        "data": {
-          "subtype": "plain", // quick hack to find the nodes in the json later
-          "content": getText(elem[nodeType])
-        }
-      }]);
-      
+     // Quote
     } else if (nodeType === 'BlockQuote') {
       // todo: implement
-      // console.log('BlockQuote', elem[nodeType]);
       doc.apply(["insert", {
         "id": "text:"+getId(),
         "type": "text",
@@ -148,6 +153,8 @@ function convert(pandocAST, cb) {
           "content": getText(elem[nodeType])
         }
       }]);
+
+    // Code
     } else if (nodeType === 'CodeBlock') {
       // todo: implement properly
       // Insert a new code node
@@ -159,8 +166,20 @@ function convert(pandocAST, cb) {
           "content": elem[nodeType][1]
         }
       }]);
-    } else if (nodeType === 'HorizontalRule') {
+
+   // Hr?
+   } else if (nodeType === 'HorizontalRule') {
       // todo: implement - but how?
+      doc.apply(["insert", {
+        "id": "text:"+getId(),
+        "type": "text",
+        "target": "back",
+        "data": {
+          "subtype": "hr", // quick hack to find the nodes in the json later
+          "content": '------------------------'
+        }
+      }]);
+
       
     } else {
       // console.log('nodeType', nodeType);
@@ -218,9 +237,10 @@ function toPandoc(url, cb) {
 // -------------
 
 app.get('/', function(req, res) {
+  // _mql: https and github works perfectly for me! you should fix your issues ;)
+
   var url = 'http://bywordapp.com/markdown/guide.md';
   // var url = 'http://github.github.com/github-flavored-markdown/sample_content.html';
-  // _mql: this works perfectly for me! you should fix your issues ;)
   // var url = 'https://raw.github.com/dtao/lazy.js/master/README.md';
 
   toPandoc(url, function(err, pandocAST) {
