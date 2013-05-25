@@ -21,12 +21,15 @@ function convert(pandocAST, cb) {
   var elements = pandocAST[1];
 
   // parses text objects into strings
+  // TODO: reimplement recursion prolerly
   function getText(pieces) {
     var res = "";
     _.each(pieces, function(piece) {
 
       if (piece === "Space") {
         res += " ";
+      } else if (piece === "LineBreak" || piece["LineBreak"]) {
+        res += "\n";
       } else if (piece["Emph"]) {
         // Emphasis object
         // todo: implement properly
@@ -39,9 +42,20 @@ function convert(pandocAST, cb) {
         // link object
         // todo: implement properly
         res += piece["Link"][1][0];
+      } else if (piece["RawInline"]) {
+        // link object
+        // todo: implement properly
+        res += piece["RawInline"][1];
       } else if (piece["Str"]) {
         // propably a Str object
         res += piece["Str"];
+      }else{
+
+        if (typeof piece === "object") {
+          res += getText(piece);
+        }else{
+           res += piece;
+        }
       }
     });
     
@@ -55,11 +69,9 @@ function convert(pandocAST, cb) {
     if(typeof elem === 'object'){
         var nodeType = _.first(Object.keys(elem));
     } else {
-      // horizontalrule doesnt come as an object
-      // todo cover all the cases
+      // HorizontalRule doesnt come as an object
       var nodeType = elem;
     }
-
     // Headings
     if (nodeType === 'Header') {
       // Insert a new heading
@@ -72,10 +84,8 @@ function convert(pandocAST, cb) {
           "content": getText(elem[nodeType][1])
         }
       }]);
-    }
-
     // Text
-    if (nodeType === 'Para') {
+    } else if (nodeType === 'Para') {
       // Insert a new text node
       doc.apply(["insert", {
         "id": "text:"+getId(),
@@ -85,7 +95,77 @@ function convert(pandocAST, cb) {
           "content": getText(elem[nodeType])
         }
       }]);
+    } else if (nodeType === 'BulletList') {
+      // todo: implement properly
+      var list = "";
+      _.each(elem[nodeType], function (item) {
+        list += "* " + getText(item) + "\n";
+      });
+      doc.apply(["insert", {
+        "id": "text:"+getId(),
+        "type": "text",
+        "target": "back",
+        "data": {
+          "subtype": "list", // quick hack to find the nodes in the json later 
+          "content": list
+        }
+      }]);      
+    } else if (nodeType === 'RawBlock') {
+      // todo: implement
+      doc.apply(["insert", {
+        "id": "text:"+getId(),
+        "type": "text",
+        "target": "back",
+        "data": {
+          "subtype": "raw", // quick hack to find the nodes in the json later 
+          "content": elem[nodeType][1]
+        }
+      }]);
+      // console.log('RawBlock', elem[nodeType]);
+
+    } else if (nodeType === 'Plain') {
+      // todo: implement
+
+      doc.apply(["insert", {
+        "id": "text:"+getId(),
+        "type": "text",
+        "target": "back",
+        "data": {
+          "subtype": "plain", // quick hack to find the nodes in the json later
+          "content": getText(elem[nodeType])
+        }
+      }]);
+      
+    } else if (nodeType === 'BlockQuote') {
+      // todo: implement
+      // console.log('BlockQuote', elem[nodeType]);
+      doc.apply(["insert", {
+        "id": "text:"+getId(),
+        "type": "text",
+        "target": "back",
+        "data": {
+          "subtype": "quote", // quick hack to find the nodes in the json later
+          "content": getText(elem[nodeType])
+        }
+      }]);
+    } else if (nodeType === 'CodeBlock') {
+      // todo: implement properly
+      // Insert a new code node
+      doc.apply(["insert", {
+        "id": "code:"+getId(),
+        "type": "code",
+        "target": "back",
+        "data": {
+          "content": elem[nodeType][1]
+        }
+      }]);
+    } else if (nodeType === 'HorizontalRule') {
+      // todo: implement - but how?
+      
+    } else {
+      // console.log('nodeType', nodeType);
     }
+
   });
 
   cb(null, doc.toJSON());
@@ -139,6 +219,7 @@ function toPandoc(url, cb) {
 
 app.get('/', function(req, res) {
   var url = 'http://bywordapp.com/markdown/guide.md';
+  // var url = 'http://github.github.com/github-flavored-markdown/sample_content.html';
   // _mql: this works perfectly for me! you should fix your issues ;)
   // var url = 'https://raw.github.com/dtao/lazy.js/master/README.md';
 
