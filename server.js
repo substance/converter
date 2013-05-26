@@ -21,44 +21,48 @@ function convert(pandocAST, cb) {
   var elements = pandocAST[1];
 
   // parses text objects into strings
-  // TODO: reimplement recursion prolerly
   function getText(pieces) {
     var res = "";
     _.each(pieces, function(piece) {
 
-      if (piece === "Space") {
-        res += " ";
-      } else if (piece === "LineBreak" || piece["LineBreak"]) {
-        res += "\n";
-      } else if (piece["Emph"]) {
-        // Emphasis object
-        // todo: implement properly
-        res += getText(piece["Emph"]);
-      } else if (piece["Strong"]) {
-        // Strong object
-        // todo: implement properly
-        res += getText(piece["Strong"]);
-      } else if (piece["Link"]) {
-        // link object
-        // todo: implement properly
-        res += piece["Link"][1][0];
-      } else if (piece["RawInline"]) {
-        // link object
-        // todo: implement properly
-        res += piece["RawInline"][1];
-      } else if (piece["Str"]) {
-        // propably a Str object
-        res += piece["Str"];
+      if (typeof piece === "object") {
+
+        if (piece["LineBreak"]) {
+          res += "\n";
+        } else if (piece["Emph"]) {
+          // Emphasis object
+          // todo: implement properly
+          res += getText(piece["Emph"]);
+        } else if (piece["Strong"]) {
+          // Strong object
+          // todo: implement properly
+          res += getText(piece["Strong"]);
+        } else if (piece["Link"]) {
+          // link object
+          // todo: implement properly
+          res += piece["Link"][1][0];
+        } else if (piece["RawInline"]) {
+          // link object
+          // todo: implement properly
+          res += piece["RawInline"][1];
+        } else if (piece["Str"]) {
+          // propably a Str object
+          res += piece["Str"];
+        } else{
+          res += getText(piece);
+        }
+
       }else{
 
-        if (typeof piece === "object") {
-          res += getText(piece);
-        }else{
-           res += piece;
+        if (piece === "Space") {
+          res += " ";
+        } else if(piece === "LineBreak") {
+          res += "\n";
         }
       }
+
     });
-    
+
     return res;
   }
 
@@ -69,7 +73,7 @@ function convert(pandocAST, cb) {
     if(typeof elem === 'object'){
         var nodeType = _.first(Object.keys(elem));
     } else {
-      // HorizontalRule doesnt come as an object
+      // Some elements come as strings
       var nodeType = elem;
     }
 
