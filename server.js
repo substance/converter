@@ -7,13 +7,18 @@ var express = require('express'),
     Document = require('./lib/document/document'),
     util = require('./lib/util/util'),
     docSchema = require('./data/elife_schema');
+<<<<<<< HEAD
+=======
 
+>>>>>>> ab88283af59d691420e199b7e49f65f72504a001
 
 // Convert pandoc JSON output into substanc format
 // Should output substance doc
 function convert(pandocAST, cb) {
 
-  var lastid = 0;
+  var lastid = 0,
+      offset = 0;
+
   function getId() {
     lastid += 1;
     return lastid;
@@ -23,7 +28,7 @@ function convert(pandocAST, cb) {
   var elements = pandocAST[1];
 
   // parses text objects into strings
-  function getText(pieces) {
+  function extractValues(pieces) {
     var res = "";
     _.each(pieces, function(piece) {
 
@@ -34,15 +39,31 @@ function convert(pandocAST, cb) {
         } else if (piece["Emph"]) {
           // Emphasis object
           // todo: implement properly
-          res += getText(piece["Emph"]);
+          res += extractValues(piece["Emph"]);
         } else if (piece["Strong"]) {
           // Strong object
           // todo: implement properly
-          res += getText(piece["Strong"]);
+          res += extractValues(piece["Strong"]);
         } else if (piece["Link"]) {
+          console.log('piece["Link"]', piece["Link"]);
           // link object
           // todo: implement properly
+          res += extractValues(piece["Link"][0]) + ': ';
           res += piece["Link"][1][0];
+        } else if (piece["Image"]) {
+          
+          if(res === ''){ // not supporting inline images at the moment
+            res =  {
+              "type": "image",
+              "data": {
+                  "alt": extractValues(piece["Image"][0]),
+                  "title": piece["Image"][1][1],
+                  "large_url": piece["Image"][1][0],
+                  "url": piece["Image"][1][0]
+             }
+            };
+          }
+
         } else if (piece["RawInline"]) {
           // link object
           // todo: implement properly
@@ -51,7 +72,7 @@ function convert(pandocAST, cb) {
           // propably a Str object
           res += piece["Str"];
         } else{
-          res += getText(piece);
+          res += extractValues(piece);
         }
 
       }else{
@@ -65,7 +86,21 @@ function convert(pandocAST, cb) {
 
     });
 
+    offset += res.length;
     return res;
+  }
+
+  // takes the returned value and inserts it or calls callback
+  function processResult (result, cb) {
+    if(typeof result === 'object'){
+
+        result.id = result.type + ":" + getId();
+        result.target = ["figures", "back"];
+        doc.apply(["insert", result]);
+
+      } else {
+        cb();
+      }
   }
 
   // we loop through each converted element
@@ -81,28 +116,34 @@ function convert(pandocAST, cb) {
 
     // Headings
     if (nodeType === 'Header') {
-      // Insert a new heading
-      doc.apply(["insert", {
-        "id": "heading:"+getId(),
-        "type": "heading",
-        "target": "back",
-        "data": {
-          "level": elem[nodeType][0],
-          "content": getText(elem[nodeType][1])
-        }
-      }]);
+      var result = extractValues(elem[nodeType][1]);
+      processResult (result, function () {
+        // Insert a new heading
+        doc.apply(["insert", {
+          "id": "heading:" + getId(),
+          "type": "heading",
+          "target": "back",
+          "data": {
+            "level": elem[nodeType][0],
+            "content": extractValues(elem[nodeType][1])
+          }
+        }])
+      });
 
     // Text
     } else if (nodeType === 'Para') {
-      // Insert a new text node
-      doc.apply(["insert", {
-        "id": "text:"+getId(),
-        "type": "text",
-        "target": "back",
-        "data": {
-          "content": getText(elem[nodeType])
-        }
-      }]);
+      var result = extractValues(elem[nodeType]);
+      processResult (result, function () {
+        // Insert a new text node
+        doc.apply(["insert", {
+          "id": "text:"+getId(),
+          "type": "text",
+          "target": "back",
+          "data": {
+            "content": extractValues(elem[nodeType])
+          }
+        }])
+      });
 
     // Text
     } else if (nodeType === 'Plain') {
@@ -113,7 +154,7 @@ function convert(pandocAST, cb) {
         "target": "back",
         "data": {
           "subtype": "plain", // quick hack to find the nodes in the json later
-          "content": getText(elem[nodeType])
+          "content": extractValues(elem[nodeType])
         }
       }]);
 
@@ -122,7 +163,7 @@ function convert(pandocAST, cb) {
       // todo: implement properly
       var list = "";
       _.each(elem[nodeType], function (item) {
-        list += "* " + getText(item) + "\n";
+        list += "* " + extractValues(item) + "\n";
       });
       doc.apply(["insert", {
         "id": "text:"+getId(),
@@ -151,13 +192,11 @@ function convert(pandocAST, cb) {
     } else if (nodeType === 'BlockQuote') {
       // todo: implement
       doc.apply(["insert", {
-        "id": "text:"+getId(),
-        "type": "text",
-        "target": "back",
+        "type": "codeblock",
+        "target": ["figures", "back"],
         "data": {
-          "subtype": "quote", // quick hack to find the nodes in the json later
-          "content": getText(elem[nodeType])
-        }
+          "content": extractValues(elem[nodeType])
+         }
       }]);
 
     // Code
@@ -165,8 +204,8 @@ function convert(pandocAST, cb) {
       // todo: implement properly
       // Insert a new code node
       doc.apply(["insert", {
-        "id": "code:"+getId(),
-        "type": "code",
+        "id": "codeblock:"+getId(),
+        "type": "codeblock",
         "target": "back",
         "data": {
           "content": elem[nodeType][1]
@@ -245,8 +284,9 @@ function toPandoc(url, cb) {
 app.get('/', function(req, res) {
   // _mql: https and github works perfectly for me! you should fix your issues ;)
 
-  var url = 'http://bywordapp.com/markdown/guide.md';
-  // var url = 'http://github.github.com/github-flavored-markdown/sample_content.html';
+  // var url = 'http://bywordapp.com/markdown/guide.md';
+  // var url = 'https://dl.dropboxusercontent.com/u/606131/gh-flavored.md';
+  var url = 'https://raw.github.com/michael/documents/master/2013-05-26-lens.md';
   // var url = 'https://raw.github.com/dtao/lazy.js/master/README.md';
 
   toPandoc(url, function(err, pandocAST) {
