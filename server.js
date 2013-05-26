@@ -7,10 +7,6 @@ var express = require('express'),
     Document = require('./lib/document/document'),
     util = require('./lib/util/util'),
     docSchema = require('./data/elife_schema');
-<<<<<<< HEAD
-=======
-
->>>>>>> ab88283af59d691420e199b7e49f65f72504a001
 
 // Convert pandoc JSON output into substanc format
 // Should output substance doc
