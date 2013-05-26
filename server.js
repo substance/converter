@@ -5,7 +5,9 @@ var express = require('express'),
     _ = require('underscore'),
     urlparser = require("url"),
     Document = require('./lib/document/document'),
-    util = require('./lib/util/util');
+    util = require('./lib/util/util'),
+    docSchema = require('./data/elife_schema');
+
 
 // Convert pandoc JSON output into substanc format
 // Should output substance doc
@@ -17,7 +19,7 @@ function convert(pandocAST, cb) {
     return lastid;
   }
 
-  var doc = new Document({id: "a_new_doc"});
+  var doc = new Document({id: "a_new_doc"}, docSchema);
   var elements = pandocAST[1];
 
   // parses text objects into strings
