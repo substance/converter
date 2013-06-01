@@ -1,3 +1,4 @@
+.gitignore
 /node_modules/
 /lib/util
 /lib/document
