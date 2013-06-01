@@ -127,31 +127,30 @@ function transform(json, cb) {
       annotations[type] = []; // reset
       var start = offset;
       var val = process(node[nodeType]);
-      console.log(type, val['annotations'][type]);
+      return val['annotations'][type];
     }
 
-    function processBlock (item) {
+    function processBlock (item, ins) {
       fragments = []; // reset
       var res = process(item);
-      console.log(nodeType + '::', res['text'].join(''));
+      return res['text'].join('');
     }
 
     function processSimple (item) {
-      if(item){
-        fragments = [];
-        offset += item.length;
-        fragments.push(item);
-        console.log(nodeType + '::"', item, '"');
-      }
+      fragments = [];
+      offset += item.length;
+      fragments.push(item);
+      return item;
     }
 
     function processList (type) {
+      var list = '';
       _.each(node[nodeType], function (li){
         fragments = [];
         switch (type) {
           case 'bl':
             res = process(li[0]['Plain']);
-            console.log('bl > li', res['text'].join(''));
+            list += '* ' + res['text'].join('') + '\n';
             break;
 
           case 'ol':
@@ -165,10 +164,19 @@ function transform(json, cb) {
             break;
         }
       });
+      return list;
     }
 
-    // console.log('typeof node', typeof node);
-    // console.log('node', node);
+    function insert (type, data, target) {
+      var target = "back" || target;
+      doc.apply(["insert", {
+        "id": type + ":" + getId(),
+        "type": type,
+        "target": target,
+        "data": data
+      }]);
+    }
+
 
     // Proceed Processing
     // ------------------
@@ -213,8 +221,32 @@ function transform(json, cb) {
         break;
 
       case 'Link':
-        var annType = 'link';
-        processInline(annType);
+        // var annType = 'link';
+        // var start = offset;
+        // var txt = processInline('link');
+        // var len = txt.length;
+
+        // doc.apply(["insert", {
+        //   "id":  "annotation:" + getId(),
+        //   "type": annType,
+        //   "node": "text:??",
+        //   "pos": [start,len]
+        // }]);
+        
+        //  doc.apply(["insert", {
+        //   "annotation:351": {
+        //     "type": "link",
+        //     "id": "annotation:351",
+        //     "source": "text:350",
+        //     "target": null,
+        //     "key": "content",
+        //     "content": "review process",
+        //     "pos": [398, 14],
+        //     "url": "http://www.elifesciences.org/the-journal/review-process"
+        //   }
+        // }]);
+
+
         break;
 
 
@@ -222,51 +254,87 @@ function transform(json, cb) {
       // -------------
 
       case 'Header':
-        var item = node[nodeType][1];
-        processBlock(item);
+        insert ('heading', {
+          "level": node[nodeType][0], 
+          "content": processBlock(node[nodeType][1])
+        });
+
         break;
 
       case 'Para':
       case 'Plain':
-        var item = node[nodeType];
-        processBlock(item);
+        insert ('text', {
+          "content": processBlock(node[nodeType])
+        });
         break;
 
       case 'OrderedList':
-        processList('ol');
+        insert ('text', {
+          "subtype": "ol",
+          "content": processList('ol')
+        });
         break;
 
       case 'UnorderedList':
-        processList('ul');
+        insert ('text', {
+          "subtype": "ul",
+          "content": processList('ul')
+        });
         break;
 
       case 'BulletList':
-        processList('bl');
+        insert ('text', {
+          "subtype": "bl",
+          "content": processList('bl')
+        });
         break;
 
       case 'RawBlock':
       case 'CodeBlock':
-        var item = node[nodeType][1];
-        processSimple(item);
+        insert ('code', {
+          "lang": node[nodeType][0], 
+          "content": processSimple(node[nodeType][1])
+        }, ["figures", "back"]);
         break;
 
       case 'BlockQuote':
         // Find out why Para and if it always appears or further functionalities for BlockQuotes
-        var item = node[nodeType][0]['Para']; 
-        processBlock(item);
+        // Needs nodetype in the Document
+        insert ('code', {
+          "subtype": "blocQuote",
+          "content": processBlock(node[nodeType][0]['Para'])
+        });
         break;
 
-
       case 'HorizontalRule':
-        fragments = [];
+        // for now we fake HR
+        // should we skip it all the way?
         offset += 1;
-        fragments.push('------');
+        insert ('text', {
+          "content": '------'
+        });
+        break;
+
+      case 'Image':
+        // var alt = process(node[nodeType][0]);
+        fragments = []; // reset
+        var res = process(node[nodeType][0]);
+        var alt = res['text'].join('');
+        var url = node[nodeType][1][0];
+        var title = node[nodeType][1][1];
+
+        insert('image', {
+                  "alt": alt,
+                  "title": title,
+                  "large_url": url,
+                  "url": url
+        });
         break;
 
     
       default:
         // if(nodeType.length > 1)
-          // console.log('nodeType', nodeType);
+          // console.log(nodeType);
         // console.log('node', node);
         break;
 
@@ -274,11 +342,8 @@ function transform(json, cb) {
     return {"text": fragments, "annotations": annotations};
   }
 
-
   _.each(elements, function (n) {
-    // console.log('BLOCK::', 
       process(n);
-      // );
   });
 
   cb(null, doc.toJSON());
@@ -290,9 +355,11 @@ function transform(json, cb) {
 // _mql: https and github works perfectly for me! you should fix your issues ;)
 
 // var url = 'http://bywordapp.com/markdown/guide.md';
-var url = 'https://dl.dropboxusercontent.com/u/606131/gh-flavored.md';
-// var url = 'https://raw.github.com/michael/documents/master/2013-05-26-lens.md';
+// var url = 'https://dl.dropboxusercontent.com/u/606131/gh-flavored.md';
+var url = 'https://raw.github.com/michael/documents/master/2013-05-26-lens.md';
 // var url = 'https://raw.github.com/dtao/lazy.js/master/README.md';
+// var url = 'https://dl.dropboxusercontent.com/u/606131/lens-intro.md';
+
 var doc = '';
 toPandoc(url, function(err, pandocAST) {
   transform(pandocAST, function(err, substanceDoc) {
