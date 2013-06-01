@@ -234,7 +234,6 @@ function transform(json, cb) {
         // }]);
         
         //  doc.apply(["insert", {
-        //   "annotation:351": {
         //     "type": "link",
         //     "id": "annotation:351",
         //     "source": "text:350",
@@ -243,7 +242,6 @@ function transform(json, cb) {
         //     "content": "review process",
         //     "pos": [398, 14],
         //     "url": "http://www.elifesciences.org/the-journal/review-process"
-        //   }
         // }]);
 
 
