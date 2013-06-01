@@ -8,230 +8,9 @@ var express = require('express'),
     util = require('./lib/util/util'),
     docSchema = require('./data/elife_schema');
 
-// Convert pandoc JSON output into substanc format
-// Should output substance doc
-function convert(pandocAST, cb) {
-
-  var lastid = 0,
-      offset = 0;
-
-  function getId() {
-    lastid += 1;
-    return lastid;
-  }
-
-  var doc = new Document({id: "a_new_doc"}, docSchema);
-  var elements = pandocAST[1];
-
-  // parses text objects into strings
-  function extractValues(pieces) {
-    var res = "";
-    _.each(pieces, function(piece) {
-
-      if (typeof piece === "object") {
-
-        if (piece["LineBreak"]) {
-          res += "\n";
-        } else if (piece["Emph"]) {
-          // Emphasis object
-          // todo: implement properly
-          res += extractValues(piece["Emph"]);
-        } else if (piece["Strong"]) {
-          // Strong object
-          // todo: implement properly
-          res += extractValues(piece["Strong"]);
-        } else if (piece["Link"]) {
-          console.log('piece["Link"]', piece["Link"]);
-          // link object
-          // todo: implement properly
-          res += extractValues(piece["Link"][0]) + ': ';
-          res += piece["Link"][1][0];
-        } else if (piece["Image"]) {
-          
-          if(res === ''){ // not supporting inline images at the moment
-            res =  {
-              "type": "image",
-              "data": {
-                  "alt": extractValues(piece["Image"][0]),
-                  "title": piece["Image"][1][1],
-                  "large_url": piece["Image"][1][0],
-                  "url": piece["Image"][1][0]
-             }
-            };
-          }
-
-        } else if (piece["RawInline"]) {
-          // link object
-          // todo: implement properly
-          res += piece["RawInline"][1];
-        } else if (piece["Str"]) {
-          // propably a Str object
-          res += piece["Str"];
-        } else{
-          res += extractValues(piece);
-        }
-
-      }else{
-
-        if (piece === "Space") {
-          res += " ";
-        } else if(piece === "LineBreak") {
-          res += "\n";
-        }
-      }
-
-    });
-
-    offset += res.length;
-    return res;
-  }
-
-  // takes the returned value and inserts it or calls callback
-  function processResult (result, cb) {
-    if(typeof result === 'object'){
-
-        result.id = result.type + ":" + getId();
-        result.target = ["figures", "back"];
-        doc.apply(["insert", result]);
-
-      } else {
-        cb();
-      }
-  }
-
-  // we loop through each converted element
-  _.each(elements, function(elem) {
-
-    // inspect element
-    if(typeof elem === 'object'){
-        var nodeType = _.first(Object.keys(elem));
-    } else {
-      // Some elements come as strings
-      var nodeType = elem;
-    }
-
-    // Headings
-    if (nodeType === 'Header') {
-      var result = extractValues(elem[nodeType][1]);
-      processResult (result, function () {
-        // Insert a new heading
-        doc.apply(["insert", {
-          "id": "heading:" + getId(),
-          "type": "heading",
-          "target": "back",
-          "data": {
-            "level": elem[nodeType][0],
-            "content": extractValues(elem[nodeType][1])
-          }
-        }])
-      });
-
-    // Text
-    } else if (nodeType === 'Para') {
-      var result = extractValues(elem[nodeType]);
-      processResult (result, function () {
-        // Insert a new text node
-        doc.apply(["insert", {
-          "id": "text:"+getId(),
-          "type": "text",
-          "target": "back",
-          "data": {
-            "content": extractValues(elem[nodeType])
-          }
-        }])
-      });
-
-    // Text
-    } else if (nodeType === 'Plain') {
-      // todo: implement
-      doc.apply(["insert", {
-        "id": "text:"+getId(),
-        "type": "text",
-        "target": "back",
-        "data": {
-          "subtype": "plain", // quick hack to find the nodes in the json later
-          "content": extractValues(elem[nodeType])
-        }
-      }]);
-
-    // List
-    } else if (nodeType === 'BulletList') {
-      // todo: implement properly
-      var list = "";
-      _.each(elem[nodeType], function (item) {
-        list += "* " + extractValues(item) + "\n";
-      });
-      doc.apply(["insert", {
-        "id": "text:"+getId(),
-        "type": "text",
-        "target": "back",
-        "data": {
-          "subtype": "list", // quick hack to find the nodes in the json later 
-          "content": list
-        }
-      }]);
-
-    // Raw
-    } else if (nodeType === 'RawBlock') {
-      // todo: implement
-      doc.apply(["insert", {
-        "id": "text:"+getId(),
-        "type": "text",
-        "target": "back",
-        "data": {
-          "subtype": "raw", // quick hack to find the nodes in the json later 
-          "content": elem[nodeType][1]
-        }
-      }]);
-
-     // Quote
-    } else if (nodeType === 'BlockQuote') {
-      // todo: implement
-      doc.apply(["insert", {
-        "type": "codeblock",
-        "target": ["figures", "back"],
-        "data": {
-          "content": extractValues(elem[nodeType])
-         }
-      }]);
-
-    // Code
-    } else if (nodeType === 'CodeBlock') {
-      // todo: implement properly
-      // Insert a new code node
-      doc.apply(["insert", {
-        "id": "codeblock:"+getId(),
-        "type": "codeblock",
-        "target": "back",
-        "data": {
-          "content": elem[nodeType][1]
-        }
-      }]);
-
-   // Hr?
-   } else if (nodeType === 'HorizontalRule') {
-      // todo: implement - but how?
-      doc.apply(["insert", {
-        "id": "text:"+getId(),
-        "type": "text",
-        "target": "back",
-        "data": {
-          "subtype": "hr", // quick hack to find the nodes in the json later
-          "content": '------------------------'
-        }
-      }]);
-
-      
-    } else {
-      // console.log('nodeType', nodeType);
-    }
-
-  });
-
-  cb(null, doc.toJSON());
-}
 
 function getFile(url, cb) {
+
   var parts = urlparser.parse(url),
       protocol;
 
@@ -265,6 +44,14 @@ function toPandoc(url, cb) {
     child = exec('pandoc -f markdown -t json',
       function (error, stdout, stderr) {
         if (error) return cb(err);
+          // var fs = require('fs');
+          // fs.writeFile("pandoc.json", stdout, function(err) {
+          //     if(err) {
+          //         console.log(err);
+          //     } else {
+          //         console.log("The file was saved!");
+          //     }
+          // });
         cb(null, JSON.parse(stdout));
     });
 
@@ -273,23 +60,248 @@ function toPandoc(url, cb) {
   });
 }
 
+// Convert pandoc JSON output into substanc format
+// Should output substance doc
+
+function transform(json, cb) {
+
+  var lastid = 0,
+      offset = 0;
+
+  function getId() {
+    lastid += 1;
+    return lastid;
+  }
+
+  var doc = new Document({id: "a_new_doc"}, docSchema);
+  var elements = json[1];
+
+  var fragments = [];
+  var offset = 0;
+  var annotations = {
+    "annotations": [],
+    "strong": [],
+    "emphasis": [],
+    "inline-code": [],
+    "link": [],
+    "idea": [],
+    "error": [],
+    "question": [],
+    "comment": []
+  };
+
+
+  // Process
+  // -------
+  
+  function process (node) {
+    var nodeType = '';
+
+    // inspect element
+    if(typeof node === 'object'){
+        if(Array.isArray(node)) {
+          
+          _.each(node, function (subNode){
+            process(subNode);
+          });
+
+        }else{
+          nodeType = _.first(Object.keys(node));
+        }
+    } else {
+      nodeType = node;
+    }
+
+    // Shared internal actions
+    // -----------------------
+
+    function processAtomic (str){
+      offset += str.length;
+      for (var ann in annotations) {
+        annotations[ann].push(str);
+      }
+      fragments.push(str);
+    }
+
+    function processInline (type){
+      annotations[type] = []; // reset
+      var start = offset;
+      var val = process(node[nodeType]);
+      console.log(type, val['annotations'][type]);
+    }
+
+    function processBlock (item) {
+      fragments = []; // reset
+      var res = process(item);
+      console.log(nodeType + '::', res['text'].join(''));
+    }
+
+    function processSimple (item) {
+      if(item){
+        fragments = [];
+        offset += item.length;
+        fragments.push(item);
+        console.log(nodeType + '::"', item, '"');
+      }
+    }
+
+    function processList (type) {
+      _.each(node[nodeType], function (li){
+        fragments = [];
+        switch (type) {
+          case 'bl':
+            res = process(li[0]['Plain']);
+            console.log('bl > li', res['text'].join(''));
+            break;
+
+          case 'ol':
+            // TODO: implement
+            // ..... needs a well formated example
+            break;
+
+          case 'ul':
+            // TODO: implement
+            // ..... needs example
+            break;
+        }
+      });
+    }
+
+    // console.log('typeof node', typeof node);
+    // console.log('node', node);
+
+    // Proceed Processing
+    // ------------------
+
+    switch (nodeType) {
+
+      // Atomic content
+      // --------------
+
+      case 'Str':
+        var str = node['Str'];
+        processAtomic(str);
+        break;
+             
+      case 'Space':
+        var str = ' ';
+        processAtomic(str);
+        break;
+
+      case 'LineBreak':
+        var str = '\n';
+        processAtomic(str);
+        break;
+
+
+      // Inline content
+      // ---------------
+
+      case 'Emph':
+        var annType = 'emphasis';
+        processInline(annType);
+        break;
+
+      case 'Strong':
+        var annType = 'strong';
+        processInline(annType);
+        break;
+
+      case 'Code':
+        var annType = 'inline-code';
+        processInline(annType);
+        break;
+
+      case 'Link':
+        var annType = 'link';
+        processInline(annType);
+        break;
+
+
+      // Block content
+      // -------------
+
+      case 'Header':
+        var item = node[nodeType][1];
+        processBlock(item);
+        break;
+
+      case 'Para':
+      case 'Plain':
+        var item = node[nodeType];
+        processBlock(item);
+        break;
+
+      case 'OrderedList':
+        processList('ol');
+        break;
+
+      case 'UnorderedList':
+        processList('ul');
+        break;
+
+      case 'BulletList':
+        processList('bl');
+        break;
+
+      case 'RawBlock':
+      case 'CodeBlock':
+        var item = node[nodeType][1];
+        processSimple(item);
+        break;
+
+      case 'BlockQuote':
+        // Find out why Para and if it always appears or further functionalities for BlockQuotes
+        var item = node[nodeType][0]['Para']; 
+        processBlock(item);
+        break;
+
+
+      case 'HorizontalRule':
+        fragments = [];
+        offset += 1;
+        fragments.push('------');
+        break;
+
+    
+      default:
+        // if(nodeType.length > 1)
+          // console.log('nodeType', nodeType);
+        // console.log('node', node);
+        break;
+
+    }
+    return {"text": fragments, "annotations": annotations};
+  }
+
+
+  _.each(elements, function (n) {
+    // console.log('BLOCK::', 
+      process(n);
+      // );
+  });
+
+  cb(null, doc.toJSON());
+}
 
 // Convert to SUBSTANCE
-// -------------
+// --------------------
+
+// _mql: https and github works perfectly for me! you should fix your issues ;)
+
+// var url = 'http://bywordapp.com/markdown/guide.md';
+var url = 'https://dl.dropboxusercontent.com/u/606131/gh-flavored.md';
+// var url = 'https://raw.github.com/michael/documents/master/2013-05-26-lens.md';
+// var url = 'https://raw.github.com/dtao/lazy.js/master/README.md';
+var doc = '';
+toPandoc(url, function(err, pandocAST) {
+  transform(pandocAST, function(err, substanceDoc) {
+    doc = substanceDoc; // dev mode executes without reloading the page
+  });
+});
 
 app.get('/', function(req, res) {
-  // _mql: https and github works perfectly for me! you should fix your issues ;)
-
-  // var url = 'http://bywordapp.com/markdown/guide.md';
-  // var url = 'https://dl.dropboxusercontent.com/u/606131/gh-flavored.md';
-  var url = 'https://raw.github.com/michael/documents/master/2013-05-26-lens.md';
-  // var url = 'https://raw.github.com/dtao/lazy.js/master/README.md';
-
-  toPandoc(url, function(err, pandocAST) {
-    convert(pandocAST, function(err, substanceDoc) {
-      res.jsonp(substanceDoc);
-    });
-  });
+  res.jsonp(doc);
 });
 
 app.listen(process.env.PORT || 5001);
