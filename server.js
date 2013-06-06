@@ -289,7 +289,7 @@ function transform(json, cb) {
 
       case 'RawBlock':
       case 'CodeBlock':
-        insert ('code', {
+        insert ('codeblock', {
           "lang": node[nodeType][0], 
           "content": processSimple(node[nodeType][1])
         }, ["figures", "back"]);
@@ -298,7 +298,7 @@ function transform(json, cb) {
       case 'BlockQuote':
         // Find out why Para and if it always appears or further functionalities for BlockQuotes
         // Needs nodetype in the Document
-        insert ('code', {
+        insert ('codeblock', {
           "subtype": "blocQuote",
           "content": processBlock(node[nodeType][0]['Para'])
         });
