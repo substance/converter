@@ -1,14 +1,11 @@
-
 var express = require('express'),
     fs = require('fs'),
     app = express(),
     _ = require('underscore'),
-    urlparser = require("url"),
-    Document = require('./lib/document/document'),
-    util = require('./lib/util/util'),
-    docSchema = require('./data/elife_schema');
+    urlparser = require("url");
 
-
+// Fetching file by this function instead of internal pandoc method
+// because of pandoc can't fetch files using https protocol
 function getFile(url, cb) {
 
   var parts = urlparser.parse(url),
@@ -28,42 +25,46 @@ function getFile(url, cb) {
       result += d.toString();
     });
     res.on('end', function() {
-      cb(null, result);
+    	console.log('processing')
+      cb(null,result);
     });
   }).on('error', function( e ) {
     cb(err);
   });
 }
 
-function toPandoc(url, cb) {
-
-  getFile(url, function(err, file) {
-    var exec = require('child_process').exec,
-        child;
-
-    child = exec('pandoc -f markdown -t json',
-      function (error, stdout, stderr) {
-        if (error) return cb(err);
-          // var fs = require('fs');
-          // fs.writeFile("pandoc.json", stdout, function(err) {
-          //     if(err) {
-          //         console.log(err);
-          //     } else {
-          //         console.log("The file was saved!");
-          //     }
-          // });
-        cb(null, JSON.parse(stdout));
-    });
-
-    child.stdin.write(file);
-    child.stdin.end();
+// Spawn pandoc child process, run callback
+// added some arguments for more capabilities 
+function toPandoc(url, from, to, cb) {
+	var spawn = require('child_process').spawn,
+    	args = [ '-f', from, '-t', to],
+    	result = '',
+    	error = '',
+      child;
+	getFile(url,function(err,res){
+  	child = spawn('pandoc',args);
+  	child.stdout.on('data', function (data) {
+    	result += data;
+  	});
+  	child.stderr.on('data', function (data) {
+    	error += data;
+  	});
+  	child.on('exit', function (code) {
+    	if (code != 0)
+      	return cb(new Error('pandoc exited with code ' + code + '.'));
+    	if (error)
+      	return cb(new Error(error));
+    	cb(null, result);
+  	});
+		child.stdin.write(res, 'utf8');
+  	child.stdin.end()
   });
 }
 
-// Convert pandoc JSON output into substanc format
+// Convert pandoc JSON output into substance format
 // Should output substance doc
 
-function transform(json, cb) {
+function transformIn(json, cb) {
 
   var lastid = 0,
       offset = 0;
@@ -73,7 +74,7 @@ function transform(json, cb) {
     return lastid;
   }
 
-  var doc = new Document({id: "a_new_doc"}, docSchema);
+  var doc = {}//new Document({id: "a_new_doc"}, docSchema);
   var elements = json[1];
 
   var fragments = [];
@@ -169,12 +170,12 @@ function transform(json, cb) {
 
     function insert (type, data, target) {
       var target = "back" || target;
-      doc.apply(["insert", {
+      /*doc.apply(["insert", {
         "id": type + ":" + getId(),
         "type": type,
         "target": target,
         "data": data
-      }]);
+      }]);*/
     }
 
 
@@ -344,7 +345,7 @@ function transform(json, cb) {
       process(n);
   });
 
-  cb(null, doc.toJSON());
+  cb(null, doc/*doc.toJSON()*/);
 }
 
 // Convert to SUBSTANCE
@@ -354,19 +355,19 @@ function transform(json, cb) {
 
 // var url = 'http://bywordapp.com/markdown/guide.md';
 // var url = 'https://dl.dropboxusercontent.com/u/606131/gh-flavored.md';
-var url = 'https://raw.github.com/michael/documents/master/2013-05-26-lens.md';
+//var url = 'https://raw.github.com/michael/documents/master/2013-05-26-lens.md';
 // var url = 'https://raw.github.com/dtao/lazy.js/master/README.md';
-// var url = 'https://dl.dropboxusercontent.com/u/606131/lens-intro.md';
+var url = 'https://dl.dropboxusercontent.com/u/606131/lens-intro.md';
 
 var doc = '';
-toPandoc(url, function(err, pandocAST) {
-  transform(pandocAST, function(err, substanceDoc) {
-    doc = substanceDoc; // dev mode executes without reloading the page
-  });
-});
 
 app.get('/', function(req, res) {
-  res.jsonp(doc);
+	console.log('started')
+	toPandoc(url, 'markdown', 'json', function(err, pandocAST) {
+		transformIn(pandocAST, function(err,result){
+			console.log(result)
+		});
+	});
 });
 
 app.listen(process.env.PORT || 5001);
