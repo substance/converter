@@ -54,7 +54,7 @@ function toPandoc(url, from, to, cb) {
       	return cb(new Error('pandoc exited with code ' + code + '.'));
     	if (error)
       	return cb(new Error(error));
-    	cb(null, result);
+    	cb(null, JSON.parse(result));
   	});
 		child.stdin.write(res, 'utf8');
   	child.stdin.end()
@@ -65,7 +65,7 @@ function toPandoc(url, from, to, cb) {
 // Should output substance doc
 
 function transformIn(json, cb) {
-
+	
   var lastid = 0,
       offset = 0;
 
@@ -74,9 +74,8 @@ function transformIn(json, cb) {
     return lastid;
   }
 
-  var doc = {}//new Document({id: "a_new_doc"}, docSchema);
+  var doc = {id: "a_new_doc"}//new Document({id: "a_new_doc"}, docSchema);
   var elements = json[1];
-
   var fragments = [];
   var offset = 0;
   var annotations = {
@@ -112,7 +111,7 @@ function transformIn(json, cb) {
     } else {
       nodeType = node;
     }
-
+		//console.log(nodeType)
     // Shared internal actions
     // -----------------------
 
@@ -170,12 +169,11 @@ function transformIn(json, cb) {
 
     function insert (type, data, target) {
       var target = "back" || target;
-      /*doc.apply(["insert", {
-        "id": type + ":" + getId(),
-        "type": type,
-        "target": target,
-        "data": data
-      }]);*/
+      var id = type+'_'+getId();
+      doc[id] = {type: type, id: id}
+      _.each(data, function(prop,key){
+      	doc[id][key] = prop;
+      })
     }
 
 
@@ -361,6 +359,11 @@ var url = 'https://dl.dropboxusercontent.com/u/606131/lens-intro.md';
 
 var doc = '';
 
+toPandoc(url, 'markdown', 'json', function(err, pandocJSON) {
+		transformIn(pandocJSON, function(err,result){
+			console.log(result)
+		});
+	});
 app.get('/', function(req, res) {
 	console.log('started')
 	toPandoc(url, 'markdown', 'json', function(err, pandocAST) {
