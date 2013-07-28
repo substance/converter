@@ -64,7 +64,7 @@ function toPandoc(url, from, to, cb) {
 // Convert pandoc JSON output into substance format
 // Should output substance doc
 
-function transformIn(json, cb) {
+function transformIn(json, doc_id, cb) {
 	
   var lastid = 0,
       offset = 0;
@@ -74,7 +74,7 @@ function transformIn(json, cb) {
     return lastid;
   }
 
-  var doc = {id: "a_new_doc"}//new Document({id: "a_new_doc"}, docSchema);
+  var doc = {id: doc_id};
   var elements = json[1];
   var fragments = [];
   var offset = 0;
@@ -89,7 +89,38 @@ function transformIn(json, cb) {
     "question": [],
     "comment": []
   };
-
+	
+	doc.nodes = {
+		document: {
+			type: "document",
+    	id: "document",
+    	views: [
+    		"content",
+      	"figures",
+      	"publications"
+    	],
+    	guid: doc_id,
+    	creator: "",
+    	title: "",
+    	abstract: "",
+    	keywords: []
+		},
+		content: {
+  		type: "view",
+    	id: "content",
+    	nodes: []
+ 	 	},
+ 	 	figures: {
+      type: "view",
+      id: "figures",
+      nodes: []
+    },
+    publications: {
+      type: "view",
+      id: "publications",
+      nodes: []
+    }
+	}
 
   // Process
   // -------
@@ -170,10 +201,16 @@ function transformIn(json, cb) {
     function insert (type, data, target) {
       var target = "back" || target;
       var id = type+'_'+getId();
-      doc[id] = {type: type, id: id}
+      doc.nodes[id] = {id: id, type: type}
+      /*console.log('type: ' + type + ', data: ' )
+      console.log(data)*/
       _.each(data, function(prop,key){
-      	doc[id][key] = prop;
+      	doc.nodes[id][key] = prop;
+      	/*console.log('plain data: ' + data)
+      	console.log('prop: ' +prop)
+      	console.log('key: ' +key)*/
       })
+      doc.nodes.content.nodes.push(id)
     }
 
 
@@ -253,7 +290,7 @@ function transformIn(json, cb) {
       case 'Header':
         insert ('heading', {
           "level": node[nodeType][0], 
-          "content": processBlock(node[nodeType][1])
+          "content": processBlock(node[nodeType][2])
         });
 
         break;
@@ -289,7 +326,7 @@ function transformIn(json, cb) {
       case 'RawBlock':
       case 'CodeBlock':
         insert ('codeblock', {
-          "lang": node[nodeType][0], 
+          "lang": node[nodeType][0][1][0], 
           "content": processSimple(node[nodeType][1])
         }, ["figures", "back"]);
         break;
@@ -342,8 +379,7 @@ function transformIn(json, cb) {
   _.each(elements, function (n) {
       process(n);
   });
-
-  cb(null, doc/*doc.toJSON()*/);
+  cb(null, doc);
 }
 
 // Convert to SUBSTANCE
@@ -360,7 +396,7 @@ var url = 'https://dl.dropboxusercontent.com/u/606131/lens-intro.md';
 var doc = '';
 
 toPandoc(url, 'markdown', 'json', function(err, pandocJSON) {
-		transformIn(pandocJSON, function(err,result){
+		transformIn(pandocJSON, 'a_new_doc', function(err,result){
 			console.log(result)
 		});
 	});
