@@ -1,6 +1,4 @@
-var express = require('express'),
-    fs = require('fs'),
-    app = express(),
+var fs = require('fs'),
     _ = require('underscore'),
     urlparser = require("url");
 
@@ -391,22 +389,18 @@ function transformIn(json, doc_id, cb) {
 // var url = 'https://dl.dropboxusercontent.com/u/606131/gh-flavored.md';
 //var url = 'https://raw.github.com/michael/documents/master/2013-05-26-lens.md';
 // var url = 'https://raw.github.com/dtao/lazy.js/master/README.md';
-var url = 'https://dl.dropboxusercontent.com/u/606131/lens-intro.md';
+//var url = 'https://dl.dropboxusercontent.com/u/606131/lens-intro.md';
 
 var doc = '';
 
-toPandoc(url, 'markdown', 'json', function(err, pandocJSON) {
-		transformIn(pandocJSON, 'a_new_doc', function(err,result){
-			console.log(result)
+function toSubstance(url,syntax,id,cb){
+	toPandoc(url, syntax, 'json', function(err, pandocJSON) {
+		transformIn(pandocJSON, id, function(err,result){
+			console.log('finished')
+			if (err)
+      	throw err;
+      cb(null, result)
 		});
 	});
-app.get('/', function(req, res) {
-	console.log('started')
-	toPandoc(url, 'markdown', 'json', function(err, pandocAST) {
-		transformIn(pandocAST, function(err,result){
-			console.log(result)
-		});
-	});
-});
-
-app.listen(process.env.PORT || 5001);
+}
+module.exports = toSubstance;

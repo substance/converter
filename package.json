@@ -12,7 +12,8 @@
   "dependencies": {
     "express": "3.0.x",
     "underscore": "1.4.x",
-    "xmlhttprequest": "1.5.0"
+    "xmlhttprequest": "1.5.0",
+    "jade": "*"
   },
   "devDependencies": {
     "nodemon": "*"
