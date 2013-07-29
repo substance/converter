@@ -4,24 +4,21 @@ var _ = require('underscore');
 var Document = require('substance-document');
 
 // Substance.Converter
-// ==========================================================================
-
-var Converter = function(pandocJSON) {
+// -------------------
+var Converter = function(pandocJSON,doc_id) {
   this.input = pandocJSON;
+  this.doc_id = doc_id || "foo_doc";
 };
 
 
 Converter.Prototype = function() {
 
   // Do the actual conversion
-  // ----------
-  // 
-
   this.convert = function() {
     var json = this.input;
-
+    var doc_id = this.doc_id;
     // The resulting Substance Doc
-    var doc = new Document({"id": "foo_doc"});
+    var doc = new Document({"id": this.doc_id});
 
     var lastid = 0,
         offset = 0;
@@ -46,29 +43,25 @@ Converter.Prototype = function() {
       "question": []
     };
 
-    // Process
-    // -------
-    
+    // Process nodes
     function process(node) {
       var nodeType = '';
       var lastNodeId;
 
       // inspect element
       if(typeof node === 'object'){
-          if(Array.isArray(node)) {
-            _.each(node, function (subNode){
-              process(subNode);
-            });
-          } else {
-            nodeType = _.first(Object.keys(node));
-          }
+        if(Array.isArray(node)) {
+          _.each(node, function (subNode){
+            process(subNode);
+          });
+        } else {
+          nodeType = _.first(Object.keys(node));
+        }
       } else {
         nodeType = node;
       }
 
       // Shared internal actions
-      // -----------------------
-
       function processAtomic (str){
         offset += str.length;
         for (var ann in annotations) {
@@ -81,6 +74,10 @@ Converter.Prototype = function() {
         annotations[type] = []; // reset
         var start = offset;
         var val = process(node[nodeType]);
+        var end = val['annotations'][type].join('').length;
+        var range = [start,end];
+        //insert(type,{
+        //});
         return val['annotations'][type];
       }
 
@@ -108,22 +105,22 @@ Converter.Prototype = function() {
               break;
 
             case 'ol':
-              // TODO: implement
-              // ..... needs a well formated example
+        			if(!_.isUndefined(li[0][0])){
+        				res = process(li[0][0]['Plain']);
+        				list += res['text'].join('') + '\n';
+        			}
               break;
 
             case 'ul':
-              // TODO: implement
-              // ..... needs example
+              res = process(li[0]['Plain']);
+              list += '* ' + res['text'].join('') + '\n';
               break;
           }
         });
         return list;
       }
 
-      // Test
-      // ---------------------
-
+      // Insert node into document
       function insert (type, data, target) {
         var id = type+'_'+getId();
         lastNodeId = id;
@@ -139,14 +136,10 @@ Converter.Prototype = function() {
       }
 
 
-      // Proceed Processing
-      // ------------------
-
+      // Proceed processing
       switch (nodeType) {
 
         // Atomic content
-        // --------------
-
         case 'Str':
           var str = node['Str'];
           processAtomic(str);
@@ -163,8 +156,6 @@ Converter.Prototype = function() {
           break;
 
         // Inline content
-        // ---------------
-
         case 'Emph':
           var annType = 'emphasis';
           processInline(annType);
@@ -176,8 +167,9 @@ Converter.Prototype = function() {
           break;
 
         case 'Code':
-          var annType = 'inline-code';
-          processInline(annType);
+          /*var annType = 'inline-code';
+          processInline(annType);*/
+          processSimple(node[nodeType][1])
           break;
 
         case 'Link':
@@ -198,8 +190,6 @@ Converter.Prototype = function() {
           break;
 
         // Block content
-        // -------------
-
         case 'Header':
           insert ('heading', {
             "level": node[nodeType][0], 
@@ -216,29 +206,29 @@ Converter.Prototype = function() {
           break;
 
         case 'OrderedList':
-          // insert ('text', {
-          //   "subtype": "ol",
-          //   "content": processList('ol')
-          // });
+          insert ('paragraph', {
+            "subtype": "ol",
+            "content": processList('ol')
+          });
           break;
 
         case 'UnorderedList':
-          // insert ('text', {
-          //   "subtype": "ul",
-          //   "content": processList('ul')
-          // });
+          insert ('paragraph', {
+            "subtype": "ul",
+            "content": processList('ul')
+          });
           break;
 
         case 'BulletList':
-          // insert ('text', {
-          //   "subtype": "bl",
-          //   "content": processList('bl')
-          // });
+          insert ('paragraph', {
+            "subtype": "bl",
+            "content": processList('bl')
+          });
           break;
 
         case 'RawBlock':
         case 'CodeBlock':
-          insert ('codeblock', {
+          insert ('paragraph', {
             "lang": node[nodeType][0][1][0],
             "content": processSimple(node[nodeType][1])
           }, ["figures", "back"]);

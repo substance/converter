@@ -8,18 +8,13 @@ app.configure(function() {
   app.use(express.bodyParser());
 });
 
-
-var url = 'https://dl.dropboxusercontent.com/u/606131/lens-intro.md';
-
 app.get('/', function(req, res) {
-	res.render('playground');
+  res.render('playground');
 });
 
 app.post('/tosubstance', function(req, res) {
-	console.log(req.body)
-	toSubstance(req.body.url, req.body.syntax, req.body.id,function(err,result){
-		console.log('got it!');
-		res.json(result);
+  toSubstance(req.body.url, req.body.syntax, req.body.id,function(err,result){
+    res.json(result);
 	});
 });
 
