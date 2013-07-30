@@ -21,11 +21,17 @@ Converter.Prototype = function() {
     var doc = new Document({"id": this.doc_id});
 
     var lastid = 0,
+        lastpid = 0,
         offset = 0;
 
     function getId() {
       lastid += 1;
       return lastid;
+    }
+    
+    function getPId() {
+      lastpid += 1;
+      return lastpid;
     }
 
     var elements = json[1];
@@ -74,10 +80,6 @@ Converter.Prototype = function() {
         annotations[type] = []; // reset
         var start = offset;
         var val = process(node[nodeType]);
-        var end = val['annotations'][type].join('').length;
-        var range = [start,end];
-        //insert(type,{
-        //});
         return val['annotations'][type];
       }
 
@@ -102,6 +104,7 @@ Converter.Prototype = function() {
             case 'bl':
               res = process(li[0]['Plain']);
               list += '* ' + res['text'].join('') + '\n';
+              console.log(res['text'].join(''))
               break;
 
             case 'ol':
@@ -122,9 +125,12 @@ Converter.Prototype = function() {
 
       // Insert node into document
       function insert (type, data, target) {
-        var id = type+'_'+getId();
+        if(type == 'paragraph') {
+          var id = type+'_'+getPId();
+        } else {
+          var id = type+'_'+getId();
+        }
         lastNodeId = id;
-
         // insert a new node
         var node = _.extend({
           id: id,
@@ -158,33 +164,44 @@ Converter.Prototype = function() {
         // Inline content
         case 'Emph':
           var annType = 'emphasis';
-          processInline(annType);
+          var start = offset;
+          var txt = processInline(annType);
+          var len = txt.length;
+          insert(annType,{
+          	"node": 'paragraph_' + (lastpid + 1),
+            "property": "content",
+            "range": [start, start + len]
+          });
           break;
 
         case 'Strong':
           var annType = 'strong';
-          processInline(annType);
+          var start = offset;
+          var txt = processInline(annType);
+          var len = txt.length;
+          insert(annType,{
+          	"node": 'paragraph_' + (lastpid + 1),
+            "property": "content",
+            "range": [start, start + len]
+          });
           break;
 
         case 'Code':
           /*var annType = 'inline-code';
           processInline(annType);*/
-          processSimple(node[nodeType][1])
+          processAtomic(node[nodeType][1])
           break;
 
         case 'Link':
           var annType = 'link';
           var start = offset;
-          var txt = processInline('link');
+          var txt = processInline(annType);
           var len = txt.length;
           var url = node["Link"][1][0];
-
-          doc.create({
-            "id": annType+"_" + getId(),
-            "type": annType,
-            "node": lastNodeId,
+          insert(annType,{
+          	"node": 'paragraph_' + (lastpid + 1),
             "property": "content",
-            "range": [start, len],
+            "range": [start, start + len],
             "url": url
           });
           break;
