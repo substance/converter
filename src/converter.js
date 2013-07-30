@@ -245,7 +245,7 @@ Converter.Prototype = function() {
 
         case 'RawBlock':
         case 'CodeBlock':
-          insert ('paragraph', {
+          insert ('codeblock', {
             "lang": node[nodeType][0][1][0],
             "content": processSimple(node[nodeType][1])
           }, ["figures", "back"]);
