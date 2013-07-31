@@ -54,10 +54,33 @@ function toPandoc(url, from, to, cb) {
       cb(null, JSON.parse(result));
     });
     child.stdin.write(res, 'utf8');
-    child.stdin.end()
+    child.stdin.end();
   });
 }
 
+function convertTo(source,from,to,cb) {
+  var spawn = require('child_process').spawn,
+      args = [ '-f', from, '-t', to],
+      result = '',
+      error = '',
+      child;
+  child = spawn('pandoc',args);
+  child.stdout.on('data', function (data) {
+    result += data;
+  });
+  child.stderr.on('data', function (data) {
+    error += data;
+  });
+  child.on('exit', function (code) {
+    if (code != 0)
+      return cb(new Error('pandoc exited with code ' + code + '.'));
+    if (error)
+      return cb(new Error(error));
+    cb(null, result);
+  });
+  child.stdin.write(source, 'utf8');
+  child.stdin.end();
+}
 
 // Convert to SUBSTANCE
 // --------------------
@@ -70,4 +93,14 @@ function toSubstance(url,syntax,id,cb){
     cb(null, converter.convert());
   });
 }
-module.exports = toSubstance;
+
+function fromSubstance(doc,syntax,cb){
+  var converter = new Converter(doc);
+  var json = JSON.stringify(converter.output());
+  convertTo(json,'json',syntax, function(err, output) {
+    cb(null, output);
+  })
+}
+
+exports.toSubstance = toSubstance;
+exports.fromSubstance = fromSubstance;

@@ -2,16 +2,89 @@
 
 var _ = require('underscore');
 var Document = require('substance-document');
+var Data = require('substance-data');
 
 // Substance.Converter
 // -------------------
-var Converter = function(pandocJSON,doc_id) {
-  this.input = pandocJSON;
+var Converter = function(input,doc_id) {
+  this.input = input;
   this.doc_id = doc_id || "foo_doc";
 };
 
 
 Converter.Prototype = function() {
+
+  this.output = function() {
+    var doc = this.input;
+    var nodesList = doc.get("content").nodes;
+    var content = [];
+    
+    // Process nodes
+    function process(node) {
+      var nodeType = node.type;
+      
+      function splitUp(node) {
+      
+        var regex = new RegExp('(\\.{3}|\\w+\\-\\w+|\\w+\'(?:\\w+)?\|\\w+|\s*)');
+        
+        function cleanUp(splitted) {
+          var result=[];//_.filter(splitted,function(str){return str!=''});
+          _.each(splitted,function(str){
+            if(str == ' '){
+              result.push('Space');
+            }
+            else if (str == ''){
+            }
+            else {
+              result.push({"Str":str});
+            }
+          });
+          return result;
+        }
+        return cleanUp(node.split(regex));
+      }
+      
+      function makeId(node) {
+        return node.replace(/['";:,.\/?\\-]/g, '').split(' ').join('-').toLowerCase();
+      }
+      
+      switch (nodeType) {
+        case 'paragraph':
+          var atomic = splitUp(node.content);
+          content.push({"Para":atomic});
+          break;
+        case 'heading':
+          var atomic = splitUp(node.content);
+          var id = makeId(node.content);
+          content.push({"Header":[node.level,[id,[],[]],atomic]});
+          break;
+        case 'codeblock':
+          break;
+        case 'image':
+          break;
+        case 'emphasis':
+          break;
+        case 'strong':
+          break;
+        default:
+          break;  
+      };
+
+    };
+    
+    _.each(nodesList, function(nodeid){
+    	var node = doc.get(nodeid);
+      process(node);
+    });
+    
+    content = [{
+      "docTitle": [],
+      "docAuthors": [],
+      "docDate": []
+    },content];
+    
+    return content;
+  };
 
   // Do the actual conversion
   this.convert = function() {
@@ -299,7 +372,6 @@ Converter.Prototype = function() {
     return doc;
   };
 };
-
 
 Converter.prototype = new Converter.Prototype();
 

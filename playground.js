@@ -1,6 +1,8 @@
 var express = require('express'),
     app = express(),
-    toSubstance = require('./server.js');
+    converter = require('./server.js'),
+    urlparser = require("url"),
+    Document = require('substance-document');
 
 app.configure(function() {
   app.set('views', __dirname + '/views');
@@ -13,14 +15,39 @@ app.get('/', function(req, res) {
 });
 
 app.post('/tosubstance', function(req, res) {
-  toSubstance(req.body.url, req.body.syntax, req.body.id,function(err,result){
+  converter.toSubstance(req.body.url, req.body.syntax, req.body.id,function(err,result){
     res.json(result);
+	});
+});
+
+app.post('/fromsubstance', function(req, res) {
+  var parts = urlparser.parse(req.body.url),
+      protocol;
+  if (parts.protocol === 'http:'){
+    protocol = require('http');
+  } else if(parts.protocol === 'https:') {
+    protocol = require('https');
+  }
+  protocol.get(req.body.url, function(result) {
+    var body = '';
+    result.on('data', function(chunk) {
+      body += chunk;
+    });
+    result.on('end', function() {
+      var json = JSON.parse(body),
+          doc = Document.fromSnapshot(json);
+      converter.fromSubstance(doc,req.body.syntax,function(err,resp) {
+        res.send(resp);
+      });
+    });
+  }).on('error', function(e) {
+    console.log("Got error: ", e);
 	});
 });
 
 app.get('/demo', function(req, res) {
   var url = "https://dl.dropboxusercontent.com/u/606131/lens-intro.md";
-  toSubstance(url, 'markdown', 'my-doc', function(err,doc) {
+  converter.toSubstance(url, 'markdown', 'my-doc', function(err,doc) {
     res.json(doc.toJSON());
   });
 });

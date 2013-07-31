@@ -11,4 +11,10 @@ html
 					option(value='markdown',selected='true') Markdown
 					option(value='html') HTML
 				input.submit(type='submit',value='Go!')
-		div.result
+		div.request
+			form(action='/fromsubstance',method='post',name='input')
+				input#url(type='url',size='100',name='url',value='https://raw.github.com/substance/substance/master/data/lorem_ipsum.json')
+				select#syntax(type='select',name='syntax')
+					option(value='markdown') Markdown
+					option(value='html',selected='true') HTML
+				input.submit(type='submit',value='Go!')
