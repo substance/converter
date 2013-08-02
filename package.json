@@ -13,7 +13,6 @@
     "substance-article": "git+https://github.com/substance/article.git#master",
     "express": "3.0.x",
     "request": "2.24.x",
-    "pandoc": "0.2.0",
     "underscore": "1.4.x",
     "xmlhttprequest": "1.5.0",
     "jade": "*"
