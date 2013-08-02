@@ -10,8 +10,7 @@
     "npm": "1.1.x"
   },
   "dependencies": {
-    "substance-document": "git+https://github.com/substance/document.git#master",
-    "substance-data": "git+https://github.com/substance/data.git#master",
+    "substance-article": "git+https://github.com/substance/article.git#master",
     "express": "3.0.x",
     "underscore": "1.4.x",
     "xmlhttprequest": "1.5.0",

@@ -1,8 +1,7 @@
 "use strict";
 
 var _ = require('underscore');
-var Document = require('substance-document');
-var Data = require('substance-data');
+var Article = require('substance-article');
 
 // Substance.Converter
 // -------------------
@@ -91,7 +90,7 @@ Converter.Prototype = function() {
     var json = this.input;
     var doc_id = this.doc_id;
     // The resulting Substance Doc
-    var doc = new Document({"id": this.doc_id});
+    var doc = new Article({"id": this.doc_id});
 
     var lastid = 0,
         lastpid = 0,
