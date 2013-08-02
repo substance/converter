@@ -2,7 +2,7 @@ var express = require('express'),
     app = express(),
     converter = require('./server.js'),
     urlparser = require("url"),
-    Document = require('substance-document');
+    Article = require('substance-article');
 
 app.configure(function() {
   app.set('views', __dirname + '/views');
@@ -35,7 +35,7 @@ app.post('/fromsubstance', function(req, res) {
     });
     result.on('end', function() {
       var json = JSON.parse(body),
-          doc = Document.fromSnapshot(json);
+          doc = new Article.fromJSON(json);
       converter.fromSubstance(doc,req.body.syntax,function(err,resp) {
         res.send(resp);
       });
