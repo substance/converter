@@ -5,7 +5,10 @@ var Article = require('substance-article');
 
 // Substance.Converter
 // -------------------
-var Converter = function(input,doc_id) {
+// 
+// Converts Pandoc Input to a Substance Article
+
+var Converter = function(input, doc_id) {
   this.input = input;
   this.doc_id = doc_id || "foo_doc";
 };
@@ -88,7 +91,10 @@ Converter.Prototype = function() {
   // Do the actual conversion
   this.convert = function() {
     var json = this.input;
+
+    console.log('CONVERTING....', json);
     var doc_id = this.doc_id;
+
     // The resulting Substance Doc
     var doc = new Article({"id": this.doc_id});
 
