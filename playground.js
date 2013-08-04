@@ -35,7 +35,7 @@ app.post('/fromsubstance', function(req, res) {
     });
     result.on('end', function() {
       var json = JSON.parse(body),
-          doc = new Article.fromJSON(json);
+          doc = new Article.fromSnapshot(json);
       converter.fromSubstance(doc,req.body.syntax,function(err,resp) {
         res.send(resp);
       });
