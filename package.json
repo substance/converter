@@ -2,7 +2,7 @@
   "name": "substance-transformer",
   "private": true,
   "dependencies": {
-    "substance-article": "git+https://github.com/substance/article.git#0.1.1",
+    "substance-article": "git+https://github.com/substance/article.git#master",
     "underscore": "1.5.x",
     "request": "2.24.x",
     "xmlhttprequest": "1.5.0"
@@ -14,7 +14,7 @@
   "scripts": {
     "start": "nodemon server.js"
   },
-  "version": "0.0.2",
+  "version": "0.0.1",
   "engines": {
     "node": ">=0.8.x",
     "npm": ">=1.1.x"
