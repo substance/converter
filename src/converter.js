@@ -20,10 +20,14 @@ Converter.Prototype = function() {
     var doc = this.input;
     var nodesList = doc.get("content").nodes;
     var content = [];
+    var offset = 0;
     
     // Process nodes
     function process(node) {
-      var nodeType = node.type;
+      var nodeType = node.properties.type;
+      if(node.properties.content){
+        offset += node.properties.content.length;
+      }
       
       function splitUp(node) {
       
@@ -52,13 +56,13 @@ Converter.Prototype = function() {
       
       switch (nodeType) {
         case 'paragraph':
-          var atomic = splitUp(node.content);
+          var atomic = splitUp(node.properties.content);
           content.push({"Para":atomic});
           break;
         case 'heading':
-          var atomic = splitUp(node.content);
+          var atomic = splitUp(node.properties.content);
           var id = makeId(node.content);
-          content.push({"Header":[node.level,[id,[],[]],atomic]});
+          content.push({"Header":[node.properties.level,[id,[],[]],atomic]});
           break;
         case 'codeblock':
           break;
