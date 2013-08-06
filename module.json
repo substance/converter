@@ -1,5 +1,5 @@
 {
-  "name": "substance-transformer",
+  "name": "substance-converter",
   "private": true,
   "dependencies": {
     "substance-article": "",
