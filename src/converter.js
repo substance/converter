@@ -60,7 +60,7 @@ Converter.Prototype = function() {
             currentWord = 0,
             annWord = 0;
         
-        function processAnn(contents,type) {
+        function processAnn(contents,annotation) {
           var ann = [];
           _.each(contents.split(''), function(ch, index) {
           	if(punctuations.contains(ch)) {
@@ -77,12 +77,26 @@ Converter.Prototype = function() {
             	if(contents[index+1] == ' ' || punctuations.contains(contents[index + 1])) annWord++;
           	}
 		    	});
-		    	switch (type) {
+		    	switch (annotation.type) {
 		    	  case 'strong':
+		    	    ann = {
+		    	      "Strong":ann
+              }
 		    	    break;
 		    	  case 'emphasis':
+		    	    ann = {
+		    	      "Emph":ann
+              }
+		    	    break;
+		    	  case 'link':
+		    	    ann = {
+		    	      "Link":[ann,[annotation.url,""]]
+              }
 		    	    break;
 		    	  default:
+		    	    ann = {
+		    	      "Emph":ann
+              }
 		    	    break;
 		    	}
 		    	annWord = 0;
@@ -97,12 +111,12 @@ Converter.Prototype = function() {
             var ann = annotations[annCounter];
             var annContent = node.properties.content.substr(ann.range[0],ann.range[1]-ann.range[0]);
             var type = ann.type;
-            var annObj = processAnn(annContent,type);
+            var annObj = processAnn(annContent,ann);
             ranges.splice(0,2);
             annCounter++;
             index += annContent.length;
             currentRange = ann.range[1];
-            result.push({"Emph":annObj});
+            result.push(annObj);
             currentWord++;
           } else {
             if(_.isNull(currentRange) || (index>=currentRange)){
