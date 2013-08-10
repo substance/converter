@@ -28,7 +28,7 @@ Converter.Prototype = function() {
     var doc = this.input,
         nodesList = doc.get("content").nodes,
         content = [],
-        punctuations = ',.;:"';
+        punctuations = ',.;:"?!';
     
     function getAnnotations(id){
       var anns = _.filter(doc.nodes,function(node){
@@ -46,11 +46,12 @@ Converter.Prototype = function() {
     function process(node) {
       var nodeType = node.properties.type;
 
-      function makeId(node) {
+      function makeHeaderId(node) {
         return node.replace(/['";:,.\/?\\-]/g, '').split(' ').join('-').toLowerCase();
       }
       
       function processNode(node) {
+        
         var result = [],
             annotations = getAnnotations(node.properties.id),
             currentWord = 0,
@@ -77,6 +78,7 @@ Converter.Prototype = function() {
             	if(contents[index+1] == ' ' || punctuations.contains(contents[index + 1])) annWord++;
           	}
 		    	});
+		    	
 		    	switch (annotation.type) {
 		    	  case 'strong':
 		    	    ann = {
@@ -105,13 +107,12 @@ Converter.Prototype = function() {
         
         _.each(node.properties.content.split(''), function(ch, index) {
           if(ranges.indexOf(index) != -1) {
-            var ann = annotations[annCounter];
-            var annContent = node.properties.content.substr(ann.range[0],ann.range[1]-ann.range[0]);
-            var type = ann.type;
-            var annObj = processAnn(annContent,ann);
+            var ann = annotations[annCounter],
+                annContent = node.properties.content.substr(ann.range[0],ann.range[1]-ann.range[0]),
+                type = ann.type,
+                annObj = processAnn(annContent,ann);
             ranges.splice(0,2);
             annCounter++;
-            index += annContent.length;
             currentRange = ann.range[1];
             result.push(annObj);
             currentWord++;
@@ -143,7 +144,7 @@ Converter.Prototype = function() {
           break;
         case 'heading':
           var atomic = processNode(node);
-          var id = makeId(node.content);
+          var id = makeHeaderId(node.content);
           content.push({"Header":[node.properties.level,[id,[],[]],atomic]});
           break;
         case 'codeblock':
@@ -151,6 +152,7 @@ Converter.Prototype = function() {
           content.push({"CodeBlock":[["",[],[]],node.properties.content]});
           break;
         case 'image':
+          content.push({"Para":[{"Image":[[],[node.properties.url,""]]}]});
           break;
         default:
           var atomic = processNode(node);
