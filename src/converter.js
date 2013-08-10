@@ -32,11 +32,11 @@ Converter.Prototype = function() {
     
     function getAnnotations(id){
       var anns = _.filter(doc.nodes,function(node){
-      	if(_.isUndefined(node.path)){
+        if(_.isUndefined(node.path)){
       	  return false;
-      	} else {
-      	  return node.path[0] == id;
-      	}
+        } else {
+          return node.path[0] == id;
+        }
       })
       if (_.isEmpty(anns)) return false;
       return anns;
@@ -64,45 +64,45 @@ Converter.Prototype = function() {
         function processAnn(contents,annotation) {
           var ann = [];
           _.each(contents.split(''), function(ch, index) {
-          	if(punctuations.contains(ch)) {
-            	ann.push({"Str":ch});
-            	annWord++
-          	}
-          	else if(ch == ' ') {
-            	ann.push('Space');
-            	annWord++
-          	}
-          	else {
-            	if(!ann[annWord]) ann[annWord] = {'Str':''};
-            	ann[annWord].Str += ch;
-            	if(contents[index+1] == ' ' || punctuations.contains(contents[index + 1])) annWord++;
-          	}
-		    	});
+            if(punctuations.contains(ch)) {
+              ann.push({"Str":ch});
+              annWord++
+            }
+            else if(ch == ' ') {
+              ann.push('Space');
+              annWord++
+            }
+            else {
+              if(!ann[annWord]) ann[annWord] = {'Str':''};
+              ann[annWord].Str += ch;
+              if(contents[index+1] == ' ' || punctuations.contains(contents[index + 1])) annWord++;
+            }
+	  });
 		    	
-		    	switch (annotation.type) {
-		    	  case 'strong':
-		    	    ann = {
-		    	      "Strong":ann
+          switch (annotation.type) {
+            case 'strong':
+              ann = {
+                "Strong":ann
               }
-		    	    break;
-		    	  case 'emphasis':
-		    	    ann = {
-		    	      "Emph":ann
+              break;
+            case 'emphasis':
+              ann = {
+                "Emph":ann
               }
-		    	    break;
-		    	  case 'link':
-		    	    ann = {
-		    	      "Link":[ann,[annotation.url,""]]
+              break;
+            case 'link':
+              ann = {
+                "Link":[ann,[annotation.url,""]]
               }
-		    	    break;
-		    	  default:
-		    	    ann = {
-		    	      "Emph":ann
+              break;
+            default:
+              ann = {
+                "Emph":ann
               }
-		    	    break;
-		    	}
-		    	annWord = 0;
-		    	return ann;
+              break;
+          }
+          annWord = 0;
+          return ann;
         } 
         
         _.each(node.properties.content.split(''), function(ch, index) {
@@ -133,8 +133,8 @@ Converter.Prototype = function() {
               }
             }
           }
-		    });
-		    return result;
+        });
+        return result;
       }
       
       switch (nodeType) {
@@ -159,7 +159,6 @@ Converter.Prototype = function() {
           content.push({"Para":atomic});
           break;  
       };
-
     };
     
     _.each(nodesList, function(nodeid){
