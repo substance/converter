@@ -302,7 +302,7 @@ Converter.Prototype = function() {
         }, data);
 
         doc.create(node);
-        doc.position("content", [id], -1);
+        doc.show("content", [id], -1);
       }
 
 
