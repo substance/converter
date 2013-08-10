@@ -96,7 +96,6 @@ Converter.Prototype = function() {
   this.convert = function() {
     var json = this.input;
 
-    console.log('CONVERTING....', json);
     var doc_id = this.doc_id;
 
     // The resulting Substance Doc
