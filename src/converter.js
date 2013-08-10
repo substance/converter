@@ -3,6 +3,14 @@
 var _ = require('underscore');
 var Article = require('substance-article');
 
+// A contains method has been added to Strings in Javascript 1.8.6:
+// https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String/contains
+if (typeof String.prototype.contains === 'undefined') { 
+  String.prototype.contains = function(ch) { 
+    return this.indexOf(ch) != -1; 
+  };
+}
+
 // Substance.Converter
 // -------------------
 // 
@@ -17,65 +25,140 @@ var Converter = function(input, doc_id) {
 Converter.Prototype = function() {
 
   this.output = function() {
-    var doc = this.input;
-    var nodesList = doc.get("content").nodes;
-    var content = [];
-    var offset = 0;
+    var doc = this.input,
+        nodesList = doc.get("content").nodes,
+        content = [],
+        punctuations = ',.;:"?!';
+    
+    function getAnnotations(id){
+      var anns = _.filter(doc.nodes,function(node){
+        if(_.isUndefined(node.path)){
+      	  return false;
+        } else {
+          return node.path[0] == id;
+        }
+      })
+      if (_.isEmpty(anns)) return false;
+      return anns;
+    }
     
     // Process nodes
     function process(node) {
       var nodeType = node.properties.type;
-      if(node.properties.content){
-        offset += node.properties.content.length;
+
+      function makeHeaderId(node) {
+        return node.replace(/['";:,.\/?\\-]/g, '').split(' ').join('-').toLowerCase();
       }
       
-      function splitUp(node) {
-      
-        var regex = new RegExp('(\\.{3}|\\w+\\-\\w+|\\w+\'(?:\\w+)?\|\\w+|\s*)');
+      function processNode(node) {
         
-        function cleanUp(splitted) {
-          var result=[];//_.filter(splitted,function(str){return str!=''});
-          _.each(splitted,function(str){
-            if(str == ' '){
-              result.push('Space');
+        var result = [],
+            annotations = getAnnotations(node.properties.id),
+            currentWord = 0,
+            annWord = 0,
+            ranges = _.flatten(_.pluck(annotations,'range')),
+            annCounter = 0,
+            currentRange = null;
+            
+        
+        function processAnn(contents,annotation) {
+          var ann = [];
+          _.each(contents.split(''), function(ch, index) {
+            if(punctuations.contains(ch)) {
+              ann.push({"Str":ch});
+              annWord++
             }
-            else if (str == ''){
+            else if(ch == ' ') {
+              ann.push('Space');
+              annWord++
             }
             else {
-              result.push({"Str":str});
+              if(!ann[annWord]) ann[annWord] = {'Str':''};
+              ann[annWord].Str += ch;
+              if(contents[index+1] == ' ' || punctuations.contains(contents[index + 1])) annWord++;
             }
           });
-          return result;
-        }
-        return cleanUp(node.split(regex));
-      }
-      
-      function makeId(node) {
-        return node.replace(/['";:,.\/?\\-]/g, '').split(' ').join('-').toLowerCase();
+		    	
+          switch (annotation.type) {
+            case 'strong':
+              ann = {
+                "Strong":ann
+              }
+              break;
+            case 'emphasis':
+              ann = {
+                "Emph":ann
+              }
+              break;
+            case 'link':
+              ann = {
+                "Link":[ann,[annotation.url,""]]
+              }
+              break;
+            default:
+              ann = {
+                "Emph":ann
+              }
+              break;
+          }
+          annWord = 0;
+          return ann;
+        } 
+        
+        _.each(node.properties.content.split(''), function(ch, index) {
+          if(ranges.indexOf(index) != -1) {
+            var ann = annotations[annCounter],
+                annContent = node.properties.content.substr(ann.range[0],ann.range[1]-ann.range[0]),
+                type = ann.type,
+                annObj = processAnn(annContent,ann);
+            ranges.splice(0,2);
+            annCounter++;
+            currentRange = ann.range[1];
+            result.push(annObj);
+            currentWord++;
+          } else {
+            if(_.isNull(currentRange) || (index>=currentRange)){
+              if(punctuations.contains(ch)) {
+                result.push({"Str":ch});
+                currentWord++;
+              }
+              else if(ch == ' ') {
+                result.push('Space');
+                currentWord++;
+              }
+              else {
+                if(!result[currentWord]) result[currentWord] = {'Str':''};
+                result[currentWord].Str += ch;
+                if(node.properties.content[index+1] == ' ' || punctuations.contains(node.properties.content[index + 1]) || ranges.indexOf(index + 1) != -1) currentWord++;
+              }
+            }
+          }
+        });
+        return result;
       }
       
       switch (nodeType) {
         case 'paragraph':
-          var atomic = splitUp(node.properties.content);
+          var atomic = processNode(node);
           content.push({"Para":atomic});
           break;
         case 'heading':
-          var atomic = splitUp(node.properties.content);
-          var id = makeId(node.content);
+          var atomic = processNode(node);
+          var id = makeHeaderId(node.content);
           content.push({"Header":[node.properties.level,[id,[],[]],atomic]});
           break;
         case 'codeblock':
+          var atomic = processNode(node);
+          content.push({"CodeBlock":[["",[],[]],node.properties.content]});
           break;
         case 'image':
-          break;
-        case 'emphasis':
-          break;
-        case 'strong':
+          content.push({"Para":[{"Image":[[],[node.properties.url,""]]}]});
           break;
         default:
+          var atomic = processNode(node);
+          content.push({"Para":atomic});
           break;  
       };
-
     };
     
     _.each(nodesList, function(nodeid){
