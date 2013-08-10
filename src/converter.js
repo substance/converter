@@ -25,11 +25,10 @@ var Converter = function(input, doc_id) {
 Converter.Prototype = function() {
 
   this.output = function() {
-    var doc = this.input;
-    var nodesList = doc.get("content").nodes;
-    var content = [];
-    var offset = 0;
-    var punctuations = ',.;:"';
+    var doc = this.input,
+        nodesList = doc.get("content").nodes,
+        content = [],
+        punctuations = ',.;:"';
     
     function getAnnotations(id){
       var anns = _.filter(doc.nodes,function(node){
@@ -46,10 +45,7 @@ Converter.Prototype = function() {
     // Process nodes
     function process(node) {
       var nodeType = node.properties.type;
-      if(node.properties.content){
-        offset += node.properties.content.length;
-      }
-      
+
       function makeId(node) {
         return node.replace(/['";:,.\/?\\-]/g, '').split(' ').join('-').toLowerCase();
       }
@@ -58,7 +54,11 @@ Converter.Prototype = function() {
         var result = [],
             annotations = getAnnotations(node.properties.id),
             currentWord = 0,
-            annWord = 0;
+            annWord = 0,
+            ranges = _.flatten(_.pluck(annotations,'range')),
+            annCounter = 0,
+            currentRange = null;
+            
         
         function processAnn(contents,annotation) {
           var ann = [];
@@ -103,9 +103,6 @@ Converter.Prototype = function() {
 		    	return ann;
         } 
         
-        var ranges = _.flatten(_.pluck(annotations,'range'))
-        var annCounter = 0;
-        var currentRange = null;
         _.each(node.properties.content.split(''), function(ch, index) {
           if(ranges.indexOf(index) != -1) {
             var ann = annotations[annCounter];
@@ -155,11 +152,9 @@ Converter.Prototype = function() {
           break;
         case 'image':
           break;
-        case 'emphasis':
-          break;
-        case 'strong':
-          break;
         default:
+          var atomic = processNode(node);
+          content.push({"Para":atomic});
           break;  
       };
 
