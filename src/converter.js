@@ -137,7 +137,7 @@ Converter.Prototype = function() {
           break;
         case 'codeblock':
           var atomic = processNode(node);
-          content.push({"Para":atomic});
+          content.push({"CodeBlock":[["",[],[]],node.properties.content]});
           break;
         case 'image':
           break;
