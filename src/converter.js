@@ -3,6 +3,14 @@
 var _ = require('underscore');
 var Article = require('substance-article');
 
+// A contains method has been added to Strings in Javascript 1.8.6:
+// https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String/contains
+if (typeof String.prototype.contains === 'undefined') { 
+  String.prototype.contains = function(ch) { 
+    return this.indexOf(ch) != -1; 
+  };
+}
+
 // Substance.Converter
 // -------------------
 // 
@@ -21,6 +29,19 @@ Converter.Prototype = function() {
     var nodesList = doc.get("content").nodes;
     var content = [];
     var offset = 0;
+    var punctuations = ',.;:"';
+    
+    function getAnnotations(id){
+      var anns = _.filter(doc.nodes,function(node){
+      	if(_.isUndefined(node.path)){
+      	  return false;
+      	} else {
+      	  return node.path[0] == id;
+      	}
+      })
+      if (_.isEmpty(anns)) return false;
+      return anns;
+    }
     
     // Process nodes
     function process(node) {
@@ -29,42 +50,94 @@ Converter.Prototype = function() {
         offset += node.properties.content.length;
       }
       
-      function splitUp(node) {
-      
-        var regex = new RegExp('(\\.{3}|\\w+\\-\\w+|\\w+\'(?:\\w+)?\|\\w+|\s*)');
-        
-        function cleanUp(splitted) {
-          var result=[];//_.filter(splitted,function(str){return str!=''});
-          _.each(splitted,function(str){
-            if(str == ' '){
-              result.push('Space');
-            }
-            else if (str == ''){
-            }
-            else {
-              result.push({"Str":str});
-            }
-          });
-          return result;
-        }
-        return cleanUp(node.split(regex));
-      }
-      
       function makeId(node) {
         return node.replace(/['";:,.\/?\\-]/g, '').split(' ').join('-').toLowerCase();
       }
       
+      function processNode(node) {
+        var result = [],
+            annotations = getAnnotations(node.properties.id),
+            currentWord = 0,
+            annWord = 0;
+        
+        function processAnn(contents,type) {
+          var ann = [];
+          _.each(contents.split(''), function(ch, index) {
+          	if(punctuations.contains(ch)) {
+            	ann.push({"Str":ch});
+            	annWord++
+          	}
+          	else if(ch == ' ') {
+            	ann.push('Space');
+            	annWord++
+          	}
+          	else {
+            	if(!ann[annWord]) ann[annWord] = {'Str':''};
+            	ann[annWord].Str += ch;
+            	if(contents[index+1] == ' ' || punctuations.contains(contents[index + 1])) annWord++;
+          	}
+		    	});
+		    	switch (type) {
+		    	  case 'strong':
+		    	    break;
+		    	  case 'emphasis':
+		    	    break;
+		    	  default:
+		    	    break;
+		    	}
+		    	annWord = 0;
+		    	return ann;
+        } 
+        
+        var ranges = _.flatten(_.pluck(annotations,'range'))
+        var annCounter = 0;
+        var currentRange = null;
+        _.each(node.properties.content.split(''), function(ch, index) {
+          if(ranges.indexOf(index) != -1) {
+            var ann = annotations[annCounter];
+            var annContent = node.properties.content.substr(ann.range[0],ann.range[1]-ann.range[0]);
+            var type = ann.type;
+            var annObj = processAnn(annContent,type);
+            ranges.splice(0,2);
+            annCounter++;
+            index += annContent.length;
+            currentRange = ann.range[1];
+            result.push({"Emph":annObj});
+            currentWord++;
+          } else {
+            if(_.isNull(currentRange) || (index>=currentRange)){
+              if(punctuations.contains(ch)) {
+                result.push({"Str":ch});
+                currentWord++;
+              }
+              else if(ch == ' ') {
+                result.push('Space');
+                currentWord++;
+              }
+              else {
+                if(!result[currentWord]) result[currentWord] = {'Str':''};
+                result[currentWord].Str += ch;
+                if(node.properties.content[index+1] == ' ' || punctuations.contains(node.properties.content[index + 1]) || ranges.indexOf(index + 1) != -1) currentWord++;
+              }
+            }
+          }
+		    });
+		    return result;
+      }
+      
       switch (nodeType) {
         case 'paragraph':
-          var atomic = splitUp(node.properties.content);
+          var atomic = processNode(node);
           content.push({"Para":atomic});
           break;
         case 'heading':
-          var atomic = splitUp(node.properties.content);
+          var atomic = processNode(node);
           var id = makeId(node.content);
           content.push({"Header":[node.properties.level,[id,[],[]],atomic]});
           break;
         case 'codeblock':
+          var atomic = processNode(node);
+          content.push({"Para":atomic});
           break;
         case 'image':
           break;
