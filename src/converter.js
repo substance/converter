@@ -77,7 +77,7 @@ Converter.Prototype = function() {
               ann[annWord].Str += ch;
               if(contents[index+1] == ' ' || punctuations.contains(contents[index + 1])) annWord++;
             }
-	  });
+          });
 		    	
           switch (annotation.type) {
             case 'strong':
