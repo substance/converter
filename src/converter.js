@@ -302,7 +302,15 @@ Converter.Prototype = function() {
         }, data);
 
         doc.create(node);
-        doc.show("content", [id], -1);
+
+        // Only add nodes of basetype 'content' to the content view
+        // --------
+
+        var baseType = doc.schema.baseType(node.type);
+
+        if (baseType === "content") {
+          doc.show("content", [id], -1);  
+        }
       }
 
 
@@ -331,8 +339,10 @@ Converter.Prototype = function() {
           var start = offset;
           var txt = processInline(annType);
           var len = txt.length;
+          var paraId = 'paragraph_' + (lastpid + 1);
+
           insert(annType,{
-          	"node": 'paragraph_' + (lastpid + 1),
+          	"path": [paraId, "content"],
             "property": "content",
             "range": [start, start + len]
           });
@@ -343,8 +353,10 @@ Converter.Prototype = function() {
           var start = offset;
           var txt = processInline(annType);
           var len = txt.length;
+          var paraId = 'paragraph_' + (lastpid + 1);
+
           insert(annType,{
-          	"node": 'paragraph_' + (lastpid + 1),
+          	"path": [paraId, "content"],
             "property": "content",
             "range": [start, start + len]
           });
@@ -362,9 +374,10 @@ Converter.Prototype = function() {
           var txt = processInline(annType);
           var len = txt.length;
           var url = node["Link"][1][0];
+
+          var paraId = 'paragraph_' + (lastpid + 1);
           insert(annType,{
-          	"node": 'paragraph_' + (lastpid + 1),
-            "property": "content",
+            "path": [paraId, "content"],
             "range": [start, start + len],
             "url": url
           });
