@@ -247,6 +247,7 @@ Converter.Prototype = function() {
 
       function processBlock (item, ins) {
         fragments = []; // reset
+        offset = 0;
         var res = process(item);
         return res['text'].join('');
       }
@@ -336,7 +337,7 @@ Converter.Prototype = function() {
           var annType = 'emphasis';
           var start = offset;
           var txt = processInline(annType);
-          var len = txt.length;
+          var len = txt.join('').length;
           var paraId = 'paragraph_' + (lastpid + 1);
 
           insert(annType,{
@@ -350,7 +351,7 @@ Converter.Prototype = function() {
           var annType = 'strong';
           var start = offset;
           var txt = processInline(annType);
-          var len = txt.length;
+          var len = txt.join('').length;
           var paraId = 'paragraph_' + (lastpid + 1);
 
           insert(annType,{
@@ -369,9 +370,8 @@ Converter.Prototype = function() {
         case 'Link':
           var annType = 'link';
           var start = offset;
-          console.log(start)
           var txt = processInline(annType);
-          var len = txt[0].length;
+          var len = txt.join('').length;
           var url = node["Link"][1][0];
 
           var paraId = 'paragraph_' + (lastpid + 1);
@@ -465,7 +465,6 @@ Converter.Prototype = function() {
           break;
 
       }
-      offset = 0;
       return {"text": fragments, "annotations": annotations};
     }
 
