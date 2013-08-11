@@ -186,7 +186,9 @@ Converter.Prototype = function() {
 
     var lastid = 0,
         lastpid = 0,
-        offset = 0;
+        offset = 0,
+        elements = json[1],
+        fragments = [];
 
     function getId() {
       lastid += 1;
@@ -197,10 +199,6 @@ Converter.Prototype = function() {
       lastpid += 1;
       return lastpid;
     }
-
-    var elements = json[1];
-    var fragments = [];
-    var offset = 0;
 
     var annotations = {
       "annotations": [],
@@ -371,8 +369,9 @@ Converter.Prototype = function() {
         case 'Link':
           var annType = 'link';
           var start = offset;
+          console.log(start)
           var txt = processInline(annType);
-          var len = txt.length;
+          var len = txt[0].length;
           var url = node["Link"][1][0];
 
           var paraId = 'paragraph_' + (lastpid + 1);
@@ -466,6 +465,7 @@ Converter.Prototype = function() {
           break;
 
       }
+      offset = 0;
       return {"text": fragments, "annotations": annotations};
     }
 
