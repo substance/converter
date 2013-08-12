@@ -1,0 +1,39 @@
+[
+    {
+        "docTitle": [],
+        "docAuthors": [],
+        "docDate": []
+    },
+    [
+        {
+            "Header": [
+                1,
+                [
+                    "heading",
+                    [],
+                    []
+                ],
+                [
+                    {
+                        "Str": "Heading"
+                    }
+                ]
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "And"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "paragraph"
+                }
+            ]
+        }
+    ]
+]

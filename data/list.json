@@ -1,0 +1,60 @@
+[
+    {
+        "docTitle": [],
+        "docAuthors": [],
+        "docDate": []
+    },
+    [
+        {
+            "BulletList": [
+                [
+                    {
+                        "Plain": [
+                            {
+                                "Str": "I"
+                            },
+                            "Space",
+                            {
+                                "Str": "am"
+                            },
+                            "Space",
+                            {
+                                "Str": "a"
+                            },
+                            "Space",
+                            {
+                                "Str": "listitem"
+                            }
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "Plain": [
+                            {
+                                "Str": "Me"
+                            },
+                            "Space",
+                            {
+                                "Str": "too"
+                            }
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "Plain": [
+                            {
+                                "Str": "Me"
+                            },
+                            "Space",
+                            {
+                                "Str": "three"
+                            }
+                        ]
+                    }
+                ]
+            ]
+        }
+    ]
+]
