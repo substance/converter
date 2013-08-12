@@ -9,35 +9,57 @@ var ImporterError = errors.define("ImporterError");
 var Importer = function() {
 };
 
+var State = function() {
+  // an id generator for different types
+  var ids = {};
+  this.nextId = function(type) {
+    ids[type] = ids[type] || 0;
+    ids[type]++;
+    return type +"_"+ids[type];
+  };
+
+  var stack = [];
+
+  this.current = function() {
+    return stack[stack.length-1];
+  };
+
+  this.push = function(node) {
+    stack.push(node);
+  };
+
+  this.pop = function() {
+    return stack.pop();
+  };
+
+  this.annotations = [];
+}
+
 Importer.Prototype = function() {
 
   this.import = function(input) {
-    var state = {};
-
-    // an id generator for different types
-    var ids = {};
-    state.nextId = function(type) {
-      ids[type] = ids[type] || 0;
-      ids[type]++;
-      return type +"_"+ids[type];
-    };
-
-    state.input = input;
-
+    var state = new State();
     return this.document(state, input);
   };
 
   this.document = function(state, input) {
     var meta = input[0];
     var doc = new Article({"id": meta.doc_id});
+    var idx;
 
     state.doc = doc;
 
     // all nodes on this level are inserted and shown
     var nodes = input[1];
-    for (var i = 0; i < nodes.length; i++) {
-      var node = this.topLevelNode(state, nodes[i]);
-      doc.show("content", node.id, i);
+    for (idx = 0; idx < nodes.length; idx++) {
+      var node = this.topLevelNode(state, nodes[idx]);
+      doc.show("content", node.id, idx);
+    }
+
+    // we are creating the annotations afterwards
+    // to be sure that the annotated nodes are registered already
+    for (idx = 0; idx < state.annotations.length; idx++) {
+      doc.create(state.annotations[idx]);
     }
 
     return doc;
@@ -79,15 +101,18 @@ Importer.Prototype = function() {
     var doc = state.doc;
 
     var level = input[0];
-    var content = this.text(state, input[2]);
-
     var id = state.nextId("header");
     var node = {
       id: id,
       type: "heading",
       level: level,
-      content: content
+      content: null
     };
+
+    state.push(node);
+    node.content = this.text(state, input[2]);
+    state.pop();
+
     return doc.create(node);
   };
 
@@ -111,14 +136,18 @@ Importer.Prototype = function() {
   */
   this.paragraph = function(state, input) {
     var doc = state.doc;
-    var content = this.text(state, input);
 
     var id = state.nextId("paragraph");
     var node = {
       id: id,
       type: "paragraph",
-      content: content
+      content: null
     };
+
+    state.push(node);
+    node.content = this.text(state, input);
+    state.pop();
+
     return doc.create(node);
   };
 
@@ -127,16 +156,25 @@ Importer.Prototype = function() {
   // --------
   //
 
-  this.text = function(state, textFragments) {
+  this.text = function(state, textFragments, startPos) {
     var result = [];
+    var pos = startPos || 0;
+
     for (var i = 0; i < textFragments.length; i++) {
       var item = textFragments[i];
 
       if (item === "Space") {
         result.push(" ");
+        pos++;
       }
-      else if (item["Str"] !== undefined) {
-        result.push(item["Str"]);
+      else if (item["Str"]) {
+        var str = item["Str"];
+        result.push(str);
+        pos += str.length;
+      } else if (item["Emph"] || item["Strong"]) {
+        var content = this.annotation(state, item, pos);
+        result.push(content);
+        pos += content.length;
       }
       else {
         throw new ImporterError("Unsupported fragment for textish: " + item);
@@ -144,6 +182,39 @@ Importer.Prototype = function() {
     }
 
     return result.join("");
+  };
+
+  this.annotation = function(state, input, startPos) {
+    var targetNode = state.current();
+    if (targetNode === undefined) {
+      throw new ImporterError("No target for annotation available");
+    }
+
+    var type;
+    var fragments;
+
+    if (input["Emph"]) {
+      type = "emphasis";
+      fragments = input["Emph"];
+    } else if (input["Strong"]) {
+      type = "strong";
+      fragments = input["Strong"];
+    }
+
+    var content = this.text(state, fragments, startPos);
+    var endPos = startPos + content.length;
+
+    var id = state.nextId(type);
+    var annotation = {
+      id: id,
+      type: type,
+      path: [targetNode.id, "content"],
+      range: [startPos, endPos]
+    };
+
+    state.annotations.push(annotation);
+
+    return content;
   };
 
 };
