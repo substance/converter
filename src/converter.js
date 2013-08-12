@@ -204,7 +204,7 @@ Converter.Prototype = function() {
       "annotations": [],
       "strong": [],
       "emphasis": [],
-      "inline-code": [],
+      "code": [],
       "link": [],
       "idea": [],
       "error": [],
@@ -355,9 +355,18 @@ Converter.Prototype = function() {
           break;
 
         case 'Code':
-          /*var annType = 'inline-code';
-          processInline(annType);*/
-          processAtomic(node[nodeType][1])
+          var annType = 'code';
+          var start = offset;
+          processAtomic(node[nodeType][1]);
+          var txt = node[nodeType][1];
+          var len = txt.length;
+          var paraId = 'paragraph_' + (lastpid + 1);
+
+          insert(annType,{
+          	"path": [paraId, "content"],
+            "property": "content",
+            "range": [start, start + len]
+          });
           break;
 
         case 'Link':
