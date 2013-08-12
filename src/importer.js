@@ -33,7 +33,29 @@ var State = function() {
   };
 
   this.annotations = [];
-}
+};
+
+var Annotations = {
+  "Emph": "emphasis",
+  "Strong": "strong"
+};
+
+var _isAnnotation = function(item) {
+  for(var id in Annotations) {
+    if(item[id] !== undefined) {
+      return true;
+    }
+  }
+  return false;
+};
+
+var _getAnnotationData = function(item) {
+  for(var id in Annotations) {
+    if(item[id] !== undefined) {
+      return {type: Annotations[id], fragments: item[id]};
+    }
+  }
+};
 
 Importer.Prototype = function() {
 
@@ -171,7 +193,8 @@ Importer.Prototype = function() {
         var str = item["Str"];
         result.push(str);
         pos += str.length;
-      } else if (item["Emph"] || item["Strong"]) {
+      }
+      else if (_isAnnotation(item)) {
         var content = this.annotation(state, item, pos);
         result.push(content);
         pos += content.length;
@@ -184,22 +207,20 @@ Importer.Prototype = function() {
     return result.join("");
   };
 
+  // Create an annotation that begins at the given startPos
+  // --------
+  //
+
   this.annotation = function(state, input, startPos) {
     var targetNode = state.current();
     if (targetNode === undefined) {
       throw new ImporterError("No target for annotation available");
     }
 
-    var type;
-    var fragments;
+    var data = _getAnnotationData(input);
 
-    if (input["Emph"]) {
-      type = "emphasis";
-      fragments = input["Emph"];
-    } else if (input["Strong"]) {
-      type = "strong";
-      fragments = input["Strong"];
-    }
+    var type = data.type;
+    var fragments = data.fragments;
 
     var content = this.text(state, fragments, startPos);
     var endPos = startPos + content.length;
