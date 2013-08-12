@@ -53,6 +53,10 @@ var ImporterTest = function () {
       var annotations = annotator.getAnnotations({node: "paragraph_1"});
       assert.isDefined(annotations["emphasis_1"]);
       assert.isDefined(annotations["strong_1"]);
+
+      assert.isArrayEqual(["paragraph_1", "content"], annotations["emphasis_1"].path);
+      assert.isArrayEqual([8, 17], annotations["emphasis_1"].range);
+    },
     }
   ];
 };
