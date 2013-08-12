@@ -33,7 +33,7 @@ Converter.Prototype = function() {
     function getAnnotations(id){
       var anns = _.filter(doc.nodes,function(node){
         if(_.isUndefined(node.path)){
-      	  return false;
+          return false;
         } else {
           return node.path[0] == id;
         }
@@ -78,7 +78,7 @@ Converter.Prototype = function() {
               if(contents[index+1] == ' ' || punctuations.contains(contents[index + 1])) annWord++;
             }
           });
-		    	
+          
           switch (annotation.type) {
             case 'strong':
               ann = {
@@ -162,7 +162,7 @@ Converter.Prototype = function() {
     };
     
     _.each(nodesList, function(nodeid){
-    	var node = doc.get(nodeid);
+      var node = doc.get(nodeid);
       process(node);
     });
     
@@ -261,29 +261,21 @@ Converter.Prototype = function() {
 
       function processList (type) {
         var list = '';
+        var listItems = [];
         _.each(node[nodeType], function (li){
-          fragments = [];
-          switch (type) {
-            case 'bl':
-              res = process(li[0]['Plain']);
-              list += '* ' + res['text'].join('') + '\n';
-              console.log(res['text'].join(''))
-              break;
+          var res = process(li[0]['Plain']);
 
-            case 'ol':
-        			if(!_.isUndefined(li[0][0])){
-        				res = process(li[0][0]['Plain']);
-        				list += res['text'].join('') + '\n';
-        			}
-              break;
+          // Store a new list item on the graph
+          var newItem = insert('listitem', {
+            "type": "listitem",
+            "level": 1, // quick hack
+            "content": res['text'].join('')
+          });
 
-            case 'ul':
-              res = process(li[0]['Plain']);
-              list += '* ' + res['text'].join('') + '\n';
-              break;
-          }
+          listItems.push(newItem.id);
         });
-        return list;
+
+        return listItems;
       }
 
       // Insert node into document
@@ -300,7 +292,7 @@ Converter.Prototype = function() {
           type: type
         }, data);
 
-        doc.create(node);
+        var newNode = doc.create(node);
 
         // Only add nodes of basetype 'content' to the content view
         // --------
@@ -310,6 +302,7 @@ Converter.Prototype = function() {
         if (baseType === "content") {
           doc.show("content", [id], -1);  
         }
+        return newNode;
       }
 
 
@@ -341,7 +334,7 @@ Converter.Prototype = function() {
           var paraId = 'paragraph_' + (lastpid + 1);
 
           insert(annType,{
-          	"path": [paraId, "content"],
+            "path": [paraId, "content"],
             "property": "content",
             "range": [start, start + len]
           });
@@ -355,7 +348,7 @@ Converter.Prototype = function() {
           var paraId = 'paragraph_' + (lastpid + 1);
 
           insert(annType,{
-          	"path": [paraId, "content"],
+            "path": [paraId, "content"],
             "property": "content",
             "range": [start, start + len]
           });
@@ -399,23 +392,23 @@ Converter.Prototype = function() {
           break;
 
         case 'OrderedList':
-          insert ('paragraph', {
-            "subtype": "ol",
-            "content": processList('ol')
+          insert ('list', {
+            "ordered": true,
+            "items": processList('ol')
           });
           break;
 
         case 'UnorderedList':
-          insert ('paragraph', {
-            "subtype": "ul",
-            "content": processList('ul')
+          insert ('list', {
+            "ordered": false,
+            "items": processList('ul')
           });
           break;
 
         case 'BulletList':
-          insert ('paragraph', {
-            "subtype": "bl",
-            "content": processList('bl')
+          insert ('list', {
+            "ordered": false,
+            "items": processList('bl')
           });
           break;
 
