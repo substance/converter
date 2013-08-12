@@ -1,0 +1,83 @@
+[
+    {
+        "docTitle": [],
+        "docAuthors": [],
+        "docDate": []
+    },
+    [
+        {
+            "Para": [
+                {
+                    "Str": "I"
+                },
+                "Space",
+                {
+                    "Str": "am"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "paragraph"
+                }
+            ]
+        },
+        {
+            "BulletList": [
+                [
+                    {
+                        "Plain": [
+                            {
+                                "Str": "List"
+                            },
+                            "Space",
+                            {
+                                "Str": "item"
+                            },
+                            "Space",
+                            {
+                                "Str": "1"
+                            }
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "Plain": [
+                            {
+                                "Str": "List"
+                            },
+                            "Space",
+                            {
+                                "Str": "item"
+                            },
+                            "Space",
+                            {
+                                "Str": "2"
+                            }
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "Plain": [
+                            {
+                                "Str": "List"
+                            },
+                            "Space",
+                            {
+                                "Str": "item"
+                            },
+                            "Space",
+                            {
+                                "Str": "3"
+                            }
+                        ]
+                    }
+                ]
+            ]
+        }
+    ]
+]
