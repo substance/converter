@@ -108,7 +108,7 @@ var ImporterTest = function () {
     },
 
     "Even nested Blockquotes are flattened.", function() {
-      var input = require("../data/block_quote.json");
+      var input = require("../data/nested_block_quotes.json");
 
       var doc = this.importer.import(input);
       var p1 = doc.get("paragraph_1");
@@ -119,6 +119,18 @@ var ImporterTest = function () {
       assert.isEqual("This is nested blockquote.", p2.content);
       assert.isEqual("Back to the first level.", p3.content);
       assert.isArrayEqual(["paragraph_1", "paragraph_2", "paragraph_3"], doc.get("content").nodes);
+    },
+
+    "Codeblock", function() {
+      var input = require("../data/paragraph_and_codeblock.json");
+
+      var doc = this.importer.import(input);
+      var p1 = doc.get("paragraph_1");
+      var c1 = doc.get("codeblock_1");
+
+      assert.isEqual("This is a normal paragraph:.", p1.content);
+      assert.isEqual("function foo() {\n  returb \"bar\";\n}", c1.content);
+      assert.isArrayEqual(["paragraph_1", "codeblock_1"], doc.get("content").nodes);
     },
 
     "Annotated List", function() {

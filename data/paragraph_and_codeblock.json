@@ -1,0 +1,42 @@
+[
+  {
+    "docTitle": [],
+    "docAuthors": [],
+    "docDate": []
+  },
+  [
+    {
+      "Para": [
+        {
+          "Str": "This"
+        },
+        "Space",
+        {
+          "Str": "is"
+        },
+        "Space",
+        {
+          "Str": "a"
+        },
+        "Space",
+        {
+          "Str": "normal"
+        },
+        "Space",
+        {
+          "Str": "paragraph:"
+        }
+      ]
+    },
+    {
+      "CodeBlock": [
+        [
+          "",
+          [],
+          []
+        ],
+        "function foo() {\n  returb \"bar\";\n}"
+      ]
+    }
+  ]
+]
