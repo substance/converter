@@ -151,11 +151,31 @@ var ImporterTest = function () {
 
       assert.isDefined(p);
       assert.isDefined(link);
-      assert.isEqual("linke", link.type);
+      assert.isEqual("link", link.type);
 
       assert.isEqual("This is an example inline link", p1.content);
       assert.isArrayEqual(["paragraph_1", "content"], link.path);
       assert.isArrayEqual([8, 18], link.range);
+      assert.isArrayEqual(["paragraph_1"], doc.get("content").nodes);
+    },
+
+    "Inline code is an annotation." function() {
+      var input = require("../data/inline_code.json");
+
+      var doc = this.importer.import(input);
+      var annotator = new Annotator(doc);
+      var annotations = annotator.getAnnotations();
+
+      var p = doc.get("paragraph_1");
+      var code = annotation.get("code_1");
+
+      assert.isDefined(p);
+      assert.isDefined(code);
+      assert.isEqual("code", code.type);
+
+      assert.isEqual("Don't call me foo(), fool", p1.content);
+      assert.isArrayEqual(["paragraph_1", "content"], code.path);
+      assert.isArrayEqual([14, 19], code.range);
       assert.isArrayEqual(["paragraph_1"], doc.get("content").nodes);
     },
 
