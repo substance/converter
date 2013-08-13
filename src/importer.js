@@ -1,6 +1,7 @@
 "use strict";
 
 var util = require("substance-util");
+var _ = require("underscore");
 var errors = util.errors;
 var Article = require("substance-article");
 
@@ -37,7 +38,8 @@ var State = function() {
 
 var Annotations = {
   "Emph": "emphasis",
-  "Strong": "strong"
+  "Strong": "strong",
+  "Link": "link"
 };
 
 var _isAnnotation = function(item) {
@@ -95,11 +97,21 @@ Importer.Prototype = function() {
       case "Header":
         return this.header(state, input["Header"]);
       case "Para":
-        return this.paragraph(state, input["Para"]);
+        if (!_.isUndefined(input["Para"][0].Image)) {
+          return this.image(state, input["Para"][0].Image);
+        }
+        else {
+          return this.paragraph(state, input["Para"]);
+        }
       case "BulletList":
-        return this.list(state, input["BulletList"]);
+        return this.list(state, input["BulletList"], false);
+      case "OrderedList":
+        return this.list(state, input["OrderedList"], true);
+      case "Image":
+        return this.image(state, input["Image"]);
       default:
-        throw new ImporterError("Node not supported: "+type);
+        console.log(type)
+        throw new ImporterError("Node not supported: " + type);
     }
 
   };
@@ -175,18 +187,40 @@ Importer.Prototype = function() {
 
     return doc.create(node);
   };
+  
+  this.image = function(state, input) {
+    var doc = state.doc;
 
-  this.list = function(state, input) {
+    var url = input[1][0];
+    var id = state.nextId("image");
+    var node = {
+      id: id,
+      type: "image",
+      content: null,
+      url: url
+    };
+
+    state.push(node);
+    state.pop();
+
+    return doc.create(node);
+  };
+
+  this.list = function(state, input, ordered) {
     var doc = state.doc;
 
     var id = state.nextId("list");
     var node = {
       id: id,
       type: "list",
-      items: []
+      items: [],
+      ordered: ordered
     };
 
     state.push(node);
+    if (ordered) {
+      input = input[1];
+    }
     for (var idx = 0; idx < input.length; idx++) {
       var itemInput = input[idx];
       if (itemInput.length !== 1) {
@@ -253,23 +287,31 @@ Importer.Prototype = function() {
     if (targetNode === undefined) {
       throw new ImporterError("No target for annotation available");
     }
-
+    var options = {};
+        
     var data = _getAnnotationData(input);
 
     var type = data.type;
-    var fragments = data.fragments;
+    
+    if(type == 'link') { 
+      var fragments = data.fragments[0];
+      options.url = data.fragments[1][0];
+    } 
+    else {
+      var fragments = data.fragments;
+    }
 
     var content = this.text(state, fragments, startPos);
     var endPos = startPos + content.length;
 
     var id = state.nextId(type);
-    var annotation = {
+    var annotation = _.extend({
       id: id,
       type: type,
       path: [targetNode.id, "content"],
       range: [startPos, endPos]
-    };
-
+    },options);
+    
     state.annotations.push(annotation);
 
     return content;

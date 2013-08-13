@@ -1,8 +1,10 @@
 var express = require('express'),
+    converter = require('./src/server.js'),    
     app = express(),
-    converter = require('./server.js'),
+    tester = new converter(app),
     urlparser = require("url"),
     Article = require('substance-article');
+
 
 app.configure(function() {
   app.set('views', __dirname + '/views');
@@ -51,5 +53,7 @@ app.get('/demo', function(req, res) {
     res.json(doc.toJSON());
   });
 });
+
+tester.serve();
 
 app.listen(process.env.PORT || 5001);
