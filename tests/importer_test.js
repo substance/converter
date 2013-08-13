@@ -133,6 +133,12 @@ var ImporterTest = function () {
       assert.isArrayEqual(["paragraph_1", "codeblock_1"], doc.get("content").nodes);
     },
 
+    "Horitontal rulers are ignored.", function() {
+      var input = require("../data/horizontal_ruler.json");
+      var doc = this.importer.import(input);
+      assert.isArrayEqual(["paragraph_1", "paragraph_2"], doc.get("content").nodes);
+    },
+
     "Annotated List", function() {
       var input = require("../data/annotated_list.json");
 
