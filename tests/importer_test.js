@@ -86,6 +86,37 @@ var ImporterTest = function () {
       assert.isEqual("List item 1", items[0].content);
       assert.isEqual("List item 2", items[1].content);
       assert.isEqual("List item 3", items[2].content);
+    },
+
+    "Annotated List", function() {
+      var input = require("../data/annotated_list.json");
+
+      var doc = this.importer.import(input);
+      var annotator = new Annotator(doc);
+
+      var l1 = doc.get("list_1");
+      var annotations = annotator.getAnnotations();
+
+      assert.isDefined(l1);
+      assert.isDefined(doc.get("paragraph_1"));
+      assert.isDefined(doc.get("paragraph_2"));
+      assert.isDefined(doc.get("paragraph_3"));
+      assert.isDefined(annotations["emphasis_1"]);
+      assert.isDefined(annotations["strong_1"]);
+
+      var p1 = doc.get("paragraph_1");
+      var p2 = doc.get("paragraph_2");
+      var p3 = doc.get("paragraph_3");
+      var e1 = annotations["emphasis_1"];
+      var s1 = annotations["strong_1"];
+
+      assert.isEqual("I am a listitem", p1.content);
+      assert.isEqual("Me too", p2.content);
+      assert.isEqual("Me three", p3.content);
+      assert.isArrayEqual(["paragraph_2", "content"], e1.path);
+      assert.isArrayEqual([3, 6], e1.range);
+      assert.isArrayEqual(["paragraph_3", "content"], s1.path);
+      assert.isArrayEqual([3, 8], s1.range);
     }
 
   ];
