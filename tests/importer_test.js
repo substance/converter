@@ -179,6 +179,25 @@ var ImporterTest = function () {
       assert.isArrayEqual(["paragraph_1"], doc.get("content").nodes);
     },
 
+    "Paragraph with Image.", function() {
+      var input = require("../data/paragraph_and_image.json");
+
+      var doc = this.importer.import(input);
+
+      var p1 = doc.get("paragraph_1");
+      var img = doc.get("image_1");
+      var p2 = doc.get("paragraph_2");
+
+      assert.isDefined(p1);
+      assert.isDefined(img);
+      assert.isDefined(p2);
+
+      assert.isEqual("This is paragraph 1.", p1.content);
+      assert.isEqual("http://backbonejs.org/docs/images/lens.png", img.url);
+      assert.isEqual("This is paragraph 2.", p1.content);
+      assert.isArrayEqual(["paragraph_1", "image_1", "paragraph_2"], doc.get("content").nodes);
+    },
+
     "Annotated List", function() {
       var input = require("../data/annotated_list.json");
 

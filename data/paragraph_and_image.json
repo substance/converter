@@ -1,0 +1,64 @@
+[
+  {
+    "docTitle": [],
+    "docAuthors": [],
+    "docDate": []
+  },
+  [
+    {
+      "Para": [
+        {
+          "Str": "This"
+        },
+        "Space",
+        {
+          "Str": "is"
+        },
+        "Space",
+        {
+          "Str": "paragraph"
+        },
+        "Space",
+        {
+          "Str": "1."
+        }
+      ]
+    },
+    {
+      "Para": [
+        {
+          "Image": [
+            [
+              {
+                "Str": "lens"
+              }
+            ],
+            [
+              "http://backbonejs.org/docs/images/lens.png",
+              "fig:"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Para": [
+        {
+          "Str": "This"
+        },
+        "Space",
+        {
+          "Str": "is"
+        },
+        "Space",
+        {
+          "Str": "paragraph"
+        },
+        "Space",
+        {
+          "Str": "2."
+        }
+      ]
+    }
+  ]
+]
