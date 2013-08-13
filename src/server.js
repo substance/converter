@@ -1,6 +1,7 @@
 "use strict";
 
 var Converter = require('./converter');
+var Importer = require('./importer');
 var urlparser = require("url");
 var request = require("request");
 var spawn = require('child_process').spawn;
@@ -87,8 +88,8 @@ Server.Prototype = function() {
     var that = this;
 
     if (inputFormat === "json" && outputFormat === "substance") {
-      var converter = new Converter(JSON.parse(input), 'converted_document');
-      cb(null, converter.convert());
+      var converter = new Importer();
+      cb(null, converter.import(JSON.parse(input)));
     } else if(inputFormat === "substance") {
       // Substance as an import format
       throw new Error('Soon.');
