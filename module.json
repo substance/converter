@@ -12,7 +12,8 @@
     "nodemon": "*",
     "express": "3.0.x",
     "mocha": "",
-    "substance-test": ""
+    "substance-test": "",
+    "substance-document": ""
   },
   "scripts": {
     "start": "nodemon server.js",
