@@ -9,7 +9,9 @@
   },
   "devDependencies": {
     "nodemon": "*",
-    "express": "3.0.x"
+    "express": "3.0.x",
+    "mocha": "",
+    "substance-test": ""
   },
   "scripts": {
     "start": "nodemon server.js",
