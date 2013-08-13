@@ -68,7 +68,26 @@ var ImporterTest = function () {
       assert.isEqual("I am a listitem", items[0].content);
       assert.isEqual("Me too", items[1].content);
       assert.isEqual("Me three", items[2].content);
+    },
+
+    "Paragraph and List", function() {
+      var input = require("../data/paragraph_and_list.json");
+
+      var doc = this.importer.import(input);
+      var p1 = doc.get("paragraph_1");
+      var l1 = doc.get("list_1");
+      var items = l1.items;
+
+      assert.isDefined(p1);
+      assert.isDefined(l1);
+      assert.isEqual(3, items.length);
+
+      assert.isEqual("I am a paragraph", p1.content);
+      assert.isEqual("List item 1", items[0].content);
+      assert.isEqual("List item 2", items[1].content);
+      assert.isEqual("List item 3", items[2].content);
     }
+
   ];
 };
 
