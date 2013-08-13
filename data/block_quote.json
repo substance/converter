@@ -1,0 +1,47 @@
+[
+  {
+    "docTitle": [],
+    "docAuthors": [],
+    "docDate": []
+  },
+  [
+    {
+      "BlockQuote": [
+        {
+          "Para": [
+            {
+              "Str": "This"
+            },
+            "Space",
+            {
+              "Str": "is"
+            },
+            "Space",
+            {
+              "Str": "a"
+            },
+            "Space",
+            {
+              "Str": "blockquote"
+            }
+          ]
+        },
+        {
+          "Para": [
+            {
+              "Str": "...with"
+            },
+            "Space",
+            {
+              "Str": "two"
+            },
+            "Space",
+            {
+              "Str": "paragraphs."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+]
