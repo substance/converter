@@ -11,10 +11,13 @@
   "devDependencies": {
     "nodemon": "*",
     "express": "3.3.x",
-    "jade": "*"
+    "mocha": "1.12.x",
+    "substance-test": "git+https://github.com/substance/test.git#0.2.x",
+    "substance-document": "git+https://github.com/substance/document.git#0.5.x"
   },
   "scripts": {
-    "start": "nodemon playground.js"
+    "start": "nodemon server.js",
+    "test": "mocha -R spec tests/run.js"
   },
   "version": "0.1.0",
   "engines": {
