@@ -12,7 +12,8 @@
     "express": "3.3.x"
   },
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "test": "mocha -R spec tests/run.js"
   },
   "version": "0.1.0",
   "engines": {
