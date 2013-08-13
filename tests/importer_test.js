@@ -28,13 +28,20 @@ var ImporterTest = function () {
 
       var h1 = doc.get("header_1");
       var p1 = doc.get("paragraph_1");
+      var h2 = doc.get("header_2");
+      var h3 = doc.get("header_3");
 
       assert.isDefined(h1);
       assert.isDefined(p1);
+      assert.isDefined(h2);
+      assert.isDefined(h3);
 
       assert.isEqual("Heading", h1.content);
       assert.isEqual("And a paragraph", p1.content);
-      assert.isArrayEqual(["header_1", "paragraph_1"], doc.get("content").nodes);
+      assert.isEqual(1, h1.level);
+      assert.isEqual(2, h2.level);
+      assert.isEqual(3, h3.level);
+      assert.isArrayEqual(["header_1", "paragraph_1", "header_2", "header_3"], doc.get("content").nodes);
     },
 
     "Annotated Paragraph", function() {

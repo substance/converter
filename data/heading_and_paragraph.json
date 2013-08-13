@@ -1,39 +1,77 @@
 [
+  {
+    "docTitle": [],
+    "docAuthors": [],
+    "docDate": []
+  },
+  [
     {
-        "docTitle": [],
-        "docAuthors": [],
-        "docDate": []
+      "Header": [
+        1,
+        [
+          "heading",
+          [],
+          []
+        ],
+        [
+          {
+            "Str": "Heading"
+          }
+        ]
+      ]
     },
-    [
+    {
+      "Para": [
         {
-            "Header": [
-                1,
-                [
-                    "heading",
-                    [],
-                    []
-                ],
-                [
-                    {
-                        "Str": "Heading"
-                    }
-                ]
-            ]
+          "Str": "And"
         },
+        "Space",
         {
-            "Para": [
-                {
-                    "Str": "And"
-                },
-                "Space",
-                {
-                    "Str": "a"
-                },
-                "Space",
-                {
-                    "Str": "paragraph"
-                }
-            ]
+          "Str": "a"
+        },
+        "Space",
+        {
+          "Str": "paragraph"
         }
-    ]
+      ]
+    },
+    {
+      "Header": [
+        2,
+        [
+          "heading-2",
+          [],
+          []
+        ],
+        [
+          {
+            "Str": "Heading"
+          },
+          "Space",
+          {
+            "Str": "2"
+          }
+        ]
+      ]
+    },
+    {
+      "Header": [
+        3,
+        [
+          "heading-3",
+          [],
+          []
+        ],
+        [
+          {
+            "Str": "Heading"
+          },
+          "Space",
+          {
+            "Str": "3"
+          }
+        ]
+      ]
+    }
+  ]
 ]
