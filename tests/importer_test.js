@@ -95,6 +95,32 @@ var ImporterTest = function () {
       assert.isEqual("List item 3", items[2].content);
     },
 
+    "Blockquotes are flattened into Paragraphs (for now)", function() {
+      var input = require("../data/block_quote.json");
+
+      var doc = this.importer.import(input);
+      var p1 = doc.get("paragraph_1");
+      var p2 = doc.get("paragraph_2");
+
+      assert.isEqual("This is a blockquote", p1.content);
+      assert.isEqual("...with two paragraphs.", p2.content);
+      assert.isArrayEqual(["paragraph_1", "paragraph_2"], doc.get("content").nodes);
+    },
+
+    "Even nested Blockquotes are flattened.", function() {
+      var input = require("../data/block_quote.json");
+
+      var doc = this.importer.import(input);
+      var p1 = doc.get("paragraph_1");
+      var p2 = doc.get("paragraph_2");
+      var p3 = doc.get("paragraph_3");
+
+      assert.isEqual("This is the first level of quoting.", p1.content);
+      assert.isEqual("This is nested blockquote.", p2.content);
+      assert.isEqual("Back to the first level.", p3.content);
+      assert.isArrayEqual(["paragraph_1", "paragraph_2", "paragraph_3"], doc.get("content").nodes);
+    },
+
     "Annotated List", function() {
       var input = require("../data/annotated_list.json");
 
