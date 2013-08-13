@@ -78,7 +78,7 @@ Importer.Prototype = function() {
     var nodes = input[1];
     for (idx = 0; idx < nodes.length; idx++) {
       var node = this.topLevelNode(state, nodes[idx]);
-      doc.show("content", node.id, idx);
+      if(node) doc.show("content", node.id, idx);
     }
 
     // we are creating the annotations afterwards
@@ -92,6 +92,9 @@ Importer.Prototype = function() {
 
 
   this.topLevelNode = function(state, input) {
+    if (input == 'HorizontalRule') {
+      return false;
+    }  
     var type = Object.keys(input)[0];
 
     switch(type) {
@@ -108,6 +111,8 @@ Importer.Prototype = function() {
         return this.codeblock(state, input["CodeBlock"]);
       case 'RawBlock':
         return this.rawblock(state, input["RawBlock"]);
+      case 'BlockQuote':
+        return this.blockquote(state, input["BlockQuote"]);
       case "BulletList":
         return this.list(state, input["BulletList"], false);
       case "OrderedList":
@@ -224,6 +229,26 @@ Importer.Prototype = function() {
     state.pop();
 
     return doc.create(node);
+  };
+  
+  this.blockquote = function(state, input) {
+    var doc = state.doc;
+    for (var idx = 0; idx < input.length; idx++) {
+      var itemInput = input[idx];
+      var quote;
+      if (itemInput["Para"]) {
+        quote = this.paragraph(state, itemInput["Para"]);
+        doc.nodes.content.nodes.push(quote.id);
+      }
+      else if (itemInput["BlockQuote"]) {
+        this.blockquote(state, itemInput["BlockQuote"]);
+      }
+      else {
+        throw new ImporterError("Node not supported as blockquote: " + JSON.stringify(quote));
+      }
+    }
+     
+    return false;
   };
   
   this.image = function(state, input) {
