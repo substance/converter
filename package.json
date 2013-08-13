@@ -16,7 +16,7 @@
     "substance-document": "git+https://github.com/substance/document.git#0.5.x"
   },
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "nodemon playground.js",
     "test": "mocha -R spec tests/run.js"
   },
   "version": "0.1.0",

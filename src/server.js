@@ -123,7 +123,7 @@ Server.Prototype = function() {
     // Should read input and output from the params
     this.app.get("/convert", function(req, res) {
       // Using provided input or defaults
-      var url = req.query.url || "http://raw.github.com/michael/documents/master/eventually-consistent.md";
+      var url = req.query.url || "https://raw.github.com/substance/docs/master/handbook.md";
       var inputFormat = req.query.in || "markdown";
       var outputFormat = req.query.out || "substance";
 

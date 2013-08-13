@@ -39,7 +39,8 @@ var State = function() {
 var Annotations = {
   "Emph": "emphasis",
   "Strong": "strong",
-  "Link": "link"
+  "Link": "link",
+  "Code": "code"
 };
 
 var _isAnnotation = function(item) {
@@ -103,6 +104,10 @@ Importer.Prototype = function() {
         else {
           return this.paragraph(state, input["Para"]);
         }
+      case "CodeBlock":
+        return this.codeblock(state, input["CodeBlock"]);
+      case 'RawBlock':
+        return this.rawblock(state, input["RawBlock"]);
       case "BulletList":
         return this.list(state, input["BulletList"], false);
       case "OrderedList":
@@ -110,7 +115,6 @@ Importer.Prototype = function() {
       case "Image":
         return this.image(state, input["Image"]);
       default:
-        console.log(type)
         throw new ImporterError("Node not supported: " + type);
     }
 
@@ -183,6 +187,40 @@ Importer.Prototype = function() {
 
     state.push(node);
     node.content = this.text(state, input);
+    state.pop();
+
+    return doc.create(node);
+  };
+  
+  this.rawblock = function(state, input) {
+    var doc = state.doc;
+
+    var id = state.nextId("paragraph");
+    var node = {
+      id: id,
+      type: "paragraph",
+      content: null
+    };
+
+    state.push(node);
+    node.content = input[1];
+    state.pop();
+
+    return doc.create(node);
+  };
+  
+  this.codeblock = function(state, input) {
+    var doc = state.doc;
+
+    var id = state.nextId("codeblock");
+    var node = {
+      id: id,
+      type: "codeblock",
+      content: null
+    };
+
+    state.push(node);
+    node.content = input[1];
     state.pop();
 
     return doc.create(node);
@@ -296,12 +334,17 @@ Importer.Prototype = function() {
     if(type == 'link') { 
       var fragments = data.fragments[0];
       options.url = data.fragments[1][0];
-    } 
+      var content = this.text(state, fragments, startPos);
+    }
+    else if(type == 'code') {
+      var fragments = data.fragments[1];
+      var content = fragments;
+    }
     else {
       var fragments = data.fragments;
+      var content = this.text(state, fragments, startPos);
     }
 
-    var content = this.text(state, fragments, startPos);
     var endPos = startPos + content.length;
 
     var id = state.nextId(type);
