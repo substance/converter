@@ -87,6 +87,7 @@ Importer.Prototype = function() {
     return doc;
   };
 
+
   this.topLevelNode = function(state, input) {
     var type = Object.keys(input)[0];
 
@@ -95,6 +96,8 @@ Importer.Prototype = function() {
         return this.header(state, input["Header"]);
       case "Para":
         return this.paragraph(state, input["Para"]);
+      case "BulletList":
+        return this.list(state, input["BulletList"]);
       default:
         throw new ImporterError("Node not supported: "+type);
     }
@@ -168,6 +171,40 @@ Importer.Prototype = function() {
 
     state.push(node);
     node.content = this.text(state, input);
+    state.pop();
+
+    return doc.create(node);
+  };
+
+  this.list = function(state, input) {
+    var doc = state.doc;
+
+    var id = state.nextId("list");
+    var node = {
+      id: id,
+      type: "list",
+      items: []
+    };
+
+    state.push(node);
+    for (var idx = 0; idx < input.length; idx++) {
+      var itemInput = input[idx];
+      if (itemInput.length !== 1) {
+        throw new ImporterError("Oops. Not ready for that. Can only handle one item per list item");
+      }
+      // TODO: find out why this is provided as array
+      itemInput = itemInput[0];
+
+      var listItem;
+
+      if (itemInput["Plain"]) {
+        listItem = this.paragraph(state, itemInput["Plain"]);
+      }
+      else {
+        throw new ImporterError("Node not supported as list item: " + JSON.stringify(itemInput));
+      }
+      node.items.push(listItem.id);
+    }
     state.pop();
 
     return doc.create(node);
