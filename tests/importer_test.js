@@ -153,7 +153,7 @@ var ImporterTest = function () {
       assert.isDefined(link);
       assert.isEqual("link", link.type);
 
-      assert.isEqual("This is an example inline link", p.content);
+      assert.isEqual("This is an example inline link.", p.content);
       assert.isArrayEqual(["paragraph_1", "content"], link.path);
       assert.isArrayEqual([8, 18], link.range);
       assert.isArrayEqual(["paragraph_1"], doc.get("content").nodes);
@@ -194,7 +194,7 @@ var ImporterTest = function () {
 
       assert.isEqual("This is paragraph 1.", p1.content);
       assert.isEqual("http://backbonejs.org/docs/images/lens.png", img.url);
-      assert.isEqual("This is paragraph 2.", p1.content);
+      assert.isEqual("This is paragraph 2.", p2.content);
       assert.isArrayEqual(["paragraph_1", "image_1", "paragraph_2"], doc.get("content").nodes);
     },
 
