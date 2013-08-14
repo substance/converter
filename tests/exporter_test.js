@@ -28,7 +28,17 @@ var ExporterTest = function () {
       var actual = this.exporter.export(doc);
 
       assert.isDeepEqual(expected[1], actual[1]);
+    },
+
+    "Annotated Paragraph", function() {
+      var expected = require("../data/annotated_paragraph.json");
+
+      var doc = this.importer.import(expected);
+      var actual = this.exporter.export(doc);
+
+      assert.isDeepEqual(expected[1], actual[1]);
     }
+
 
   ];
 };
