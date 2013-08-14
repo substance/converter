@@ -94,7 +94,7 @@ Importer.Prototype = function() {
   this.topLevelNode = function(state, input) {
     if (input == 'HorizontalRule') {
       return false;
-    }  
+    }
     var type = Object.keys(input)[0];
 
     switch(type) {
@@ -196,7 +196,7 @@ Importer.Prototype = function() {
 
     return doc.create(node);
   };
-  
+
   this.rawblock = function(state, input) {
     var doc = state.doc;
 
@@ -213,7 +213,7 @@ Importer.Prototype = function() {
 
     return doc.create(node);
   };
-  
+
   this.codeblock = function(state, input) {
     var doc = state.doc;
 
@@ -230,7 +230,7 @@ Importer.Prototype = function() {
 
     return doc.create(node);
   };
-  
+
   this.blockquote = function(state, input) {
     var doc = state.doc;
     for (var idx = 0; idx < input.length; idx++) {
@@ -247,10 +247,10 @@ Importer.Prototype = function() {
         throw new ImporterError("Node not supported as blockquote: " + JSON.stringify(quote));
       }
     }
-     
+
     return false;
   };
-  
+
   this.image = function(state, input) {
     var doc = state.doc;
 
@@ -351,12 +351,12 @@ Importer.Prototype = function() {
       throw new ImporterError("No target for annotation available");
     }
     var options = {};
-        
+
     var data = _getAnnotationData(input);
 
     var type = data.type;
-    
-    if(type == 'link') { 
+
+    if(type == 'link') {
       var fragments = data.fragments[0];
       options.url = data.fragments[1][0];
       var content = this.text(state, fragments, startPos);
@@ -379,7 +379,7 @@ Importer.Prototype = function() {
       path: [targetNode.id, "content"],
       range: [startPos, endPos]
     },options);
-    
+
     state.annotations.push(annotation);
 
     return content;

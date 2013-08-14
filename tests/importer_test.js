@@ -227,6 +227,46 @@ var ImporterTest = function () {
       assert.isArrayEqual([3, 6], e1.range);
       assert.isArrayEqual(["paragraph_3", "content"], s1.path);
       assert.isArrayEqual([3, 8], s1.range);
+    },
+
+    "Annotations in Nested Blockquotes", function() {
+      var input = require("../data/nested_block_quotes_with_annotations.json");
+
+      var doc = this.importer.import(input);
+      var annotator = new Annotator(doc);
+
+      var p1 = doc.get("paragraph_1");
+      var p2 = doc.get("paragraph_2");
+      var p3 = doc.get("paragraph_3");
+      var p4 = doc.get("paragraph_4");
+
+      var annotations = annotator.getAnnotations();
+      var e1 = annotations["emphasis_1"];
+      var s1 = annotations["strong_1"];
+      var e2 = annotations["emphasis_2"];
+      var e3 = annotations["emphasis_3"];
+
+      assert.isDefined(p1);
+      assert.isDefined(p2);
+      assert.isDefined(p3);
+      assert.isDefined(p4);
+      assert.isDefined(e1);
+      assert.isDefined(s1);
+      assert.isDefined(e2);
+      assert.isDefined(e3);
+
+      assert.isEqual("This is the first level of quoting.", p1.content);
+      assert.isEqual("This is nested blockquote.", p2.content);
+      assert.isEqual("And a another level is here.", p3.content);
+      assert.isEqual("Back to the first level.", p4.content);
+      assert.isArrayEqual(["paragraph_1", "content"], e1.path);
+      assert.isArrayEqual([18, 23], e1.range);
+      assert.isArrayEqual(["paragraph_2", "content"], s1.path);
+      assert.isArrayEqual([15, 25], s1.range);
+      assert.isArrayEqual(["paragraph_3", "content"], e2.path);
+      assert.isArrayEqual([6, 13], e2.range);
+      assert.isArrayEqual(["paragraph_4", "content"], e3.path);
+      assert.isArrayEqual([12, 17], e3.range);
     }
 
   ];
