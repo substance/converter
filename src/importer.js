@@ -220,7 +220,7 @@ Importer.Prototype = function() {
     var id = state.nextId("codeblock");
     var node = {
       id: id,
-      type: "codeblock",
+      "type": "codeblock",
       content: null
     };
 
@@ -238,7 +238,7 @@ Importer.Prototype = function() {
       var quote;
       if (itemInput["Para"]) {
         quote = this.paragraph(state, itemInput["Para"]);
-        doc.nodes.content.nodes.push(quote.id);
+        doc.show("content", quote.id, -1);
       }
       else if (itemInput["BlockQuote"]) {
         this.blockquote(state, itemInput["BlockQuote"]);
@@ -259,14 +259,32 @@ Importer.Prototype = function() {
     var node = {
       id: id,
       type: "image",
-      content: null,
+      caption: null,
       url: url
     };
 
     state.push(node);
+    if (!_.isEmpty(input[0])){
+    	node.caption = this.caption(state, input[0]);
+    }
     state.pop();
 
     return doc.create(node);
+  };
+  
+  this.caption = function(state, input) {
+    var doc = state.doc;
+    var id = state.nextId("caption");
+    var node = {
+      id: id,
+      type: "paragraph",
+      content: null
+    };
+    state.push(node);
+    node.content = this.text(state, input);
+    state.pop();
+    state.annotations.push(node);
+    return id;
   };
 
   this.list = function(state, input, ordered) {
