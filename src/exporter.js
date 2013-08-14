@@ -119,9 +119,12 @@ Exporter.Prototype = function() {
         if (i > 0) {
           context.push("Space");
         }
-        context.push({
-          "Str": words[i]
-        });
+        // Note: trailing spaces produce empty elements by the word split
+        if (words[i].length > 0) {
+          context.push({
+            "Str": words[i]
+          });
+        }
       }
     };
 
