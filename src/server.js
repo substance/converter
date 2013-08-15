@@ -2,6 +2,8 @@
 
 var Converter = require('./converter');
 var Importer = require('./importer');
+var Exporter = require('./exporter');
+var Article = require('substance-article');
 var urlparser = require("url");
 var request = require("request");
 var spawn = require('child_process').spawn;
@@ -91,8 +93,13 @@ Server.Prototype = function() {
       var converter = new Importer();
       cb(null, converter.import(JSON.parse(input)));
     } else if(inputFormat === "substance") {
-      // Substance as an import format
-      throw new Error('Soon.');
+      var converter = new Exporter();
+      var json = converter.export(input);
+      //cb(null,json);
+      this.pandoc(JSON.stringify(json), 'json', 'html', function(err, result) {
+        if (err) return cb(err);
+        return cb(null, result);
+      });
     } else {
 
       // Any input format that can be processed by Pandoc
@@ -129,6 +136,20 @@ Server.Prototype = function() {
 
       that.getFile(url, function(err, inputData) {
         that.convert(inputData, inputFormat, outputFormat, function(err, output) {
+          if (err) return res.send(500, err);
+          res.send(output);
+        });
+      });
+    });
+    this.app.get("/export", function(req, res) {
+      // Parsing file while debugging
+      var url = req.query.url || "https://raw.github.com/substance/substance/0.5.x/data/lorem_ipsum.json";
+      var inputFormat = "substance";
+      var outputFormat = req.query.out || "html";
+      that.getFile(url, function(err, inputData) {
+        var json = JSON.parse(inputData);
+        var doc = new Article.fromSnapshot(json);
+        that.convert(doc, inputFormat, outputFormat, function(err, output) {
           if (err) return res.send(500, err);
           res.send(output);
         });

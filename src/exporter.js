@@ -30,9 +30,9 @@ Exporter.Prototype = function() {
   this.export = function(article) {
     var output = [];
     var meta = {
-      "docTitle": [article.title],
-      "docAuthors": [article.creator],
-      "docDate": [article.created_at]
+      "docTitle": [],//[article.title],
+      "docAuthors": [],//[article.creator],
+      "docDate": []//[article.created_at]
     };
 
     output.push(meta);
