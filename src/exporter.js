@@ -61,6 +61,10 @@ Exporter.Prototype = function() {
         content.push(this.paragraph(state, node));
       } else if (node.type === "heading") {
         content.push(this.heading(state, node));
+      } else if (node.type == "codeblock") {
+        content.push(this.codeblock(state, node));
+      } else if (node.type == "image") {
+        content.push(this.image(state, node));
       }
     }
 
@@ -96,6 +100,46 @@ Exporter.Prototype = function() {
         node.level,
         meta,
         content
+      ]
+    };
+
+    return output;
+  };
+  
+  this.codeblock = function(state, node) {
+    var content = node.content;
+
+    var output = {
+      "CodeBlock": [
+        [
+          "",
+          [],
+          []
+        ],
+        content
+      ]
+    };
+
+    return output;
+  };
+  
+  this.image = function(state, node) {
+    if (node.caption != '') {
+      var content = this.paragraph(state,node.caption);
+    } else {
+      var content = { "Para": [] }
+    }
+    var output = {
+      "Para": [
+        {
+          "Image": [
+            content.Para,
+            [
+              node.url,
+              ""
+            ]
+          ]
+        }
       ]
     };
 
