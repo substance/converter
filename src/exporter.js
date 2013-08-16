@@ -9,7 +9,9 @@ var ExporterError = errors.define("ExporterError");
 
 var _annotations = [
   ["Emph", "emphasis"],
-  ["Strong", "strong"]
+  ["Strong", "strong"],
+  ["Code","code"],
+  ["Link","link"]
 ];
 
 var mapAnnotationType = function(type) {
@@ -65,6 +67,8 @@ Exporter.Prototype = function() {
         content.push(this.codeblock(state, node));
       } else if (node.type == "image") {
         content.push(this.image(state, node));
+      } else if (node.type == "list") {
+        content.push(this.list(state, node));
       }
     }
 
@@ -79,6 +83,19 @@ Exporter.Prototype = function() {
 
     var output = {
       "Para": content
+    };
+
+    return output;
+  };
+  
+  this.plain = function(state, node) {
+    var annotations = state.annotator.getAnnotations({node: node.id});
+
+    // recursive descent:
+    var content = this.annotated_text(state, node.content, annotations);
+
+    var output = {
+      "Plain": content
     };
 
     return output;
@@ -145,6 +162,29 @@ Exporter.Prototype = function() {
 
     return output;
   };
+  
+  this.list = function(state,node) {
+    var listItems = [];
+    if (node.items != []) {
+      for (var i = 0; i < node.items.length; i++) {
+        var content = this.plain(state,node.items[i]);
+        listItems.push([content]);
+      }
+    }
+    if (node.properties.ordered) {
+      var output = {
+        "OrderedList": [
+          [1,"Decimal","Period"],
+          listItems
+        ]
+      }
+    } else {
+      var output = {
+        "BulletList": listItems
+      }
+    }
+    return output;
+  };
 
   this.annotated_text = function(state, text, annotations) {
 
@@ -153,7 +193,9 @@ Exporter.Prototype = function() {
     var fragmenter = new Annotator.Fragmenter({
       levels : {
         "emphasis" : 1,
-        "strong": 1
+        "strong": 1,
+        "code": 1,
+        "link": 1
       }
     });
 
@@ -164,6 +206,7 @@ Exporter.Prototype = function() {
           context.push("Space");
         }
         // Note: trailing spaces produce empty elements by the word split
+        // Punctuation?
         if (words[i].length > 0) {
           context.push({
             "Str": words[i]
