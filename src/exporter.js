@@ -153,7 +153,7 @@ Exporter.Prototype = function() {
             content.Para,
             [
               node.url,
-              ""
+              "fig:"
             ]
           ]
         }
@@ -263,7 +263,6 @@ Exporter.Prototype = function() {
       return annotation[name];
     };
     fragmenter.start(fragments, text, annotations);
-    console.log(fragments)
     return fragments;
   };
 
