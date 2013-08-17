@@ -84,7 +84,7 @@ var ExporterTest = function () {
       assert.isDeepEqual(expected[1], actual[1]);
     },
 
-    "Paragraph with Image", function() {
+    "Paragraph with Image and caption", function() {
       var expected = require("../data/paragraph_and_image.json");
 
       var doc = this.importer.import(expected);
