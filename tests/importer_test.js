@@ -270,8 +270,22 @@ var ImporterTest = function () {
       assert.isArrayEqual([6, 13], e2.range);
       assert.isArrayEqual(["paragraph_4", "content"], e3.path);
       assert.isArrayEqual([12, 17], e3.range);
-    }
+    },
 
+    "Convert eLife Lens REAMDE", function() {
+      var input = require("../data/lens_readme.json");
+      console.log("MEEH", input);
+      var doc = this.importer.import(input);
+      var annotator = new Annotator(doc);
+
+
+      // TODO:
+      // Make some assertions
+      //   - how many elements
+      //   - all inline-code annotations at the right place?
+      //   - correct number of newlines in the codeblock etc.
+
+    },
   ];
 };
 

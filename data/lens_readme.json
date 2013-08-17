@@ -1,0 +1,2062 @@
+[
+    {
+        "docTitle": [],
+        "docAuthors": [],
+        "docDate": []
+    },
+    [
+        {
+            "Header": [
+                1,
+                [
+                    "lens",
+                    [],
+                    []
+                ],
+                [
+                    {
+                        "Str": "Lens"
+                    }
+                ]
+            ]
+        },
+        {
+            "CodeBlock": [
+                [
+                    "",
+                    [],
+                    []
+                ],
+                "####################################################################################\n##### Lens is currently undergoing a huge refactor in the `modularize` branch.\n##### The cutting edge build can be considered broken for next 1-2 weeks.\n#####\n#####  For a stable version check the `gh-pages` branch.\n####################################################################################"
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Strong": [
+                        {
+                            "Str": "eLife"
+                        },
+                        "Space",
+                        {
+                            "Str": "Lens"
+                        }
+                    ]
+                },
+                "Space",
+                {
+                    "Str": "provides"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "novel"
+                },
+                "Space",
+                {
+                    "Str": "way"
+                },
+                "Space",
+                {
+                    "Str": "of"
+                },
+                "Space",
+                {
+                    "Str": "looking"
+                },
+                "Space",
+                {
+                    "Str": "at"
+                },
+                "Space",
+                {
+                    "Str": "content"
+                },
+                "Space",
+                {
+                    "Str": "on"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "web."
+                },
+                "Space",
+                {
+                    "Str": "It"
+                },
+                "Space",
+                {
+                    "Str": "is"
+                },
+                "Space",
+                {
+                    "Str": "designed"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "make"
+                },
+                "Space",
+                {
+                    "Str": "life"
+                },
+                "Space",
+                {
+                    "Str": "easier"
+                },
+                "Space",
+                {
+                    "Str": "for"
+                },
+                "Space",
+                {
+                    "Str": "researchers,"
+                },
+                "Space",
+                {
+                    "Str": "reviewers,"
+                },
+                "Space",
+                {
+                    "Str": "authors"
+                },
+                "Space",
+                {
+                    "Str": "and"
+                },
+                "Space",
+                {
+                    "Str": "readers."
+                },
+                "Space",
+                {
+                    "Str": "For"
+                },
+                "Space",
+                {
+                    "Str": "example,"
+                },
+                "Space",
+                {
+                    "Str": "have"
+                },
+                "Space",
+                {
+                    "Str": "you"
+                },
+                "Space",
+                {
+                    "Str": "tried"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "look"
+                },
+                "Space",
+                {
+                    "Str": "at"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "figure"
+                },
+                "Space",
+                {
+                    "Str": "in"
+                },
+                "Space",
+                {
+                    "Str": "an"
+                },
+                "Space",
+                {
+                    "Str": "online"
+                },
+                "Space",
+                {
+                    "Str": "article,"
+                },
+                "Space",
+                {
+                    "Str": "while"
+                },
+                "Space",
+                {
+                    "Str": "at"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "same"
+                },
+                "Space",
+                {
+                    "Str": "time"
+                },
+                "Space",
+                {
+                    "Str": "trying"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "see"
+                },
+                "Space",
+                {
+                    "Str": "what"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "author"
+                },
+                "Space",
+                {
+                    "Str": "says"
+                },
+                "Space",
+                {
+                    "Str": "about"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "figure,"
+                },
+                "Space",
+                {
+                    "Str": "jumping"
+                },
+                "Space",
+                {
+                    "Str": "all"
+                },
+                "Space",
+                {
+                    "Str": "around"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "article,"
+                },
+                "Space",
+                {
+                    "Str": "losing"
+                },
+                "Space",
+                {
+                    "Str": "track"
+                },
+                "Space",
+                {
+                    "Str": "of"
+                },
+                "Space",
+                {
+                    "Str": "what"
+                },
+                "Space",
+                {
+                    "Str": "you"
+                },
+                "Space",
+                {
+                    "Str": "were"
+                },
+                "Space",
+                {
+                    "Str": "looking"
+                },
+                "Space",
+                {
+                    "Str": "for"
+                },
+                "Space",
+                {
+                    "Str": "in"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "first"
+                },
+                "Space",
+                {
+                    "Str": "place?"
+                },
+                "Space",
+                {
+                    "Str": "The"
+                },
+                "Space",
+                {
+                    "Str": "reason"
+                },
+                "Space",
+                {
+                    "Str": "for"
+                },
+                "Space",
+                {
+                    "Str": "this"
+                },
+                "Space",
+                {
+                    "Str": "is"
+                },
+                "Space",
+                {
+                    "Str": "that"
+                },
+                "Space",
+                {
+                    "Str": "most"
+                },
+                "Space",
+                {
+                    "Str": "online"
+                },
+                "Space",
+                {
+                    "Str": "research"
+                },
+                "Space",
+                {
+                    "Str": "articles"
+                },
+                "Space",
+                {
+                    "Str": "are"
+                },
+                "Space",
+                {
+                    "Str": "published"
+                },
+                "Space",
+                {
+                    "Str": "in"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "fixed"
+                },
+                "Space",
+                {
+                    "Str": "digital"
+                },
+                "Space",
+                {
+                    "Str": "version"
+                },
+                "Space",
+                {
+                    "Str": "of"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "original"
+                },
+                "Space",
+                {
+                    "Str": "paper."
+                },
+                "Space",
+                {
+                    "Str": "With"
+                },
+                "Space",
+                {
+                    "Str": "eLife"
+                },
+                "Space",
+                {
+                    "Str": "Lens,"
+                },
+                "Space",
+                {
+                    "Str": "we"
+                },
+                "Space",
+                {
+                    "Str": "take"
+                },
+                "Space",
+                {
+                    "Str": "full"
+                },
+                "Space",
+                {
+                    "Str": "advantage"
+                },
+                "Space",
+                {
+                    "Str": "of"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "internet’s"
+                },
+                "Space",
+                {
+                    "Str": "flexibility."
+                }
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "For"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "demo"
+                },
+                "Space",
+                {
+                    "Str": "and"
+                },
+                "Space",
+                {
+                    "Str": "more"
+                },
+                "Space",
+                {
+                    "Str": "information"
+                },
+                "Space",
+                {
+                    "Str": "see:"
+                },
+                "Space",
+                {
+                    "Str": "http://lens.elifesciences.org"
+                }
+            ]
+        },
+        {
+            "Header": [
+                3,
+                [
+                    "the-lens-article-format",
+                    [],
+                    []
+                ],
+                [
+                    {
+                        "Str": "The"
+                    },
+                    "Space",
+                    {
+                        "Str": "Lens"
+                    },
+                    "Space",
+                    {
+                        "Str": "Article"
+                    },
+                    "Space",
+                    {
+                        "Str": "Format"
+                    }
+                ]
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "The"
+                },
+                "Space",
+                {
+                    "Link": [
+                        [
+                            {
+                                "Str": "Lens"
+                            },
+                            "Space",
+                            {
+                                "Str": "Article"
+                            },
+                            "Space",
+                            {
+                                "Str": "Format"
+                            }
+                        ],
+                        [
+                            "http://github.com/elifesciences/lens-article",
+                            ""
+                        ]
+                    ]
+                },
+                "Space",
+                {
+                    "Str": "is"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "JSON"
+                },
+                "Space",
+                {
+                    "Str": "based"
+                },
+                "Space",
+                {
+                    "Str": "document"
+                },
+                "Space",
+                {
+                    "Str": "model"
+                },
+                "Space",
+                {
+                    "Str": "designed"
+                },
+                "Space",
+                {
+                    "Str": "for"
+                },
+                "Space",
+                {
+                    "Str": "representing"
+                },
+                "Space",
+                {
+                    "Str": "scientific"
+                },
+                "Space",
+                {
+                    "Str": "content."
+                },
+                "Space",
+                {
+                    "Str": "It"
+                },
+                "Space",
+                {
+                    "Str": "features"
+                },
+                "Space",
+                {
+                    "Str": "basic"
+                },
+                "Space",
+                {
+                    "Str": "content"
+                },
+                "Space",
+                {
+                    "Str": "types"
+                },
+                "Space",
+                {
+                    "Str": "such"
+                },
+                "Space",
+                {
+                    "Str": "as"
+                },
+                "Space",
+                {
+                    "Str": "paragraphs,"
+                },
+                "Space",
+                {
+                    "Str": "headings,"
+                },
+                "Space",
+                {
+                    "Str": "and"
+                },
+                "Space",
+                {
+                    "Str": "various"
+                },
+                "Space",
+                {
+                    "Str": "figure"
+                },
+                "Space",
+                {
+                    "Str": "types"
+                },
+                "Space",
+                {
+                    "Str": "such"
+                },
+                "Space",
+                {
+                    "Str": "as"
+                },
+                "Space",
+                {
+                    "Str": "images,"
+                },
+                "Space",
+                {
+                    "Str": "tables"
+                },
+                "Space",
+                {
+                    "Str": "and"
+                },
+                "Space",
+                {
+                    "Str": "videos"
+                },
+                "Space",
+                {
+                    "Str": "complete"
+                },
+                "Space",
+                {
+                    "Str": "with"
+                },
+                "Space",
+                {
+                    "Str": "captions"
+                },
+                "Space",
+                {
+                    "Str": "and"
+                },
+                "Space",
+                {
+                    "Str": "cross-references."
+                }
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "We're"
+                },
+                "Space",
+                {
+                    "Str": "working"
+                },
+                "Space",
+                {
+                    "Str": "on"
+                },
+                "Space",
+                {
+                    "Str": "releasing"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "first"
+                },
+                "Space",
+                {
+                    "Str": "official"
+                },
+                "Space",
+                {
+                    "Str": "verison"
+                },
+                "Space",
+                {
+                    "Str": "of"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "spec."
+                }
+            ]
+        },
+        {
+            "Header": [
+                3,
+                [
+                    "install",
+                    [],
+                    []
+                ],
+                [
+                    {
+                        "Str": "Install"
+                    }
+                ]
+            ]
+        },
+        {
+            "OrderedList": [
+                [
+                    1,
+                    "Decimal",
+                    "Period"
+                ],
+                [
+                    [
+                        {
+                            "Plain": [
+                                {
+                                    "Str": "Install"
+                                },
+                                "Space",
+                                {
+                                    "Str": "the"
+                                },
+                                "Space",
+                                {
+                                    "Str": "Substance"
+                                },
+                                "Space",
+                                {
+                                    "Str": "Screwdriver"
+                                },
+                                "Space",
+                                {
+                                    "Str": "command"
+                                },
+                                "Space",
+                                {
+                                    "Str": "line"
+                                },
+                                "Space",
+                                {
+                                    "Str": "utility"
+                                }
+                            ]
+                        }
+                    ]
+                ]
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Code": [
+                        [
+                            "",
+                            [],
+                            []
+                        ],
+                        "bash    $ git clone https://github.com/substance/screwdriver.git    $ cd screwdriver    $ sudo python setup.py install"
+                    ]
+                }
+            ]
+        },
+        {
+            "OrderedList": [
+                [
+                    2,
+                    "Decimal",
+                    "Period"
+                ],
+                [
+                    [
+                        {
+                            "Plain": [
+                                {
+                                    "Str": "Clone"
+                                },
+                                "Space",
+                                {
+                                    "Str": "the"
+                                },
+                                "Space",
+                                {
+                                    "Str": "repository"
+                                }
+                            ]
+                        }
+                    ]
+                ]
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Code": [
+                        [
+                            "",
+                            [],
+                            []
+                        ],
+                        "bash    $ git clone https://github.com/elifesciences/lens.git"
+                    ]
+                }
+            ]
+        },
+        {
+            "OrderedList": [
+                [
+                    3,
+                    "Decimal",
+                    "Period"
+                ],
+                [
+                    [
+                        {
+                            "Plain": [
+                                {
+                                    "Str": "Run"
+                                },
+                                "Space",
+                                {
+                                    "Str": "the"
+                                },
+                                "Space",
+                                {
+                                    "Str": "update"
+                                },
+                                "Space",
+                                {
+                                    "Str": "command,"
+                                },
+                                "Space",
+                                {
+                                    "Str": "which"
+                                },
+                                "Space",
+                                {
+                                    "Str": "pulls"
+                                },
+                                "Space",
+                                {
+                                    "Str": "in"
+                                },
+                                "Space",
+                                {
+                                    "Str": "all"
+                                },
+                                "Space",
+                                {
+                                    "Str": "the"
+                                },
+                                "Space",
+                                {
+                                    "Str": "dependencies"
+                                }
+                            ]
+                        }
+                    ]
+                ]
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Code": [
+                        [
+                            "",
+                            [],
+                            []
+                        ],
+                        "bash    $ cd lens    $ substance --update"
+                    ]
+                }
+            ]
+        },
+        {
+            "OrderedList": [
+                [
+                    4,
+                    "Decimal",
+                    "Period"
+                ],
+                [
+                    [
+                        {
+                            "Plain": [
+                                {
+                                    "Str": "Finally"
+                                },
+                                "Space",
+                                {
+                                    "Str": "start"
+                                },
+                                "Space",
+                                {
+                                    "Str": "the"
+                                },
+                                "Space",
+                                {
+                                    "Str": "server"
+                                },
+                                "Space",
+                                {
+                                    "Str": "and"
+                                },
+                                "Space",
+                                {
+                                    "Str": "point"
+                                },
+                                "Space",
+                                {
+                                    "Str": "your"
+                                },
+                                "Space",
+                                {
+                                    "Str": "browser"
+                                },
+                                "Space",
+                                {
+                                    "Str": "to"
+                                },
+                                "Space",
+                                {
+                                    "Code": [
+                                        [
+                                            "",
+                                            [],
+                                            []
+                                        ],
+                                        "http://localhost:4000"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                ]
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Code": [
+                        [
+                            "",
+                            [],
+                            []
+                        ],
+                        "bash    $ substance"
+                    ]
+                }
+            ]
+        },
+        {
+            "Header": [
+                3,
+                [
+                    "participating-and-contributing",
+                    [],
+                    []
+                ],
+                [
+                    {
+                        "Str": "Participating"
+                    },
+                    "Space",
+                    {
+                        "Str": "and"
+                    },
+                    "Space",
+                    {
+                        "Str": "Contributing"
+                    }
+                ]
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "Participation"
+                },
+                "Space",
+                {
+                    "Str": "is"
+                },
+                "Space",
+                {
+                    "Str": "highly"
+                },
+                "Space",
+                {
+                    "Str": "encouraged."
+                }
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "To"
+                },
+                "Space",
+                {
+                    "Str": "suggest"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "feature,"
+                },
+                "Space",
+                {
+                    "Str": "report"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "bug:"
+                },
+                "Space",
+                {
+                    "Str": "http://github.com/elifesciences/lens/issues/"
+                }
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "For"
+                },
+                "Space",
+                {
+                    "Str": "general"
+                },
+                "Space",
+                {
+                    "Str": "discussion"
+                },
+                "Space",
+                {
+                    "Str": "join"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "mailing"
+                },
+                "Space",
+                {
+                    "Str": "list/web"
+                },
+                "Space",
+                {
+                    "Str": "forum:"
+                },
+                "Space",
+                {
+                    "Str": "https://groups.google.com/forum/#!forum/elife-lens"
+                }
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "To"
+                },
+                "Space",
+                {
+                    "Str": "get"
+                },
+                "Space",
+                {
+                    "Str": "an"
+                },
+                "Space",
+                {
+                    "Str": "overview"
+                },
+                "Space",
+                {
+                    "Str": "of"
+                },
+                "Space",
+                {
+                    "Str": "what"
+                },
+                "Space",
+                {
+                    "Str": "we"
+                },
+                "Space",
+                {
+                    "Str": "are"
+                },
+                "Space",
+                {
+                    "Str": "currently"
+                },
+                "Space",
+                {
+                    "Str": "working"
+                },
+                "Space",
+                {
+                    "Str": "on"
+                },
+                "Space",
+                {
+                    "Str": "now,"
+                },
+                "Space",
+                {
+                    "Str": "and"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "see"
+                },
+                "Space",
+                {
+                    "Str": "what"
+                },
+                "Space",
+                {
+                    "Str": "we"
+                },
+                "Space",
+                {
+                    "Str": "would"
+                },
+                "Space",
+                {
+                    "Str": "like"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "work"
+                },
+                "Space",
+                {
+                    "Str": "on"
+                },
+                "Space",
+                {
+                    "Str": "in"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "future"
+                },
+                "Space",
+                {
+                    "Str": "have"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "look"
+                },
+                "Space",
+                {
+                    "Str": "at"
+                },
+                "Space",
+                {
+                    "Str": "our"
+                },
+                "Space",
+                {
+                    "Str": "roadmap:"
+                },
+                "Space",
+                {
+                    "Str": "https://github.com/elifesciences/lens/wiki/Product-Roadmap"
+                }
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "To"
+                },
+                "Space",
+                {
+                    "Str": "contribute"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "project,"
+                },
+                "Space",
+                {
+                    "Str": "please"
+                },
+                "Space",
+                {
+                    "Str": "fork"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "project,"
+                },
+                "Space",
+                {
+                    "Str": "and"
+                },
+                "Space",
+                {
+                    "Str": "submit"
+                },
+                "Space",
+                {
+                    "Str": "your"
+                },
+                "Space",
+                {
+                    "Str": "pull"
+                },
+                "Space",
+                {
+                    "Str": "requests."
+                },
+                "Space",
+                {
+                    "Str": "We"
+                },
+                "Space",
+                {
+                    "Str": "will"
+                },
+                "Space",
+                {
+                    "Str": "code"
+                },
+                "Space",
+                {
+                    "Str": "review"
+                },
+                "Space",
+                {
+                    "Str": "submissions,"
+                },
+                "Space",
+                {
+                    "Str": "and"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "track"
+                },
+                "Space",
+                {
+                    "Str": "record"
+                },
+                "Space",
+                {
+                    "Str": "of"
+                },
+                "Space",
+                {
+                    "Str": "good"
+                },
+                "Space",
+                {
+                    "Str": "submissions"
+                },
+                "Space",
+                {
+                    "Str": "will"
+                },
+                "Space",
+                {
+                    "Str": "build"
+                },
+                "Space",
+                {
+                    "Str": "confidence,"
+                },
+                "Space",
+                {
+                    "Str": "and"
+                },
+                "Space",
+                {
+                    "Str": "gain"
+                },
+                "Space",
+                {
+                    "Str": "you"
+                },
+                "Space",
+                {
+                    "Str": "access"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "direct"
+                },
+                "Space",
+                {
+                    "Str": "access"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "repo."
+                }
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "The"
+                },
+                "Space",
+                {
+                    "Str": "core"
+                },
+                "Space",
+                {
+                    "Str": "team"
+                },
+                "Space",
+                {
+                    "Str": "meets"
+                },
+                "Space",
+                {
+                    "Str": "on"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "google+"
+                },
+                "Space",
+                {
+                    "Str": "hangout"
+                },
+                "Space",
+                {
+                    "Str": "regularly."
+                },
+                "Space",
+                {
+                    "Str": "If"
+                },
+                "Space",
+                {
+                    "Str": "you"
+                },
+                "Space",
+                {
+                    "Str": "would"
+                },
+                "Space",
+                {
+                    "Str": "like"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "join"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "core"
+                },
+                "Space",
+                {
+                    "Str": "team,"
+                },
+                "Space",
+                {
+                    "Str": "please"
+                },
+                "Space",
+                {
+                    "Str": "consider"
+                },
+                "Space",
+                {
+                    "Str": "supporting"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "project"
+                },
+                "Space",
+                {
+                    "Str": "through"
+                },
+                "Space",
+                {
+                    "Str": "either"
+                },
+                "Space",
+                {
+                    "Str": "code"
+                },
+                "Space",
+                {
+                    "Str": "contributions,"
+                },
+                "Space",
+                {
+                    "Str": "or"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "finanial"
+                },
+                "Space",
+                {
+                    "Str": "commitment"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "support"
+                },
+                "Space",
+                {
+                    "Str": "development."
+                }
+            ]
+        },
+        {
+            "Header": [
+                3,
+                [
+                    "forking",
+                    [],
+                    []
+                ],
+                [
+                    {
+                        "Str": "Forking"
+                    }
+                ]
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "To"
+                },
+                "Space",
+                {
+                    "Str": "contribute"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "Lens"
+                },
+                "Space",
+                {
+                    "Str": "you"
+                },
+                "Space",
+                {
+                    "Str": "should"
+                },
+                "Space",
+                {
+                    "Str": "clone"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "full"
+                },
+                "Space",
+                {
+                    "Str": "Lens"
+                },
+                "Space",
+                {
+                    "Str": "project"
+                },
+                "Space",
+                {
+                    "Str": "first."
+                }
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "Then"
+                },
+                "Space",
+                {
+                    "Str": "you"
+                },
+                "Space",
+                {
+                    "Str": "can"
+                },
+                "Space",
+                {
+                    "Str": "create"
+                },
+                "Space",
+                {
+                    "Str": "your"
+                },
+                "Space",
+                {
+                    "Str": "personal"
+                },
+                "Space",
+                {
+                    "Str": "fork"
+                },
+                "Space",
+                {
+                    "Str": "of"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Str": "module"
+                },
+                "Space",
+                {
+                    "Str": "you"
+                },
+                "Space",
+                {
+                    "Str": "want"
+                },
+                "Space",
+                {
+                    "Str": "contribute"
+                },
+                "Space",
+                {
+                    "Str": "to:"
+                },
+                "Space",
+                {
+                    "Str": "see"
+                },
+                "Space",
+                {
+                    "Link": [
+                        [
+                            {
+                                "Str": "here"
+                            }
+                        ],
+                        [
+                            "https://help.github.com/articles/fork-a-repo",
+                            ""
+                        ]
+                    ]
+                },
+                "Space",
+                {
+                    "Str": "for"
+                },
+                "Space",
+                {
+                    "Str": "explanations."
+                }
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "After"
+                },
+                "Space",
+                {
+                    "Str": "that"
+                },
+                "Space",
+                {
+                    "Str": "you"
+                },
+                "Space",
+                {
+                    "Str": "should"
+                },
+                "Space",
+                {
+                    "Str": "adapt"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Code": [
+                        [
+                            "",
+                            [],
+                            []
+                        ],
+                        "project.json"
+                    ]
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "use"
+                },
+                "Space",
+                {
+                    "Str": "your"
+                },
+                "Space",
+                {
+                    "Str": "personal"
+                },
+                "Space",
+                {
+                    "Str": "fork."
+                },
+                "Space",
+                {
+                    "Str": "E.g.,"
+                }
+            ]
+        },
+        {
+            "CodeBlock": [
+                [
+                    "",
+                    [
+                        "json"
+                    ],
+                    []
+                ],
+                "{\n  \"modules\": [\n    ...\n    {\n      \"repository\": \"git@github.com:your_user/lens-article.git\",\n      \"folder\": \"node_modules/lens-article\",\n      \"branch\": \"my_feature\"\n    },\n    ...\n  ]\n}"
+            ]
+        },
+        {
+            "RawBlock": [
+                "html",
+                "<!--\n#### Work with feature branches\n\nA good start is working with fresh feature branches.\n\n1. Create a feature branch across all sub-modules.\n\n   ```bash\n   $ substance --git -- checkout -b <feature_branch_name>\n   ```\n\n2. Edit `project.json` manually (replace branch: master with your feature-branch-name)\n\n3. Checkout configured branches of sub-modules\n \n   ```bash\n   $ substance --checkout\n   ```\n-->\n"
+            ]
+        },
+        {
+            "Header": [
+                4,
+                [
+                    "to-pull-in-upstream-changes-from-master-for-the-entire-project.",
+                    [],
+                    []
+                ],
+                [
+                    {
+                        "Str": "To"
+                    },
+                    "Space",
+                    {
+                        "Str": "pull"
+                    },
+                    "Space",
+                    {
+                        "Str": "in"
+                    },
+                    "Space",
+                    {
+                        "Str": "upstream"
+                    },
+                    "Space",
+                    {
+                        "Str": "changes"
+                    },
+                    "Space",
+                    {
+                        "Str": "from"
+                    },
+                    "Space",
+                    {
+                        "Str": "master"
+                    },
+                    "Space",
+                    {
+                        "Str": "for"
+                    },
+                    "Space",
+                    {
+                        "Str": "the"
+                    },
+                    "Space",
+                    {
+                        "Str": "entire"
+                    },
+                    "Space",
+                    {
+                        "Str": "project."
+                    }
+                ]
+            ]
+        },
+        {
+            "CodeBlock": [
+                [
+                    "",
+                    [],
+                    []
+                ],
+                "substance --git -- pull origin master:<feature_branch_name>"
+            ]
+        },
+        {
+            "Header": [
+                3,
+                [
+                    "deployment",
+                    [],
+                    []
+                ],
+                [
+                    {
+                        "Str": "Deployment"
+                    }
+                ]
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "This"
+                },
+                "Space",
+                {
+                    "Str": "is"
+                },
+                "Space",
+                {
+                    "Str": "not"
+                },
+                "Space",
+                {
+                    "Str": "yet"
+                },
+                "Space",
+                {
+                    "Str": "implemented,"
+                },
+                "Space",
+                {
+                    "Str": "but"
+                },
+                "Space",
+                {
+                    "Str": "soon"
+                },
+                "Space",
+                {
+                    "Str": "you'll"
+                },
+                "Space",
+                {
+                    "Str": "be"
+                },
+                "Space",
+                {
+                    "Str": "able"
+                },
+                "Space",
+                {
+                    "Str": "to"
+                },
+                "Space",
+                {
+                    "Str": "bundle"
+                },
+                "Space",
+                {
+                    "Str": "Lens"
+                },
+                "Space",
+                {
+                    "Str": "as"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Str": "static"
+                },
+                "Space",
+                {
+                    "Str": "web"
+                },
+                "Space",
+                {
+                    "Str": "page"
+                },
+                "Space",
+                {
+                    "Str": "as"
+                },
+                "Space",
+                {
+                    "Str": "simple"
+                },
+                "Space",
+                {
+                    "Str": "as"
+                },
+                "Space",
+                {
+                    "Str": "this:"
+                }
+            ]
+        },
+        {
+            "CodeBlock": [
+                [
+                    "",
+                    [
+                        "bash"
+                    ],
+                    []
+                ],
+                "$ substance --bundle"
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "It"
+                },
+                "Space",
+                {
+                    "Str": "creates"
+                },
+                "Space",
+                {
+                    "Str": "a"
+                },
+                "Space",
+                {
+                    "Code": [
+                        [
+                            "",
+                            [],
+                            []
+                        ],
+                        "dist"
+                    ]
+                },
+                "Space",
+                {
+                    "Str": "folder"
+                },
+                "Space",
+                {
+                    "Str": "with"
+                },
+                "Space",
+                {
+                    "Str": "everything"
+                },
+                "Space",
+                {
+                    "Str": "you"
+                },
+                "Space",
+                {
+                    "Str": "need."
+                }
+            ]
+        },
+        {
+            "Header": [
+                3,
+                [
+                    "roadmap",
+                    [],
+                    []
+                ],
+                [
+                    {
+                        "Str": "Roadmap"
+                    }
+                ]
+            ]
+        },
+        {
+            "Para": [
+                {
+                    "Str": "The"
+                },
+                "Space",
+                {
+                    "Str": "Roadmap"
+                },
+                "Space",
+                {
+                    "Str": "is"
+                },
+                "Space",
+                {
+                    "Str": "covered"
+                },
+                "Space",
+                {
+                    "Str": "on"
+                },
+                "Space",
+                {
+                    "Str": "the"
+                },
+                "Space",
+                {
+                    "Link": [
+                        [
+                            {
+                                "Str": "project"
+                            },
+                            "Space",
+                            {
+                                "Str": "wiki"
+                            }
+                        ],
+                        [
+                            "https://github.com/elifesciences/lens/wiki/Product-Roadmap",
+                            ""
+                        ]
+                    ]
+                }
+            ]
+        }
+    ]
+]
