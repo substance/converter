@@ -200,17 +200,29 @@ Exporter.Prototype = function() {
     });
 
     fragmenter.onText = function(context, text) {
-      var words = text.split(" ");
-      for (var i = 0; i < words.length; i++) {
-        if (i > 0) {
-          context.push("Space");
-        }
-        // Note: trailing spaces produce empty elements by the word split
-        // Punctuation?
-        if (words[i].length > 0) {
-          context.push({
-            "Str": words[i]
-          });
+      // I would say that this isn't simpleness solution,
+      // we need to something more compact with code and links
+      if (context[0] == 'Link') {
+        context[0] = [];
+        context = context[0];
+      }
+      
+      if (context[0] == 'Code') {
+        context.shift();
+        context.push(text);
+      } else {
+        var words = text.split(" ");
+        for (var i = 0; i < words.length; i++) {
+          if (i > 0) {
+            context.push("Space");
+          }
+          // Note: trailing spaces produce empty elements by the word split
+          // Punctuation?
+          if (words[i].length > 0) {
+            context.push({
+              "Str": words[i]
+            });
+          }
         }
       }
     };
@@ -224,14 +236,34 @@ Exporter.Prototype = function() {
 
       var annotation = {};
       annotation[name] = [];
+      
+      // I would say that this isn't simpleness solution,
+      // we need to something more compact with code and links
+      if (name == 'Link') {
+        annotation[name] = [
+          'Link',
+          [
+            state.article.get([entry.id,'url']),
+            ""
+          ]
+        ]
+      } else if (name == 'Code') {
+        annotation[name] = [
+          "Code",
+          [
+            "",
+            [],
+            []
+          ]
+        ]
+      }
 
       parentContext.push(annotation);
 
       return annotation[name];
     };
-
     fragmenter.start(fragments, text, annotations);
-
+    console.log(fragments)
     return fragments;
   };
 
