@@ -274,15 +274,43 @@ var ImporterTest = function () {
 
     "Convert eLife Lens REAMDE", function() {
       var input = require("../data/lens_readme.json");
-      console.log("MEEH", input);
+      //console.log("MEEH", input);
       var doc = this.importer.import(input);
       var annotator = new Annotator(doc);
 
-
+      var annotations = annotator.getAnnotations();
+      
+      // Document elements 
+      var expected_nodes = ["header_1","codeblock_1","paragraph_1","paragraph_2","header_2","paragraph_3","paragraph_4","header_3","list_1","paragraph_6","list_2","paragraph_8","list_3","paragraph_10","list_4","paragraph_12","header_4","paragraph_13","paragraph_14","paragraph_15","paragraph_16","paragraph_17","paragraph_18","header_5","paragraph_19","paragraph_20","paragraph_21","codeblock_2","paragraph_22","header_6","codeblock_3","header_7","paragraph_23","codeblock_4","paragraph_24","header_8","paragraph_25"];
+      var actual_nodes = doc.get("content").nodes;
+      
+      // All inline-code annotations at the right place?
+      var c1 = annotations["code_1"];
+      var c2 = annotations["code_2"];
+      var c3 = annotations["code_3"];
+      var c4 = annotations["code_4"];
+      var c5 = annotations["code_5"];
+      var c6 = annotations["code_6"];
+      var c7 = annotations["code_7"];
+      
+      assert.isArrayEqual(["paragraph_6", "content"],c1.path);
+      assert.isArrayEqual([0, 118], c1.range);
+      assert.isArrayEqual(["paragraph_8", "content"],c2.path);
+      assert.isArrayEqual([0, 61], c2.range);
+      assert.isArrayEqual(["paragraph_10", "content"],c3.path);
+      assert.isArrayEqual([0, 41], c3.range);
+      assert.isArrayEqual(["paragraph_11", "content"],c4.path);
+      assert.isArrayEqual([51, 72], c4.range);
+      assert.isArrayEqual(["paragraph_12", "content"],c5.path);
+      assert.isArrayEqual([0, 19], c5.range);
+      assert.isArrayEqual(["paragraph_21", "content"],c6.path);
+      assert.isArrayEqual([32, 44], c6.range);
+      assert.isArrayEqual(["paragraph_24", "content"],c7.path);
+      assert.isArrayEqual([13, 17], c7.range);
+      assert.isArrayEqual([13, 17], c7.range);
+      assert.isArrayEqual(expected_nodes, actual_nodes);
       // TODO:
       // Make some assertions
-      //   - how many elements
-      //   - all inline-code annotations at the right place?
       //   - correct number of newlines in the codeblock etc.
 
     },
