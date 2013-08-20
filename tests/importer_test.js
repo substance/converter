@@ -56,7 +56,7 @@ var ImporterTest = function () {
       assert.isEqual("I am an annotated paragraph.", p1.content);
       assert.isArrayEqual(["paragraph_1"], doc.get("content").nodes);
 
-      var annotations = annotationIndex.find("paragraph_1");
+      var annotations = annotationIndex.get("paragraph_1");
       assert.isDefined(annotations["emphasis_1"]);
       assert.isDefined(annotations["strong_1"]);
 
@@ -144,7 +144,7 @@ var ImporterTest = function () {
 
       var doc = this.importer.import(input);
       var annotationIndex = Annotator.createIndex(doc);
-      var annotations = annotationIndex.find();
+      var annotations = annotationIndex.get();
 
       var p = doc.get("paragraph_1");
       var link = annotations["link_1"];
@@ -164,7 +164,7 @@ var ImporterTest = function () {
 
       var doc = this.importer.import(input);
       var annotationIndex = Annotator.createIndex(doc);
-      var annotations = annotationIndex.find();
+      var annotations = annotationIndex.get();
 
       var p = doc.get("paragraph_1");
       var code = annotations["code_1"];
@@ -208,7 +208,7 @@ var ImporterTest = function () {
       var annotationIndex = Annotator.createIndex(doc);
 
       var l1 = doc.get("list_1");
-      var annotations = annotationIndex.find();
+      var annotations = annotationIndex.get();
 
       assert.isDefined(l1);
       assert.isDefined(doc.get("paragraph_1"));
@@ -243,7 +243,7 @@ var ImporterTest = function () {
       var p3 = doc.get("paragraph_3");
       var p4 = doc.get("paragraph_4");
 
-      var annotations = annotationIndex.find();
+      var annotations = annotationIndex.get();
       var e1 = annotations["emphasis_1"];
       var s1 = annotations["strong_1"];
       var e2 = annotations["emphasis_2"];
@@ -277,7 +277,7 @@ var ImporterTest = function () {
       //console.log("MEEH", input);
       var doc = this.importer.import(input);
       var annotationIndex = Annotator.createIndex(doc);
-      var annotations = annotationIndex.find();
+      var annotations = annotationIndex.get();
 
       // Document elements
       var expected_nodes = ["header_1","codeblock_1","paragraph_1","paragraph_2","header_2","paragraph_3","paragraph_4","header_3","list_1","paragraph_6","list_2","paragraph_8","list_3","paragraph_10","list_4","paragraph_12","header_4","paragraph_13","paragraph_14","paragraph_15","paragraph_16","paragraph_17","paragraph_18","header_5","paragraph_19","paragraph_20","paragraph_21","codeblock_2","paragraph_22","header_6","codeblock_3","header_7","paragraph_23","codeblock_4","paragraph_24","header_8","paragraph_25"];

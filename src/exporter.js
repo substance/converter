@@ -76,7 +76,7 @@ Exporter.Prototype = function() {
   };
 
   this.paragraph = function(state, node) {
-    var annotations = state.annotationIndex.find(node.id);
+    var annotations = state.annotationIndex.get(node.id);
 
     // recursive descent:
     var content = this.annotated_text(state, node.content, annotations);
@@ -89,7 +89,7 @@ Exporter.Prototype = function() {
   };
 
   this.plain = function(state, node) {
-    var annotations = state.annotationIndex.find(node.id);
+    var annotations = state.annotationIndex.get(node.id);
 
     // recursive descent:
     var content = this.annotated_text(state, node.content, annotations);
@@ -102,7 +102,7 @@ Exporter.Prototype = function() {
   };
 
   this.heading = function(state, node) {
-    var annotations = state.annotationIndex.find(node.id);
+    var annotations = state.annotationIndex.get(node.id);
 
     var tag = node.content.toLowerCase().split(" ").join("-");
     var meta = [
