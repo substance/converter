@@ -95,7 +95,6 @@ Server.Prototype = function() {
     } else if(inputFormat === "substance") {
       var converter = new Exporter();
       var json = converter.export(input);
-      //cb(null,json);
       this.pandoc(JSON.stringify(json), 'json', 'html', function(err, result) {
         if (err) return cb(err);
         return cb(null, result);
@@ -146,13 +145,11 @@ Server.Prototype = function() {
       var url = req.query.url || "https://raw.github.com/substance/substance/0.5.x/data/lorem_ipsum.json";
       var inputFormat = "substance";
       var outputFormat = req.query.out || "html";
-      that.getFile(url, function(err, inputData) {
-        var json = JSON.parse(inputData);
-        var doc = new Article.fromSnapshot(json);
-        that.convert(doc, inputFormat, outputFormat, function(err, output) {
-          if (err) return res.send(500, err);
-          res.send(output);
-        });
+      var doc = req.doc || false;
+      if (!doc) res.send(500, 'You must send document!');
+      that.convert(doc, inputFormat, outputFormat, function(err, output) {
+        if (err) return res.send(500, err);
+        res.send(output);
       });
     });
   };
