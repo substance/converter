@@ -41,7 +41,7 @@ Exporter.Prototype = function() {
 
     var state = {};
     state.article = article;
-    state.annotator = new Annotator(article);
+    state.annotationIndex = Annotator.createIndex(article);
 
     var content = this.document(state);
 
@@ -76,7 +76,7 @@ Exporter.Prototype = function() {
   };
 
   this.paragraph = function(state, node) {
-    var annotations = state.annotator.getAnnotations({node: node.id});
+    var annotations = state.annotationIndex.find(node.id);
 
     // recursive descent:
     var content = this.annotated_text(state, node.content, annotations);
@@ -87,9 +87,9 @@ Exporter.Prototype = function() {
 
     return output;
   };
-  
+
   this.plain = function(state, node) {
-    var annotations = state.annotator.getAnnotations({node: node.id});
+    var annotations = state.annotationIndex.find(node.id);
 
     // recursive descent:
     var content = this.annotated_text(state, node.content, annotations);
@@ -102,7 +102,7 @@ Exporter.Prototype = function() {
   };
 
   this.heading = function(state, node) {
-    var annotations = state.annotator.getAnnotations({node: node.id});
+    var annotations = state.annotationIndex.find(node.id);
 
     var tag = node.content.toLowerCase().split(" ").join("-");
     var meta = [
@@ -122,7 +122,7 @@ Exporter.Prototype = function() {
 
     return output;
   };
-  
+
   this.codeblock = function(state, node) {
     var content = node.content;
 
@@ -139,7 +139,7 @@ Exporter.Prototype = function() {
 
     return output;
   };
-  
+
   this.image = function(state, node) {
     if (node.caption != '') {
       var content = this.paragraph(state,node.caption);
@@ -162,7 +162,7 @@ Exporter.Prototype = function() {
 
     return output;
   };
-  
+
   this.list = function(state,node) {
     var listItems = [];
     if (node.items != []) {
@@ -206,7 +206,7 @@ Exporter.Prototype = function() {
         context[0] = [];
         context = context[0];
       }
-      
+
       if (context[0] == 'Code') {
         context.shift();
         context.push(text);
@@ -236,7 +236,7 @@ Exporter.Prototype = function() {
 
       var annotation = {};
       annotation[name] = [];
-      
+
       // I would say that this isn't simpleness solution,
       // we need to something more compact with code and links
       if (name == 'Link') {

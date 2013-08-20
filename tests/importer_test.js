@@ -48,7 +48,7 @@ var ImporterTest = function () {
       var input = require("../data/annotated_paragraph.json");
 
       var doc = this.importer.import(input);
-      var annotator = new Annotator(doc);
+      var annotationIndex = Annotator.createIndex(doc);
 
       var p1 = doc.get("paragraph_1");
       assert.isDefined(p1);
@@ -56,7 +56,7 @@ var ImporterTest = function () {
       assert.isEqual("I am an annotated paragraph.", p1.content);
       assert.isArrayEqual(["paragraph_1"], doc.get("content").nodes);
 
-      var annotations = annotator.getAnnotations({node: "paragraph_1"});
+      var annotations = annotationIndex.find("paragraph_1");
       assert.isDefined(annotations["emphasis_1"]);
       assert.isDefined(annotations["strong_1"]);
 
@@ -143,8 +143,8 @@ var ImporterTest = function () {
       var input = require("../data/inline_link.json");
 
       var doc = this.importer.import(input);
-      var annotator = new Annotator(doc);
-      var annotations = annotator.getAnnotations();
+      var annotationIndex = Annotator.createIndex(doc);
+      var annotations = annotationIndex.find();
 
       var p = doc.get("paragraph_1");
       var link = annotations["link_1"];
@@ -163,8 +163,8 @@ var ImporterTest = function () {
       var input = require("../data/inline_code.json");
 
       var doc = this.importer.import(input);
-      var annotator = new Annotator(doc);
-      var annotations = annotator.getAnnotations();
+      var annotationIndex = Annotator.createIndex(doc);
+      var annotations = annotationIndex.find();
 
       var p = doc.get("paragraph_1");
       var code = annotations["code_1"];
@@ -205,10 +205,10 @@ var ImporterTest = function () {
       var input = require("../data/annotated_list.json");
 
       var doc = this.importer.import(input);
-      var annotator = new Annotator(doc);
+      var annotationIndex = Annotator.createIndex(doc);
 
       var l1 = doc.get("list_1");
-      var annotations = annotator.getAnnotations();
+      var annotations = annotationIndex.find();
 
       assert.isDefined(l1);
       assert.isDefined(doc.get("paragraph_1"));
@@ -236,14 +236,14 @@ var ImporterTest = function () {
       var input = require("../data/nested_block_quotes_with_annotations.json");
 
       var doc = this.importer.import(input);
-      var annotator = new Annotator(doc);
+      var annotationIndex = Annotator.createIndex(doc);
 
       var p1 = doc.get("paragraph_1");
       var p2 = doc.get("paragraph_2");
       var p3 = doc.get("paragraph_3");
       var p4 = doc.get("paragraph_4");
 
-      var annotations = annotator.getAnnotations();
+      var annotations = annotationIndex.find();
       var e1 = annotations["emphasis_1"];
       var s1 = annotations["strong_1"];
       var e2 = annotations["emphasis_2"];
@@ -276,8 +276,7 @@ var ImporterTest = function () {
       var input = require("../data/lens_readme.json");
       console.log("MEEH", input);
       var doc = this.importer.import(input);
-      var annotator = new Annotator(doc);
-
+      var annotationIndex = Annotator.createIndex(doc);
 
       // TODO:
       // Make some assertions
