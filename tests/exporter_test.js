@@ -56,7 +56,7 @@ var ExporterTest = function () {
 
       assert.isDeepEqual(expected[1], actual[1]);
     },
-    
+
     "Codeblock", function() {
       var expected = require("../data/paragraph_and_codeblock.json");
 
@@ -65,7 +65,7 @@ var ExporterTest = function () {
 
       assert.isDeepEqual(expected[1], actual[1]);
     },
-    
+
     "Links", function() {
       var expected = require("../data/inline_link.json");
 

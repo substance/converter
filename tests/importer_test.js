@@ -69,7 +69,8 @@ var ImporterTest = function () {
 
       var doc = this.importer.import(input);
       var l1 = doc.get("list_1");
-      var items = l1.items;
+      var items = l1.getItems();
+
       assert.isDefined(l1);
       assert.isEqual(3, items.length);
       assert.isEqual("I am a listitem", items[0].content);
@@ -83,7 +84,7 @@ var ImporterTest = function () {
       var doc = this.importer.import(input);
       var p1 = doc.get("paragraph_1");
       var l1 = doc.get("list_1");
-      var items = l1.items;
+      var items = l1.getItems();
 
       assert.isDefined(p1);
       assert.isDefined(l1);
@@ -185,20 +186,23 @@ var ImporterTest = function () {
       var doc = this.importer.import(input);
 
       var p1 = doc.get("paragraph_1");
+      var figure = doc.get("figure_1");
       var img = doc.get("image_1");
       var caption = doc.get("caption_1");
       var p2 = doc.get("paragraph_2");
 
       assert.isDefined(p1);
+      assert.isDefined(figure);
       assert.isDefined(img);
+      assert.isDefined(caption);
       assert.isDefined(p2);
 
       assert.isEqual("This is paragraph 1.", p1.content);
       assert.isEqual("http://backbonejs.org/docs/images/lens.png", img.url);
       assert.isEqual("This is paragraph 2.", p2.content);
-      assert.isEqual(img.caption.id, caption.id);
+      assert.isEqual(caption.id, figure.getCaption().id);
       assert.isEqual("lens", caption.content);
-      assert.isArrayEqual(["paragraph_1", "image_1", "paragraph_2"], doc.get("content").nodes);
+      assert.isArrayEqual(["paragraph_1", "figure_1", "paragraph_2"], doc.get("content").nodes);
     },
 
     "Annotated List", function() {

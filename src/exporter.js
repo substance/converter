@@ -67,6 +67,8 @@ Exporter.Prototype = function() {
         content.push(this.codeblock(state, node));
       } else if (node.type == "image") {
         content.push(this.image(state, node));
+      } else if (node.type == "figure") {
+        content.push(this.figure(state, node));
       } else if (node.type == "list") {
         content.push(this.list(state, node));
       }
@@ -141,18 +143,37 @@ Exporter.Prototype = function() {
   };
 
   this.image = function(state, node) {
+    var output = {
+      "Para": [
+        {
+          "Image": [
+            { "Para": [] },
+            [
+              node.url,
+              "fig:"
+            ]
+          ]
+        }
+      ]
+    };
+
+    return output;
+  };
+
+  this.figure = function(state, node) {
     if (node.caption != '') {
-      var content = this.paragraph(state,node.caption);
+      var content = this.paragraph(state, node.getCaption());
     } else {
       var content = { "Para": [] }
     }
+    var img = node.getImage();
     var output = {
       "Para": [
         {
           "Image": [
             content.Para,
             [
-              node.url,
+              img.url,
               "fig:"
             ]
           ]
@@ -166,8 +187,9 @@ Exporter.Prototype = function() {
   this.list = function(state,node) {
     var listItems = [];
     if (node.items != []) {
+      var items = node.getItems();
       for (var i = 0; i < node.items.length; i++) {
-        var content = this.plain(state,node.items[i]);
+        var content = this.plain(state, items[i]);
         listItems.push([content]);
       }
     }
