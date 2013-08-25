@@ -101,8 +101,9 @@ Importer.Prototype = function() {
       case "Header":
         return this.header(state, input["Header"]);
       case "Para":
+        // TODO: why is that?
         if (!_.isUndefined(input["Para"][0].Image)) {
-          return this.image(state, input["Para"][0].Image);
+          return this.figure(state, input["Para"][0].Image);
         }
         else {
           return this.paragraph(state, input["Para"]);
@@ -119,7 +120,7 @@ Importer.Prototype = function() {
       case "OrderedList":
         return this.list(state, input["OrderedList"], true);
       case "Image":
-        return this.image(state, input["Image"]);
+        return this.figure(state, input["Image"]);
       default:
         throw new ImporterError("Node not supported: " + type);
     }
@@ -252,7 +253,7 @@ Importer.Prototype = function() {
     return false;
   };
 
-  this.image = function(state, input) {
+  this.figure = function(state, input) {
     var doc = state.doc;
 
     var id = state.nextId("figure");
@@ -283,6 +284,8 @@ Importer.Prototype = function() {
   };
 
   this.caption = function(state, input) {
+    var doc = state.doc;
+
     var id = state.nextId("caption");
     var node = {
       id: id,
@@ -292,7 +295,8 @@ Importer.Prototype = function() {
     state.push(node);
     node.content = this.text(state, input);
     state.pop();
-    state.annotations.push(node);
+
+    doc.create(node);
     return id;
   };
 
