@@ -34,16 +34,27 @@ var NLMImporterTest = function () {
     // Note: every test is split up into two steps Import and Check
     // to keep the assertion checks outside the asynchronous call to load the data
 
-    "Import: Article with Front only (simple)", function(cb) {
+    "Import: Article with Front only", function(cb) {
       this.importFixture("../data/nlm/simple_front.xml", cb);
     },
 
-    "Check: Article with Front only (simple)", function() {
+    "Check: Article with Front only", function() {
       assert.isEqual("simple_front", this.doc.id);
       assert.isEqual("This is a Test Article", this.doc.title);
-      assert.isEqual("Mike le Dub", this.doc.creator);
+      assert.isEqual("Foo Bar", this.doc.creator);
       assert.isEqual("This is a test document having no body and a very simple front matter only.", this.doc.abstract);
       assert.isEqual(new Date(2013, 8, 28).getTime(), this.doc.created_at.getTime());
+    },
+
+    "Import: Article with a single paragraph", function(cb) {
+      this.importFixture("../data/nlm/single_paragraph.xml", cb);
+    },
+
+    "Check: Article with a single paragraph", function() {
+      var p1 = this.doc.get("paragraph_1");
+      assert.isDefined(p1);
+      assert.isEqual("This is a Paragraph.", p1.content);
+      assert.isArrayEqual(["paragraph_1"], this.doc.get("content").nodes);
     },
 
   ];

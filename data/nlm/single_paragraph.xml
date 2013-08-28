@@ -22,8 +22,11 @@
         <year>2013</year>
       </pub-date>
       <abstract>
-        <p>This is a test document having no body and a very simple front matter only.</p>
+        <p>This is a test document having a body with a single paragraph.</p>
       </abstract>
     </article-meta>
   </front>
+  <body>
+    <p>This is a Paragraph.</p>
+  </body>
 </article>

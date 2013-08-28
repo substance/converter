@@ -11,7 +11,9 @@ NLMImporter.Prototype = function() {
 
   this.createDocument = function() {
     var Article = require("substance-article");
-    return new Article();
+    var doc = new Article();
+
+    return doc;
   };
 
   this.import = function(input) {
@@ -299,9 +301,100 @@ NLMImporter.Prototype = function() {
   // ### Article.Body
   //
 
-  this.body = function(/*state, body*/) {
+  /*
+  • Any combination of:
+    ◦ <boxed-text> Boxed Text
+    ◦ <chem-struct-wrap> Chemical Structure Wrapper
+    ◦ <fig> Figure
+    ◦ <graphic> Graphic
+    ◦ <media> Media Object
+    ◦ <preformat> Preformatted Text
+    ◦ <supplementary-material> Supplementary Material ◦ <table-wrap> Table Wrapper
+    ◦ <disp-formula> Formula, Display
+    ◦ <disp-formula-group> Formula, Display Group
+    ◦ <def-list> Definition List
+    ◦ <list> List
+    ◦ <p> Paragraph
+    ◦ <disp-quote> Quote, Displayed
+    ◦ <speech> Speech
+    ◦ <statement> Statement, Formal
+    ◦ <verse-group> Verse Form for Poetry
+  • <sec> Section, zero or more
+  */
+  this.body = function(state, body) {
+    var children = body.children;
+
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+      var type = child.tagName.toLowerCase();
+
+      var nodes;
+      if (type === "p") {
+        nodes = this.paragraph(state, child);
+      } else {
+        console.log("Not yet supported: ", type);
+      }
+
+      this.show(state, nodes);
+    }
   };
 
+  this.show = function(state, nodes) {
+    var doc = state.doc;
+    var view = doc.get("content").nodes;
+
+    // show the created nodes in the content view
+    for (var j = 0; j < nodes.length; j++) {
+      view.push(nodes[j].id);
+    }
+  };
+
+  this.paragraph = function(state, paragraph) {
+    var doc = state.doc;
+
+    var node = {
+      id: "",
+      type: "paragraph",
+      content: ""
+    };
+    var id = paragraph.getAttribute("id");
+    id = id || state.nextId(node.type);
+    node.id = id;
+
+    var childNodes = paragraph.childNodes;
+
+    for (var i = 0; i < childNodes.length; i++) {
+      var child = childNodes[i]
+
+      if (child.nodeType === Node.TEXT_NODE) {
+        console.log("Ho");
+        node.content += child.textContent;
+      } else {
+        console.log("Nope");
+      }
+
+    };
+
+    doc.create(node);
+    return [node];
+  };
+
+  this.section = function(state, section) {
+    state.sectionLevel++;
+
+    // create a heading
+    var heading = {
+      id: state.nextId("heading"),
+      type: "heading",
+      content: ""
+    };
+    // TODO: set heading content
+    // create a paragraph as section body
+    var nodes = this.paragraph(state, null);
+    state.sectionLevel--;
+
+    return [heading].concat(nodes);
+  };
 };
 NLMImporter.prototype = new NLMImporter.Prototype();
 
@@ -319,6 +412,25 @@ NLMImporter.State = function(xmlDoc, doc) {
   // when recursing into sub-nodes it is necessary to keep the stack
   // of processed nodes to be able to associate other things (e.g., annotations) correctly.
   this.stack = [];
+
+  this.sectionLevel = 0;
+
+  this.views = {};
+
+  this.createView = function(name) {
+    if (this.views[name] === undefined) {
+      this.views[name] = [];
+    }
+  };
+
+  // an id generator for different types
+  var ids = {};
+  this.nextId = function(type) {
+    ids[type] = ids[type] || 0;
+    ids[type]++;
+    return type +"_"+ids[type];
+  };
+
 };
 
 module.exports = NLMImporter;
