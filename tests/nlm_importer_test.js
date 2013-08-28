@@ -8,6 +8,7 @@ var assert = Test.assert;
 var registerTest = Test.registerTest;
 var NLMImporter = require('../src/nlm_importer');
 var fs = require("substance-util/src/fs");
+var Data = require("substance-data");
 
 // Test
 // ========
@@ -23,6 +24,10 @@ var NLMImporterTest = function () {
       if (err) return cb(err);
       try {
         this.doc = this.importer.import(data);
+        this.annotations = new Data.Graph.Index(this.doc, {
+          types: ["annotation"],
+          property: "path"
+        });
         cb(null);
       } catch (err) {
         cb(err);
@@ -93,6 +98,46 @@ var NLMImporterTest = function () {
       assert.isEqual("Another Paragraph.", p2.content);
       assert.isArrayEqual(["heading_1", "paragraph_1", "heading_2", "paragraph_2"], this.doc.get("content").nodes);
     },
+
+    "Import: Annotated paragraph", function(cb) {
+      this.importFixture("../data/nlm/annotated_paragraph.xml", cb);
+    },
+
+    "Check: Annotated paragraph", function() {
+      var p1 = this.doc.get("paragraph_1");
+      var p2 = this.doc.get("paragraph_2");
+      var p3 = this.doc.get("paragraph_3");
+      var p4 = this.doc.get("paragraph_4");
+
+      assert.isDefined(p1);
+      assert.isDefined(p2);
+      assert.isDefined(p3);
+      assert.isDefined(p4);
+
+      var e1 = this.doc.get("emphasis_1");
+      var s1 = this.doc.get("strong_1");
+      var i1 = this.doc.get("idea_1");
+      var i2 = this.doc.get("idea_2");
+      var s2 = this.doc.get("strong_2");
+
+      assert.isDefined(e1);
+      assert.isDefined(s1);
+      assert.isDefined(i1);
+      assert.isDefined(i2);
+      assert.isDefined(s2);
+
+      assert.isEqual("This is emphasised.", p1.content);
+      assert.isEqual("This is a strong emphasis.", p2.content);
+      assert.isEqual("This is a reference.", p3.content);
+      assert.isEqual("This is a nested annotation.", p4.content);
+
+      assert.isArrayEqual([8, 18], e1.range);
+      assert.isArrayEqual([10, 16], s1.range);
+      assert.isArrayEqual([10, 19], i1.range);
+      assert.isArrayEqual([17, 27], i2.range);
+      assert.isArrayEqual([17, 21], s2.range);
+
+    }
   ];
 };
 

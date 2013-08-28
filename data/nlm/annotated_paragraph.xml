@@ -4,7 +4,7 @@
 <?release-delay 0|0 ?>
   <front>
     <article-meta>
-      <article-id pub-id-type="substance">simple_front</article-id>
+      <article-id pub-id-type="substance">single_paragraph</article-id>
       <title-group>
         <article-title>This is a Test Article</article-title>
       </title-group>
@@ -22,18 +22,14 @@
         <year>2013</year>
       </pub-date>
       <abstract>
-        <p>This is a test document having a body with two nested sections.</p>
+        <p>This is a test document having a body with a several paragraphs each having a different type of annotations.</p>
       </abstract>
     </article-meta>
   </front>
   <body>
-    <sec>
-      <title>Level-1 Heading</title>
-      <p>This is a Paragraph.</p>
-      <sec>
-        <title>Level-2 Heading</title>
-        <p>Another Paragraph.</p>
-      </sec>
-    </sec>
+    <p>This is <italic>emphasised</italic>.</p>
+    <p>This is a <bold>strong</bold> emphasis.</p>
+    <p>This is a <xref ref-type="bibr" rid="R1">reference</xref>.</p>
+    <p>This is a nested <xref ref-type="bibr" rid="R2"><bold>anno</bold>tation</xref>.</p>
   </body>
 </article>

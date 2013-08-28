@@ -22,7 +22,7 @@ NLMImporter.Prototype = function() {
     // Note: when we are using jqueries get("<file>.xml") we
     // magically get a parsed XML document already
     if (_.isString(input)) {
-      throw ImporterError("Conversion from XML string is not yet supported.");
+      throw new ImporterError("Conversion from XML string is not yet supported.");
     } else {
       xmlDoc = input;
     }
@@ -204,13 +204,12 @@ NLMImporter.Prototype = function() {
     var doc = state.doc;
 
     // Note: Substance.Article does only support one id
-    for (var i = 0; i < articleIds.length; i++) {
-      doc.id = articleIds[i].textContent;
-      return;
+    if (articleIds.length > 0) {
+      doc.id = articleIds[0].textContent;
+    } else {
+      // if no id was set we create a random one
+      doc.id = util.uuid();
     }
-
-    // if no id was set we create a random one
-    doc.id = util.uuid();
   };
 
   this.titleGroup = function(state, titleGroup) {
@@ -355,6 +354,7 @@ NLMImporter.Prototype = function() {
     }
   };
 
+  // A 'paragraph' is given a '<p>' ta
   this.paragraph = function(state, paragraph) {
     var doc = state.doc;
 
@@ -367,22 +367,26 @@ NLMImporter.Prototype = function() {
     id = id || state.nextId(node.type);
     node.id = id;
 
-    var childNodes = paragraph.childNodes;
+    // pushing information to the stack so that annotations can be created appropriately
+    state.stack.push({
+      node: node,
+      path: [node.id, "content"]
+    });
 
-    for (var i = 0; i < childNodes.length; i++) {
-      var child = childNodes[i];
-      if (child.nodeType === Node.TEXT_NODE) {
-        node.content += child.textContent;
-      } else {
-        throw new ImporterError("Node not yet supported within paragraph: " + child.tagName);
-      }
-    }
+    var content = this.annotatedText(state, paragraph.childNodes, 0);
+    node.content = content;
 
     doc.create(node);
+
+    // popping the stack
+    state.stack.pop();
+
     return [node];
   };
 
   this.section = function(state, section) {
+
+    // pushing the section level to track the level for nested sections
     state.sectionLevel++;
 
     var doc = state.doc;
@@ -422,10 +426,66 @@ NLMImporter.Prototype = function() {
       }
     }
 
+    // popping the section level
     state.sectionLevel--;
 
     return result;
   };
+
+  // Ignored annotations:
+  //  - <overline> Overline
+  //  - <roman> Roman
+  //  - <sans-serif> Sans Serif
+  //  - <sc> Small Caps
+  //  - <strike> Strike Through
+  //  - <underline> Underline
+
+  var _annotationTypes = {
+    "bold": "strong",
+    "italic": "emphasis",
+    "monospace": "code",
+    "xref": "idea"
+  };
+
+  this.annotatedText = function(state, textFragments, pos) {
+    var plainText = "";
+
+    for (var i = 0; i < textFragments.length; i++) {
+      var el = textFragments[i];
+
+      if (el.nodeType === Node.TEXT_NODE) {
+        plainText += el.textContent;
+        pos += el.textContent.length;
+      } else {
+        var type = el.tagName.toLowerCase();
+        if (_annotationTypes[type] !== undefined) {
+          var start = pos;
+          var annotatedText = this.annotatedText(state, el.childNodes, pos);
+          plainText += annotatedText;
+          pos += annotatedText.length;
+          var end = pos;
+          this.createAnnotation(state, type, start, end);
+        } else {
+          throw new ImporterError("Node not yet supported in annoted text: " + type);
+        }
+      }
+
+    }
+
+    return plainText;
+  };
+
+  this.createAnnotation = function(state, type, start, end) {
+    var annoType = _annotationTypes[type];
+    var anno = {
+      id: state.nextId(annoType),
+      type : annoType,
+      path: _.last(state.stack).path,
+      range: [start, end],
+    };
+    state.annotations.push(anno);
+  };
+
 };
 NLMImporter.prototype = new NLMImporter.Prototype();
 
