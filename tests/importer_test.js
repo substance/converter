@@ -13,7 +13,7 @@ var Annotator = Document.Annotator;
 // Test
 // ========
 
-var ImporterTest = function () {
+var PandocImporterTest = function () {
 
   this.setup = function() {
     this.importer = new Importer();
@@ -22,7 +22,7 @@ var ImporterTest = function () {
   this.actions = [
 
     "Heading and Paragraph", function() {
-      var input = require("../data/heading_and_paragraph.json");
+      var input = require("../data/pandoc/heading_and_paragraph.json");
 
       var doc = this.importer.import(input);
 
@@ -45,7 +45,7 @@ var ImporterTest = function () {
     },
 
     "Annotated Paragraph", function() {
-      var input = require("../data/annotated_paragraph.json");
+      var input = require("../data/pandoc/annotated_paragraph.json");
 
       var doc = this.importer.import(input);
       var annotationIndex = Annotator.createIndex(doc);
@@ -65,7 +65,7 @@ var ImporterTest = function () {
     },
 
     "List", function() {
-      var input = require("../data/list.json");
+      var input = require("../data/pandoc/list.json");
 
       var doc = this.importer.import(input);
       var l1 = doc.get("list_1");
@@ -78,7 +78,7 @@ var ImporterTest = function () {
     },
 
     "Paragraph and List", function() {
-      var input = require("../data/paragraph_and_list.json");
+      var input = require("../data/pandoc/paragraph_and_list.json");
 
       var doc = this.importer.import(input);
       var p1 = doc.get("paragraph_1");
@@ -96,7 +96,7 @@ var ImporterTest = function () {
     },
 
     "Blockquotes are flattened into Paragraphs (for now)", function() {
-      var input = require("../data/block_quote.json");
+      var input = require("../data/pandoc/block_quote.json");
 
       var doc = this.importer.import(input);
       var p1 = doc.get("paragraph_1");
@@ -108,7 +108,7 @@ var ImporterTest = function () {
     },
 
     "Even nested Blockquotes are flattened.", function() {
-      var input = require("../data/nested_block_quotes.json");
+      var input = require("../data/pandoc/nested_block_quotes.json");
 
       var doc = this.importer.import(input);
       var p1 = doc.get("paragraph_1");
@@ -122,7 +122,7 @@ var ImporterTest = function () {
     },
 
     "Codeblock", function() {
-      var input = require("../data/paragraph_and_codeblock.json");
+      var input = require("../data/pandoc/paragraph_and_codeblock.json");
 
       var doc = this.importer.import(input);
       var p1 = doc.get("paragraph_1");
@@ -134,13 +134,13 @@ var ImporterTest = function () {
     },
 
     "Horitontal rulers are ignored.", function() {
-      var input = require("../data/horizontal_ruler.json");
+      var input = require("../data/pandoc/horizontal_ruler.json");
       var doc = this.importer.import(input);
       assert.isArrayEqual(["paragraph_1", "paragraph_2"], doc.get("content").nodes);
     },
 
     "Links are annotations.", function() {
-      var input = require("../data/inline_link.json");
+      var input = require("../data/pandoc/inline_link.json");
 
       var doc = this.importer.import(input);
       var annotationIndex = Annotator.createIndex(doc);
@@ -160,7 +160,7 @@ var ImporterTest = function () {
     },
 
     "Inline code is an annotation.", function() {
-      var input = require("../data/inline_code.json");
+      var input = require("../data/pandoc/inline_code.json");
 
       var doc = this.importer.import(input);
       var annotationIndex = Annotator.createIndex(doc);
@@ -180,7 +180,7 @@ var ImporterTest = function () {
     },
 
     "Paragraph with Image and caption.", function() {
-      var input = require("../data/paragraph_and_image.json");
+      var input = require("../data/pandoc/paragraph_and_image.json");
 
       var doc = this.importer.import(input);
 
@@ -202,7 +202,7 @@ var ImporterTest = function () {
     },
 
     "Annotated List", function() {
-      var input = require("../data/annotated_list.json");
+      var input = require("../data/pandoc/annotated_list.json");
 
       var doc = this.importer.import(input);
       var annotationIndex = Annotator.createIndex(doc);
@@ -233,7 +233,7 @@ var ImporterTest = function () {
     },
 
     "Annotations in Nested Blockquotes", function() {
-      var input = require("../data/nested_block_quotes_with_annotations.json");
+      var input = require("../data/pandoc/nested_block_quotes_with_annotations.json");
 
       var doc = this.importer.import(input);
       var annotationIndex = Annotator.createIndex(doc);
@@ -273,7 +273,7 @@ var ImporterTest = function () {
     },
 
     "Convert eLife Lens REAMDE", function() {
-      var input = require("../data/lens_readme.json");
+      var input = require("../data/pandoc/lens_readme.json");
       //console.log("MEEH", input);
       var doc = this.importer.import(input);
       var annotationIndex = Annotator.createIndex(doc);
@@ -312,4 +312,4 @@ var ImporterTest = function () {
   ];
 };
 
-registerTest(['Converter', 'Importer'], new ImporterTest());
+registerTest(['Converter', 'Pandoc Importer'], new PandocImporterTest());
