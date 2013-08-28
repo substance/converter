@@ -336,7 +336,7 @@ NLMImporter.Prototype = function() {
         nodes = this.section(state, child);
       }
       else {
-        console.log("Not yet supported: ", type);
+        throw new ImporterError("Node not yet supported within section: " + type);
       }
 
       if (nodes) {
@@ -371,11 +371,10 @@ NLMImporter.Prototype = function() {
 
     for (var i = 0; i < childNodes.length; i++) {
       var child = childNodes[i];
-
       if (child.nodeType === Node.TEXT_NODE) {
         node.content += child.textContent;
       } else {
-        console.log("Not yet supported:", child);
+        throw new ImporterError("Node not yet supported within paragraph: " + child.tagName);
       }
     }
 
@@ -411,8 +410,11 @@ NLMImporter.Prototype = function() {
       if (type === "p") {
         nodes = this.paragraph(state, child);
       }
+      else if (type === "sec") {
+        nodes = this.section(state, child);
+      }
       else {
-        console.log("Not yet supported: ", type);
+        throw new ImporterError("Node not yet supported within section: " + type);
       }
 
       if (nodes) {

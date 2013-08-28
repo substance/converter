@@ -67,10 +67,32 @@ var NLMImporterTest = function () {
       assert.isDefined(h1);
       assert.isDefined(p1);
       assert.isEqual("Level-1 Heading", h1.content);
+      assert.isEqual(1, h1.level);
       assert.isEqual("This is a Paragraph.", p1.content);
       assert.isArrayEqual(["heading_1", "paragraph_1"], this.doc.get("content").nodes);
     },
 
+    "Import: Article with nested sections", function(cb) {
+      this.importFixture("../data/nlm/nested_section.xml", cb);
+    },
+
+    "Check: Article with nested sections", function() {
+      var h1 = this.doc.get("heading_1");
+      var p1 = this.doc.get("paragraph_1");
+      var h2 = this.doc.get("heading_2");
+      var p2 = this.doc.get("paragraph_2");
+      assert.isDefined(h1);
+      assert.isDefined(p1);
+      assert.isDefined(h2);
+      assert.isDefined(p2);
+      assert.isEqual("Level-1 Heading", h1.content);
+      assert.isEqual(1, h1.level);
+      assert.isEqual("This is a Paragraph.", p1.content);
+      assert.isEqual("Level-2 Heading", h2.content);
+      assert.isEqual(2, h2.level);
+      assert.isEqual("Another Paragraph.", p2.content);
+      assert.isArrayEqual(["heading_1", "paragraph_1", "heading_2", "paragraph_2"], this.doc.get("content").nodes);
+    },
   ];
 };
 
