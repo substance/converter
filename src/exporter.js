@@ -1,11 +1,9 @@
 "use strict";
 
 var util = require("substance-util");
-var errors = util.errors;
 var Document = require("substance-document");
 var Annotator = Document.Annotator;
-
-var ExporterError = errors.define("ExporterError");
+var ExporterError = require("./converter_errors").ExporterError;
 
 var _annotations = [
   ["Emph", "emphasis"],

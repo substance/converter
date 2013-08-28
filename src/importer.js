@@ -2,10 +2,8 @@
 
 var util = require("substance-util");
 var _ = require("underscore");
-var errors = util.errors;
 var Article = require("substance-article");
-
-var ImporterError = errors.define("ImporterError");
+var ImporterError = require("./converter_errors").ImporterError;
 
 var Importer = function() {
 };
@@ -271,7 +269,7 @@ Importer.Prototype = function() {
 
     return doc.create(node);
   };
-  
+
   this.caption = function(state, input) {
     var doc = state.doc;
     var id = state.nextId("caption");
