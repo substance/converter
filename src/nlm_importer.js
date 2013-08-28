@@ -331,11 +331,17 @@ NLMImporter.Prototype = function() {
       var nodes;
       if (type === "p") {
         nodes = this.paragraph(state, child);
-      } else {
+      }
+      else if (type === "sec") {
+        nodes = this.section(state, child);
+      }
+      else {
         console.log("Not yet supported: ", type);
       }
 
-      this.show(state, nodes);
+      if (nodes) {
+        this.show(state, nodes);
+      }
     }
   };
 
@@ -364,16 +370,14 @@ NLMImporter.Prototype = function() {
     var childNodes = paragraph.childNodes;
 
     for (var i = 0; i < childNodes.length; i++) {
-      var child = childNodes[i]
+      var child = childNodes[i];
 
       if (child.nodeType === Node.TEXT_NODE) {
-        console.log("Ho");
         node.content += child.textContent;
       } else {
-        console.log("Nope");
+        console.log("Not yet supported:", child);
       }
-
-    };
+    }
 
     doc.create(node);
     return [node];
@@ -382,18 +386,43 @@ NLMImporter.Prototype = function() {
   this.section = function(state, section) {
     state.sectionLevel++;
 
+    var doc = state.doc;
+    var children = section.children;
+
     // create a heading
+    var title = children[0];
     var heading = {
       id: state.nextId("heading"),
       type: "heading",
-      content: ""
+      level: state.sectionLevel,
+      content: title.textContent
     };
-    // TODO: set heading content
-    // create a paragraph as section body
-    var nodes = this.paragraph(state, null);
+    doc.create(heading);
+
+    var result = [heading];
+
+    // process the rest of the section
+    for (var i = 1; i < children.length; i++) {
+      var nodes;
+      var child = children[i];
+      var type = child.tagName.toLowerCase();
+
+      // recursive descent
+      if (type === "p") {
+        nodes = this.paragraph(state, child);
+      }
+      else {
+        console.log("Not yet supported: ", type);
+      }
+
+      if (nodes) {
+        result = result.concat(nodes);
+      }
+    }
+
     state.sectionLevel--;
 
-    return [heading].concat(nodes);
+    return result;
   };
 };
 NLMImporter.prototype = new NLMImporter.Prototype();
@@ -414,14 +443,6 @@ NLMImporter.State = function(xmlDoc, doc) {
   this.stack = [];
 
   this.sectionLevel = 0;
-
-  this.views = {};
-
-  this.createView = function(name) {
-    if (this.views[name] === undefined) {
-      this.views[name] = [];
-    }
-  };
 
   // an id generator for different types
   var ids = {};

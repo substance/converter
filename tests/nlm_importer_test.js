@@ -41,7 +41,7 @@ var NLMImporterTest = function () {
     "Check: Article with Front only", function() {
       assert.isEqual("simple_front", this.doc.id);
       assert.isEqual("This is a Test Article", this.doc.title);
-      assert.isEqual("Foo Bar", this.doc.creator);
+      assert.isEqual("Tine Testa", this.doc.creator);
       assert.isEqual("This is a test document having no body and a very simple front matter only.", this.doc.abstract);
       assert.isEqual(new Date(2013, 8, 28).getTime(), this.doc.created_at.getTime());
     },
@@ -55,6 +55,20 @@ var NLMImporterTest = function () {
       assert.isDefined(p1);
       assert.isEqual("This is a Paragraph.", p1.content);
       assert.isArrayEqual(["paragraph_1"], this.doc.get("content").nodes);
+    },
+
+    "Import: Article with single section", function(cb) {
+      this.importFixture("../data/nlm/single_section.xml", cb);
+    },
+
+    "Check: Article with single section", function() {
+      var h1 = this.doc.get("heading_1");
+      var p1 = this.doc.get("paragraph_1");
+      assert.isDefined(h1);
+      assert.isDefined(p1);
+      assert.isEqual("Level-1 Heading", h1.content);
+      assert.isEqual("This is a Paragraph.", p1.content);
+      assert.isArrayEqual(["heading_1", "paragraph_1"], this.doc.get("content").nodes);
     },
 
   ];

@@ -4,15 +4,15 @@
 <?release-delay 0|0 ?>
   <front>
     <article-meta>
-      <article-id pub-id-type="substance">simple_front</article-id>
+      <article-id pub-id-type="substance">single_paragraph</article-id>
       <title-group>
         <article-title>This is a Test Article</article-title>
       </title-group>
       <contrib-group>
         <contrib contrib-type="author">
           <name>
-            <surname>Bar</surname>
-            <given-names>Foo</given-names>
+            <surname>Testa</surname>
+            <given-names>Tine</given-names>
           </name>
         </contrib>
       </contrib-group>
