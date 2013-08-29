@@ -400,30 +400,57 @@ NLMImporter.Prototype = function() {
   this.paragraph = function(state, paragraph) {
     var doc = state.doc;
 
-    var node = {
-      id: "",
-      type: "paragraph",
-      content: ""
+    // Note: there are some elements in the NLM paragraph allowed
+    // which are not allowed in a Substance Paragraph.
+    // I.e., they can not be nested inside, but must be added on top-level
+
+    var nodes = [];
+
+    var iterator = {
+      childNodes: paragraph.childNodes,
+      length: paragraph.childNodes.length,
+      pos: 0
     };
-    var id = paragraph.getAttribute("id");
-    id = id || state.nextId(node.type);
-    node.id = id;
 
-    // pushing information to the stack so that annotations can be created appropriately
-    state.stack.push({
-      node: node,
-      path: [node.id, "content"]
-    });
+    for (; iterator.pos < iterator.length; iterator.pos++) {
+      var child = iterator.childNodes[iterator.pos];
+      var type = (child.tagName || "text").toLowerCase();
 
-    var content = this.annotatedText(state, paragraph.childNodes, 0);
-    node.content = content;
+      if (child.nodeType === Node.TEXT_NODE || this.isAnnotation(type)) {
+        var node = {
+          id: state.nextId("paragraph"),
+          type: "paragraph",
+          content: ""
+        };
+        // pushing information to the stack so that annotations can be created appropriately
+        state.stack.push({
+          node: node,
+          path: [node.id, "content"]
+        });
 
-    doc.create(node);
+        // Note: this will consume as many textish elements (text and annotations)
+        // but will return when hitting the first un-textish element.
+        // In that case, the iterator will still have more elements
+        // and the loop is continued
+        var annotatedText = this.annotatedText(state, iterator, 0);
 
-    // popping the stack
-    state.stack.pop();
+        node.content = annotatedText;
+        doc.create(node);
+        nodes.push(node);
 
-    return [node];
+        // popping the stack
+        state.stack.pop();
+
+      } else if (type === "fig") {
+        console.log("FIG");
+      }
+      else if (type === "table-wrap") {
+        console.log("FIG");
+      }
+
+    }
+
+    return nodes;
   };
 
 
@@ -447,39 +474,61 @@ NLMImporter.Prototype = function() {
     "underline": "strong",
   };
 
+  this.isAnnotation = function(type) {
+    return _annotationTypes[type] !== undefined;
+  };
 
-  this.annotatedText = function(state, textFragments, pos) {
+  this.annotatedText = function(state, iterator, charPos, nested) {
     var plainText = "";
 
-    for (var i = 0; i < textFragments.length; i++) {
-      var el = textFragments[i];
+    for (; iterator.pos < iterator.length; iterator.pos++) {
+      var el = iterator.childNodes[iterator.pos];
 
       // Plain text nodes...
       if (el.nodeType === Node.TEXT_NODE) {
         plainText += el.textContent;
-        pos += el.textContent.length;
+        charPos += el.textContent.length;
       }
+
       // Annotations...
       else {
+
         var type = el.tagName.toLowerCase();
         if (_annotationTypes[type] !== undefined) {
-          var start = pos;
+
+          var start = charPos;
+
+          var childIterator = {
+            childNodes: el.childNodes,
+            length: el.childNodes.length,
+            pos: 0
+          };
+
           // recurse into the annotation element to collect nested annotations
           // and the contained plain text
-          var annotatedText = this.annotatedText(state, el.childNodes, pos);
+          var annotatedText = this.annotatedText(state, childIterator, charPos, "nested");
 
           plainText += annotatedText;
-          pos += annotatedText.length;
+          charPos += annotatedText.length;
 
-          this.createAnnotation(state, el, start, pos);
+          this.createAnnotation(state, el, start, charPos);
         }
+
         // Unsupported...
         else {
-          throw new ImporterError("Node not yet supported in annoted text: " + type);
+          if (nested) {
+            throw new ImporterError("Node not yet supported in annoted text: " + type);
+          }
+          else {
+            // on paragraph level other elements can break a text block
+            // we shift back the position and finish this call
+            iterator.pos--;
+            break;
+          }
         }
       }
-
     }
+
     return plainText;
   };
 
