@@ -99,12 +99,14 @@ Importer.Prototype = function() {
       case "Header":
         return this.header(state, input["Header"]);
       case "Para":
+        // TODO: why is that?
         if (!_.isUndefined(input["Para"][0].Image)) {
-          return this.image(state, input["Para"][0].Image);
+          return this.figure(state, input["Para"][0].Image);
         }
         else {
           return this.paragraph(state, input["Para"]);
         }
+        break;
       case "CodeBlock":
         return this.codeblock(state, input["CodeBlock"]);
       case 'RawBlock':
@@ -116,7 +118,7 @@ Importer.Prototype = function() {
       case "OrderedList":
         return this.list(state, input["OrderedList"], true);
       case "Image":
-        return this.image(state, input["Image"]);
+        return this.figure(state, input["Image"]);
       default:
         throw new ImporterError("Node not supported: " + type);
     }
@@ -249,21 +251,30 @@ Importer.Prototype = function() {
     return false;
   };
 
-  this.image = function(state, input) {
+  this.figure = function(state, input) {
     var doc = state.doc;
 
-    var url = input[1][0];
-    var id = state.nextId("image");
+    var id = state.nextId("figure");
     var node = {
       id: id,
-      type: "image",
+      type: "figure",
+      image: null,
       caption: null,
+    };
+
+    id = state.nextId("image");
+    var url = input[1][0];
+    var img = {
+      id: id,
+      type: "image",
       url: url
     };
+    doc.create(img);
+    node.image = img.id;
 
     state.push(node);
     if (!_.isEmpty(input[0])){
-    	node.caption = this.caption(state, input[0]);
+      node.caption = this.caption(state, input[0]);
     }
     state.pop();
 
@@ -272,6 +283,7 @@ Importer.Prototype = function() {
 
   this.caption = function(state, input) {
     var doc = state.doc;
+
     var id = state.nextId("caption");
     var node = {
       id: id,
@@ -281,7 +293,8 @@ Importer.Prototype = function() {
     state.push(node);
     node.content = this.text(state, input);
     state.pop();
-    state.annotations.push(node);
+
+    doc.create(node);
     return id;
   };
 
@@ -372,18 +385,20 @@ Importer.Prototype = function() {
 
     var type = data.type;
 
+    var fragments, content;
+
     if(type == 'link') {
-      var fragments = data.fragments[0];
+      fragments = data.fragments[0];
       options.url = data.fragments[1][0];
-      var content = this.text(state, fragments, startPos);
+      content = this.text(state, fragments, startPos);
     }
     else if(type == 'code') {
-      var fragments = data.fragments[1];
-      var content = fragments;
+      fragments = data.fragments[1];
+      content = fragments;
     }
     else {
-      var fragments = data.fragments;
-      var content = this.text(state, fragments, startPos);
+      fragments = data.fragments;
+      content = this.text(state, fragments, startPos);
     }
 
     var endPos = startPos + content.length;
