@@ -28,11 +28,11 @@
   </front>
   <body>
     <p>This is a Paragraph.</p>
-    <fig id="F1">
+    <fig id="figure_1">
       <caption>
         <p>This is a caption</p>
       </caption>
-      <graphic xlink:href="2013CC4897R-F2.tif"/>
+      <graphic xlink:href="http://foo.bar/bla.tif"/>
     </fig>
   </body>
 </article>

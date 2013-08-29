@@ -142,10 +142,19 @@ var NLMImporterTest = function () {
       this.importFixture("../data/nlm/figures.xml", cb);
     },
 
-    "Check: A Figure", function(cb) {
-      var f1 = this.doc.get("figure_1");
+    "Check: A Figure", function() {
+      var fig = this.doc.get("figure_1");
+      var img = this.doc.get("image_1");
+      var caption = this.doc.get("paragraph_2");
 
-      assert.isDefined(f1);
+      assert.isDefined(fig);
+      assert.isDefined(img);
+      assert.isDefined(caption);
+
+      assert.isEqual(img.id, fig.image);
+      assert.isEqual(caption.id, fig.caption);
+      assert.isEqual("http://foo.bar/bla.tif", img.url);
+      assert.isEqual("This is a caption", caption.content);
     },
 
   ];

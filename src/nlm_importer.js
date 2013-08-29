@@ -504,11 +504,17 @@ NLMImporter.Prototype = function() {
     var caption = figure.querySelector("caption");
     if (caption) {
       var p = caption.querySelector("p");
-      var node = this.paragraph(state, p);
-      figureNode.caption = node.id;
+      var nodes = this.paragraph(state, p);
+      if (nodes.length > 1) {
+        // Hmmm... what to do if the captions is a wild beast instead of a single paragraph?
+        throw new ImporterError("Ooops. Not ready for that...");
+      }
+      figureNode.caption = nodes[0].id;
     }
 
     // Image
+    // (... a first rough sketch)
+    // TODO: implement it following the specification
     var graphic = figure.querySelector("graphic");
     var url = graphic.getAttribute("xlink:href");
     var img = {
