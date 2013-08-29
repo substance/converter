@@ -494,7 +494,7 @@ NLMImporter.Prototype = function() {
       else {
 
         var type = el.tagName.toLowerCase();
-        if (_annotationTypes[type] !== undefined) {
+        if (this.isAnnotation(type)) {
 
           var start = charPos;
 
