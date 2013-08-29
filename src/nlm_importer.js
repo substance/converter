@@ -185,9 +185,9 @@ NLMImporter.Prototype = function() {
     //   * <related-object> Related Object Information
 
     // <abstract> Abstract, zero or more
-    var abstract = articleMeta.querySelector("abstract");
-    if (abstract) {
-      this.abstract(state, abstract);
+    var abs = articleMeta.querySelector("abstract");
+    if (abs) {
+      this.abstract(state, abs);
     }
 
     // Not supported yet:
@@ -283,11 +283,11 @@ NLMImporter.Prototype = function() {
   };
 
   // Note: This is *very* rudimentary considering the actual spec for 'abstract' (which is rather complex)
-  this.abstract = function(state, abstract) {
+  this.abstract = function(state, abs) {
     var doc = state.doc;
 
     // TODO: extend this when we support more content
-    var children = abstract.children;
+    var children = abs.children;
     for (var i = 0; i < children.length; i++) {
       var child = children[i];
       if (child.tagName.toLowerCase() === "p") {
@@ -321,13 +321,25 @@ NLMImporter.Prototype = function() {
   • <sec> Section, zero or more
   */
   this.body = function(state, body) {
-    var children = body.children;
 
-    for (var i = 0; i < children.length; i++) {
+    var nodes = this.bodyNodes(state, body.children);
+
+    if (nodes.length > 0) {
+      this.show(state, nodes);
+    }
+
+  };
+
+  this.bodyNodes = function(state, children, startIndex) {
+    var result = [];
+
+    startIndex = startIndex || 0;
+
+    var nodes;
+    for (var i = startIndex; i < children.length; i++) {
       var child = children[i];
       var type = child.tagName.toLowerCase();
 
-      var nodes;
       if (type === "p") {
         nodes = this.paragraph(state, child);
       }
@@ -342,19 +354,41 @@ NLMImporter.Prototype = function() {
       }
 
       if (nodes) {
-        this.show(state, nodes);
+        result = result.concat(nodes);
       }
     }
+
+    return result;
   };
 
-  this.show = function(state, nodes) {
-    var doc = state.doc;
-    var view = doc.get("content").nodes;
+  this.section = function(state, section) {
 
-    // show the created nodes in the content view
-    for (var j = 0; j < nodes.length; j++) {
-      view.push(nodes[j].id);
-    }
+    // pushing the section level to track the level for nested sections
+    state.sectionLevel++;
+
+    var doc = state.doc;
+    var children = section.children;
+
+    // create a heading
+    var title = children[0];
+    var heading = {
+      id: state.nextId("heading"),
+      type: "heading",
+      level: state.sectionLevel,
+      content: title.textContent
+    };
+    doc.create(heading);
+
+    // Recursive Descent: get all section body nodes
+    var nodes = this.bodyNodes(state, children, 1);
+
+    // add the heading at the front
+    nodes.unshift(heading);
+
+    // popping the section level
+    state.sectionLevel--;
+
+    return nodes;
   };
 
   // A 'paragraph' is given a '<p>' ta
@@ -387,53 +421,6 @@ NLMImporter.Prototype = function() {
     return [node];
   };
 
-  this.section = function(state, section) {
-
-    // pushing the section level to track the level for nested sections
-    state.sectionLevel++;
-
-    var doc = state.doc;
-    var children = section.children;
-
-    // create a heading
-    var title = children[0];
-    var heading = {
-      id: state.nextId("heading"),
-      type: "heading",
-      level: state.sectionLevel,
-      content: title.textContent
-    };
-    doc.create(heading);
-
-    var result = [heading];
-
-    // process the rest of the section
-    for (var i = 1; i < children.length; i++) {
-      var nodes;
-      var child = children[i];
-      var type = child.tagName.toLowerCase();
-
-      // recursive descent
-      if (type === "p") {
-        nodes = this.paragraph(state, child);
-      }
-      else if (type === "sec") {
-        nodes = this.section(state, child);
-      }
-      else {
-        throw new ImporterError("Node not yet supported within section: " + type);
-      }
-
-      if (nodes) {
-        result = result.concat(nodes);
-      }
-    }
-
-    // popping the section level
-    state.sectionLevel--;
-
-    return result;
-  };
 
   // Ignored annotations:
   //  - <overline> Overline
@@ -455,43 +442,40 @@ NLMImporter.Prototype = function() {
     "underline": "strong",
   };
 
+
   this.annotatedText = function(state, textFragments, pos) {
     var plainText = "";
 
     for (var i = 0; i < textFragments.length; i++) {
       var el = textFragments[i];
 
+      // Plain text nodes...
       if (el.nodeType === Node.TEXT_NODE) {
         plainText += el.textContent;
         pos += el.textContent.length;
-      } else {
+      }
+      // Annotations...
+      else {
         var type = el.tagName.toLowerCase();
         if (_annotationTypes[type] !== undefined) {
           var start = pos;
+          // recurse into the annotation element to collect nested annotations
+          // and the contained plain text
           var annotatedText = this.annotatedText(state, el.childNodes, pos);
+
           plainText += annotatedText;
           pos += annotatedText.length;
-          var end = pos;
-          this.createAnnotation(state, type, start, end);
-        } else {
+
+          this.createAnnotation(state, el, start, pos);
+        }
+        // Unsupported...
+        else {
           throw new ImporterError("Node not yet supported in annoted text: " + type);
         }
       }
 
     }
-
     return plainText;
-  };
-
-  this.createAnnotation = function(state, type, start, end) {
-    var annoType = _annotationTypes[type];
-    var anno = {
-      id: state.nextId(annoType),
-      type : annoType,
-      path: _.last(state.stack).path,
-      range: [start, end],
-    };
-    state.annotations.push(anno);
   };
 
   this.figure = function(state, figure) {
@@ -532,6 +516,35 @@ NLMImporter.Prototype = function() {
 
     doc.create(figureNode);
     return [figureNode];
+  };
+
+  // Creates an annotation for a given annotation element
+  // Note: annotations are not created instantly but stored into the state
+  // to make sure, that the referenced node already exists.
+  // The referenced node does not exist at the moment this method gets called
+  // as it is right in the middle of processing it.
+  this.createAnnotation = function(state, el, start, end) {
+    var type = el.tagName.toLowerCase();
+    var annoType = _annotationTypes[type];
+    var anno = {
+      id: state.nextId(annoType),
+      type : annoType,
+      path: _.last(state.stack).path,
+      range: [start, end],
+    };
+    state.annotations.push(anno);
+  };
+
+  // This is called for top-level nodes which should be added to a view
+  // TODO: this is experimental, and needs some experience from developing a more complex converter (e.g., for lens)
+  this.show = function(state, nodes) {
+    var doc = state.doc;
+    var view = doc.get("content").nodes;
+
+    // show the created nodes in the content view
+    for (var j = 0; j < nodes.length; j++) {
+      view.push(nodes[j].id);
+    }
   };
 
 };
