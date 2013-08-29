@@ -334,6 +334,9 @@ NLMImporter.Prototype = function() {
       else if (type === "sec") {
         nodes = this.section(state, child);
       }
+      else if (type === "fig") {
+        nodes = this.figure(state, child);
+      }
       else {
         throw new ImporterError("Node not yet supported within section: " + type);
       }
@@ -484,6 +487,40 @@ NLMImporter.Prototype = function() {
       range: [start, end],
     };
     state.annotations.push(anno);
+  };
+
+  this.figure = function(state, figure) {
+    var doc = state.doc;
+
+    var figureNode = {
+      type: "figure",
+      image: null,
+      caption: null
+    };
+    var id = figure.getAttribute("id") || state.nextId(figureNode.type);
+    figureNode.id = id;
+
+    // Caption: is a paragraph
+    var caption = figure.querySelector("caption");
+    if (caption) {
+      var p = caption.querySelector("p");
+      var node = this.paragraph(state, p);
+      figureNode.caption = node.id;
+    }
+
+    // Image
+    var graphic = figure.querySelector("graphic");
+    var url = graphic.getAttribute("xlink:href");
+    var img = {
+      id: state.nextId("image"),
+      type: "image",
+      url: url
+    };
+    doc.create(img);
+    figureNode.image = img.id;
+
+    doc.create(figureNode);
+    return [figureNode];
   };
 
 };

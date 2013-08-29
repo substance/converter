@@ -136,8 +136,18 @@ var NLMImporterTest = function () {
       assert.isArrayEqual([10, 19], i1.range);
       assert.isArrayEqual([17, 27], i2.range);
       assert.isArrayEqual([17, 21], s2.range);
+    },
 
-    }
+    "Import: A Figure", function(cb) {
+      this.importFixture("../data/nlm/figures.xml", cb);
+    },
+
+    "Check: A Figure", function(cb) {
+      var f1 = this.doc.get("figure_1");
+
+      assert.isDefined(f1);
+    },
+
   ];
 };
 
