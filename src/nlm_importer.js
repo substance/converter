@@ -447,7 +447,12 @@ NLMImporter.Prototype = function() {
     "bold": "strong",
     "italic": "emphasis",
     "monospace": "code",
-    "xref": "idea"
+
+    // Note: mapping unsupported annotation types to other types (for development)
+    "xref": "idea",
+    "sub": "code",
+    "sup": "code",
+    "underline": "strong",
   };
 
   this.annotatedText = function(state, textFragments, pos) {

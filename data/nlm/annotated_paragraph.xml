@@ -31,5 +31,9 @@
     <p>This is a <bold>strong</bold> emphasis.</p>
     <p>This is a <xref ref-type="bibr" rid="R1">reference</xref>.</p>
     <p>This is a nested <xref ref-type="bibr" rid="R2"><bold>anno</bold>tation</xref>.</p>
+    <p>This is <sub>subscript</sub>.</p>
+    <p>This is <sup>superscript</sup>.</p>
+    <p>This is <underline>underlined</underline>.</p>
+    <p>This is <monospace>monospace</monospace>.</p>
   </body>
 </article>
