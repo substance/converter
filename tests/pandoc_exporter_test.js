@@ -6,8 +6,8 @@
 var Test = require('substance-test');
 var assert = Test.assert;
 var registerTest = Test.registerTest;
-var Importer = require('../src/importer');
-var Exporter = require('../src/exporter');
+var Importer = require('../src/pandoc_importer');
+var Exporter = require('../src/pandoc_exporter');
 
 // Test
 // ========

@@ -3,8 +3,8 @@
 // PandocImporter
 // ---------------
 
-require("./importer_test");
-require("./exporter_test");
+require("./pandoc_importer_test");
+require("./pandoc_exporter_test");
 
 // NLMImporter
 // ---------------

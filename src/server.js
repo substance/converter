@@ -1,10 +1,7 @@
 "use strict";
 
-var Converter = require('./converter');
-var Importer = require('./importer');
-var Exporter = require('./exporter');
-var Article = require('substance-article');
-var urlparser = require("url");
+var Importer = require('./pandoc_importer');
+var Exporter = require('./pandoc_exporter');
 var request = require("request");
 var spawn = require('child_process').spawn;
 
@@ -33,11 +30,11 @@ Server.Prototype = function() {
     // Checks if the pandoc tool is available
     function __pandocAvailable(cb) {
       var test = spawn('pandoc', ['--help']);
-      test.on('error', function(err) {
+      test.on('error', function() {
         console.error('Pandoc not found');
-        cb('Pandoc not found'); 
+        cb('Pandoc not found');
       });
-      test.on('exit', function(err) { cb(null); });
+      test.on('exit', function() { cb(null); });
       test.stdin.end();
     }
 
@@ -45,7 +42,7 @@ Server.Prototype = function() {
       if (err) return cb(err);
 
       child = spawn('pandoc',args);
-      
+
       child.on('error', function(err) { cb(err); });
 
       child.stdout.on('data', function (data) {
@@ -57,7 +54,7 @@ Server.Prototype = function() {
       });
 
       child.on('exit', function (code) {
-        if (code != 0)
+        if (code !== 0)
           return cb(new Error('pandoc exited with code ' + code + '.'));
         if (error)
           return cb(new Error(error));
@@ -67,7 +64,7 @@ Server.Prototype = function() {
       child.stdin.write(input, 'utf8');
       child.stdin.end();
     });
-    
+
   };
 
   // Fetch a file from the web
@@ -89,11 +86,12 @@ Server.Prototype = function() {
   this.convert = function(input, inputFormat, outputFormat, cb) {
     var that = this;
 
+    var converter;
     if (inputFormat === "json" && outputFormat === "substance") {
-      var converter = new Importer();
+      converter = new Importer();
       cb(null, converter.import(JSON.parse(input)));
     } else if(inputFormat === "substance") {
-      var converter = new Exporter();
+      converter = new Exporter();
       var json = converter.export(input);
       this.pandoc(JSON.stringify(json), 'json', 'html', function(err, result) {
         if (err) return cb(err);
@@ -121,7 +119,7 @@ Server.Prototype = function() {
   // --------
   //
   // Call this from your app to serve the convert through your Express.js instance
-  // 
+  //
 
   this.serve = function() {
     var that = this;
@@ -142,7 +140,7 @@ Server.Prototype = function() {
     });
     this.app.get("/export", function(req, res) {
       // Parsing file while debugging
-      var url = req.query.url || "https://raw.github.com/substance/substance/0.5.x/data/lorem_ipsum.json";
+      //var url = req.query.url || "https://raw.github.com/substance/substance/0.5.x/data/lorem_ipsum.json";
       var inputFormat = "substance";
       var outputFormat = req.query.out || "html";
       var doc = req.doc || false;

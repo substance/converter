@@ -6,7 +6,7 @@
 var Test = require('substance-test');
 var assert = Test.assert;
 var registerTest = Test.registerTest;
-var Importer = require('../src/importer');
+var Importer = require('../src/pandoc_importer');
 var Document = require("substance-document");
 var Annotator = Document.Annotator;
 

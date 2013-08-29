@@ -1,12 +1,8 @@
 "use strict";
 
-var util = require("substance-util");
 var _ = require("underscore");
 var Article = require("substance-article");
 var ImporterError = require("./converter_errors").ImporterError;
-
-var Importer = function() {
-};
 
 var State = function() {
   // an id generator for different types
@@ -58,7 +54,10 @@ var _getAnnotationData = function(item) {
   }
 };
 
-Importer.Prototype = function() {
+var PandocImporter = function() {
+};
+
+PandocImporter.Prototype = function() {
 
   this.import = function(input) {
     var state = new State();
@@ -418,7 +417,6 @@ Importer.Prototype = function() {
 
 };
 
-Importer.prototype = new Importer.Prototype();
-Importer.ImporterError = ImporterError;
+PandocImporter.prototype = new PandocImporter.Prototype();
 
-module.exports = Importer;
+module.exports = PandocImporter;

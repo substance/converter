@@ -1,9 +1,8 @@
 "use strict";
 
-var util = require("substance-util");
 var Document = require("substance-document");
 var Annotator = Document.Annotator;
-var ExporterError = require("./converter_errors").ExporterError;
+//var ExporterError = require("./converter_errors").ExporterError;
 
 var _annotations = [
   ["Emph", "emphasis"],
@@ -22,10 +21,10 @@ var mapAnnotationType = function(type) {
   return undefined;
 };
 
-var Exporter = function() {
+var PandocExporter = function() {
 };
 
-Exporter.Prototype = function() {
+PandocExporter.Prototype = function() {
 
   this.export = function(article) {
     var output = [];
@@ -159,10 +158,11 @@ Exporter.Prototype = function() {
   };
 
   this.figure = function(state, node) {
-    if (node.caption != '') {
-      var content = this.paragraph(state, node.getCaption());
+    var content;
+    if (node.caption !== '') {
+      content = this.paragraph(state, node.getCaption());
     } else {
-      var content = { "Para": [] }
+      content = { "Para": [] };
     }
     var img = node.getImage();
     var output = {
@@ -191,17 +191,18 @@ Exporter.Prototype = function() {
         listItems.push([content]);
       }
     }
+    var output;
     if (node.properties.ordered) {
-      var output = {
+      output = {
         "OrderedList": [
           [1,"Decimal","Period"],
           listItems
         ]
-      }
+      };
     } else {
-      var output = {
+      output = {
         "BulletList": listItems
-      }
+      };
     }
     return output;
   };
@@ -266,7 +267,7 @@ Exporter.Prototype = function() {
             state.article.get([entry.id,'url']),
             ""
           ]
-        ]
+        ];
       } else if (name == 'Code') {
         annotation[name] = [
           "Code",
@@ -275,7 +276,7 @@ Exporter.Prototype = function() {
             [],
             []
           ]
-        ]
+        ];
       }
 
       parentContext.push(annotation);
@@ -288,8 +289,6 @@ Exporter.Prototype = function() {
 
 };
 
-Exporter.prototype = new Exporter.Prototype();
+PandocExporter.prototype = new PandocExporter.Prototype();
 
-Exporter.ExporterError = ExporterError;
-
-module.exports = Exporter;
+module.exports = PandocExporter;
