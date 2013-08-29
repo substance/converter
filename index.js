@@ -3,7 +3,9 @@
 var errors = require("./src/converter_errors");
 var PandocImporter = require("./src/pandoc_importer");
 var PandocExporter = require("./src/pandoc_exporter");
-var Server = require("./src/server");
+
+//disabled because of cyclic deps.
+//var Server = require("./src/server");
 
 // currently not supported under node.js as we use the DOM for XML parsing
 if (global.window) {
@@ -16,5 +18,5 @@ module.exports = {
   PandocImporter: PandocImporter,
   PandocExporter: PandocExporter,
   NLMImporter: NLMImporter,
-  Server: Server
+//  Server: Server
 };
