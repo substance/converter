@@ -63,6 +63,11 @@ NLMImporter.Prototype = function() {
       doc.create(state.annotations[i]);
     }
 
+    // Rebuild views to ensure consistency
+    _.each(doc.views, function(view) {
+      doc.get(view).rebuild();
+    });
+
     return doc;
   };
 
