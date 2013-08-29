@@ -27,13 +27,6 @@
     </article-meta>
   </front>
   <body>
-    <p>This is <italic>a</italic> Paragraph with a Figure:
-      <fig id="figure_1">
-        <caption>
-          <p>This is a caption</p>
-        </caption>
-        <graphic xlink:href="http://foo.bar/bla.tif"/>
-      </fig>
-    </p>
+    <p>This is <italic>a</italic> Paragraph with a Figure:<fig id="figure_1"><caption><p>This is a caption</p></caption><graphic xlink:href="http://foo.bar/bla.tif"/></fig></p>
   </body>
 </article>

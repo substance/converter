@@ -352,7 +352,7 @@ NLMImporter.Prototype = function() {
         nodes = this.section(state, child);
       }
       else if (type === "fig") {
-        nodes = this.figure(state, child);
+        nodes = [this.figure(state, child)];
       }
       else {
         throw new ImporterError("Node not yet supported within section: " + type);
@@ -442,10 +442,10 @@ NLMImporter.Prototype = function() {
         state.stack.pop();
 
       } else if (type === "fig") {
-        console.log("FIG");
+        nodes.push(this.figure(state, child))
       }
       else if (type === "table-wrap") {
-        console.log("FIG");
+        console.log("TABLE-WRAP");
       }
 
     }
@@ -569,7 +569,8 @@ NLMImporter.Prototype = function() {
     figureNode.image = img.id;
 
     doc.create(figureNode);
-    return [figureNode];
+
+    return figureNode;
   };
 
   // Creates an annotation for a given annotation element
