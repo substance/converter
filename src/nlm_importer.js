@@ -9,12 +9,39 @@ var NLMImporter = function() {
 
 NLMImporter.Prototype = function() {
 
+  // Helper functions
+  // --------
+
+  // ### Creates a concrete Document instance
+
   this.createDocument = function() {
     var Article = require("substance-article");
     var doc = new Article();
 
     return doc;
   };
+
+  // ### Adds top-level Nodes into views.
+
+  this.show = function(state, nodes) {
+    var doc = state.doc;
+    var view = doc.get("content").nodes;
+
+    // show the created nodes in the content view
+    for (var j = 0; j < nodes.length; j++) {
+      view.push(nodes[j].id);
+    }
+  };
+
+  this.getNodeType = function(el) {
+    if (el.nodeType === Node.TEXT_NODE) {
+      return "text";
+    } else {
+      return el.tagName.toLowerCase();
+    }
+  };
+
+  // ### The main entry point for starting an import
 
   this.import = function(input) {
     var xmlDoc;
@@ -39,8 +66,15 @@ NLMImporter.Prototype = function() {
     return this.document(state, xmlDoc);
   };
 
-  // Document
+  // Parser
   // --------
+  // These methods are used to process XML elements in
+  // using a recursive-descent approach.
+
+
+  // ### Top-Level function that takes a full NLM tree
+  // Note: a specialized converter can derive this method and
+  // add additional pre- or post-processing.
 
   this.document = function(state, xmlDoc) {
     var doc = state.doc;
@@ -51,11 +85,11 @@ NLMImporter.Prototype = function() {
       throw new ImporterError("Expected to find an 'article' element.");
     }
 
-    // Recursive-Descent:
+    // recursive-descent:
 
     this.article(state, article);
 
-    // Post-processing:
+    // post-processing:
 
     // Creating the annotations afterwards, to make sure
     // that all referenced nodes are available
@@ -99,8 +133,12 @@ NLMImporter.Prototype = function() {
       this.body(state, body);
     }
 
+    var back = article.querySelector("back");
+    if (back) {
+      this.back(state, back);
+    }
+
     // Not supported yet:
-    // <back> Back Matter, zero or one
     // <floats-group> Floating Element Group, zero or one
     // <sub-article> Sub-article, zero or more
     // <response> Response, zero or more
@@ -205,6 +243,7 @@ NLMImporter.Prototype = function() {
 
   };
 
+  // articleIds: array of <article-id> elements
   this.articleIds = function(state, articleIds) {
     var doc = state.doc;
 
@@ -271,13 +310,14 @@ NLMImporter.Prototype = function() {
     var month = -1;
     var year = -1;
     _.each(pubDate.children, function(el) {
-      var tagName = el.tagName.toLowerCase();
+      var type = this.getNodeType(el);
+
       var value = el.textContent;
-      if (tagName === "day") {
+      if (type === "day") {
         day = parseInt(value, 10);
-      } else if (tagName === "month") {
+      } else if (type === "month") {
         month = parseInt(value, 10);
-      } else if (tagName === "year") {
+      } else if (type === "year") {
         year = parseInt(value, 10);
       }
     });
@@ -295,7 +335,8 @@ NLMImporter.Prototype = function() {
     var children = abs.children;
     for (var i = 0; i < children.length; i++) {
       var child = children[i];
-      if (child.tagName.toLowerCase() === "p") {
+      var type = this.getNodeType(child);
+      if (type === "p") {
         doc.abstract = child.textContent;
         return;
       }
@@ -343,7 +384,7 @@ NLMImporter.Prototype = function() {
     var nodes;
     for (var i = startIndex; i < children.length; i++) {
       var child = children[i];
-      var type = child.tagName.toLowerCase();
+      var type = this.getNodeType(child);
 
       if (type === "p") {
         nodes = this.paragraph(state, child);
@@ -414,9 +455,9 @@ NLMImporter.Prototype = function() {
 
     for (; iterator.pos < iterator.length; iterator.pos++) {
       var child = iterator.childNodes[iterator.pos];
-      var type = (child.tagName || "text").toLowerCase();
+      var type = this.getNodeType(child);
 
-      if (child.nodeType === Node.TEXT_NODE || this.isAnnotation(type)) {
+      if (type === "text" || this.isAnnotation(type)) {
         var node = {
           id: state.nextId("paragraph"),
           type: "paragraph",
@@ -442,7 +483,7 @@ NLMImporter.Prototype = function() {
         state.stack.pop();
 
       } else if (type === "fig") {
-        nodes.push(this.figure(state, child))
+        nodes.push(this.figure(state, child));
       }
       else if (type === "table-wrap") {
         console.log("TABLE-WRAP");
@@ -493,7 +534,7 @@ NLMImporter.Prototype = function() {
       // Annotations...
       else {
 
-        var type = el.tagName.toLowerCase();
+        var type = this.getNodeType(el);
         if (this.isAnnotation(type)) {
 
           var start = charPos;
@@ -579,7 +620,7 @@ NLMImporter.Prototype = function() {
   // The referenced node does not exist at the moment this method gets called
   // as it is right in the middle of processing it.
   this.createAnnotation = function(state, el, start, end) {
-    var type = el.tagName.toLowerCase();
+    var type = this.getNodeType(el);
     var annoType = _annotationTypes[type];
     var anno = {
       id: state.nextId(annoType),
@@ -590,16 +631,17 @@ NLMImporter.Prototype = function() {
     state.annotations.push(anno);
   };
 
-  // This is called for top-level nodes which should be added to a view
-  // TODO: this is experimental, and needs some experience from developing a more complex converter (e.g., for lens)
-  this.show = function(state, nodes) {
-    var doc = state.doc;
-    var view = doc.get("content").nodes;
-
-    // show the created nodes in the content view
-    for (var j = 0; j < nodes.length; j++) {
-      view.push(nodes[j].id);
+  // #### Article.Back
+  // Contains things like references, notes, etc.
+  this.back = function(state, back) {
+    var refList = back.querySelector("ref-list");
+    if (refList) {
+      this.refList(state, refList);
     }
+  };
+
+  // Not supported yet in Substance.Article
+  this.refList = function(/*state, refList*/) {
   };
 
 };
