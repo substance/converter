@@ -430,7 +430,8 @@ NLMImporter.Prototype = function() {
         if (node) nodes.push(node);
       }
       else if (type === "disp-formula") {
-        console.error("NOT YET IMPLEMENTED: <disp-formula> on paragraph level");
+        node = this.formula(state, child);
+        if (node) nodes.push(node);
       }
       else if (type === "media") {
         node = this.media(state, child);
@@ -535,6 +536,10 @@ NLMImporter.Prototype = function() {
   // Not supported in Substance.Article
   this.tableWrap = function(/*state, tableWrap*/) {
     console.error("Not implemented: <table-wrap>.");
+  };
+
+  this.formula = function(/*state, dispFormula*/) {
+    console.error("Not implemented: <disp-formula>.");
   };
 
   // Article.Back
