@@ -111,14 +111,12 @@ NLMImporter.Prototype = function() {
   // Does the actual conversion.
   //
   // Note: this is implemented as lazy as possible (ALAP) and will be extended as demands arise.
-  // We have left a comment where we skipped an element found in the spec.
   //
   // If you need such an element supported:
   //  - add a stub to this class (empty body),
   //  - add code to call the method to the appropriate function,
-  //  - and implement it the handler here or in your converter.
-  //
-  // This makes this class become a shared abstract converter.
+  //  - and implement the handler here if it can be done in general way
+  //    or in your specialized importer.
 
   this.article = function(state, article) {
 
@@ -138,20 +136,12 @@ NLMImporter.Prototype = function() {
     if (back) {
       this.back(state, back);
     }
-
-    // Not supported yet:
-    // <floats-group> Floating Element Group, zero or one
-    // <sub-article> Sub-article, zero or more
-    // <response> Response, zero or more
   };
 
   // ### Article.Front
   //
 
   this.front = function(state, front) {
-
-    // Not supported yet:
-    // <journal-meta> Journal Metadata
 
     // <article-meta> Article Metadata
     var articleMeta = front.querySelector("article-meta");
@@ -160,8 +150,6 @@ NLMImporter.Prototype = function() {
     }
     this.articleMeta(state, articleMeta);
 
-    // Not supported yet:
-    // <notes> Notes, zero or one
   };
 
   // #### Front.ArticleMeta
@@ -172,9 +160,6 @@ NLMImporter.Prototype = function() {
     // <article-id> Article Identifier, zero or more
     var articleIds = articleMeta.querySelectorAll("article-id");
     this.articleIds(state, articleIds);
-
-    // Not supported yet:
-    // <article-categories> Article Grouping Data, zero or one
 
     // <title-group> Title Group, zero or one
     var titleGroup = articleMeta.querySelector("title-group");
@@ -190,43 +175,9 @@ NLMImporter.Prototype = function() {
       this.contribGroup(state, contribGroup);
     }
 
-    // Not supported yet:
-    // <author-notes> Author Note Group, zero or one
-
     // <pub-date> Publication Date, zero or more
     var pubDates = articleMeta.querySelectorAll("pub-date");
     this.pubDates(state, pubDates);
-
-    // Not supported yet:
-    // <volume> Volume Number, zero or one
-    // <volume-id> Volume Identifier, zero or more
-    // <volume-series> Volume Series, zero or one • <issue> Issue Number, zero or more
-    // <issue-id> Issue Identifier, zero or more
-    // <issue-title> Issue Title, zero or more
-    // <issue-sponsor> Issue Sponsor, zero or more
-    // <issue-part> Issue Part, zero or one
-    // <isbn> ISBN, zero or more
-    // <supplement> Supplement Information, zero or one
-    // Optionally any one of:
-    //   * The following, in order:
-    //     - Optionally, the following sequence (in order):
-    //       . <fpage> First Page
-    //       . <lpage> Last Page, zero or one
-    //     - <page-range> Page Ranges, zero or one
-    //   * <elocation-id> Electronic Location Identifier
-    // Any combination of:
-    //    * Linking Elements
-    //      - <email> Email Address
-    //      - <ext-link> External Link
-    //      - <uri> Uniform Resource Identifier (URI)
-    //    * <product> Product Information
-    //    * <supplementary-material> Supplementary Material
-    // <history> History: Document History, zero or one
-    // <permissions> Permissions, zero or one
-    // <self-uri> URI for This Same Article Online, zero or more
-    // Any combination of:
-    //   * <related-article> Related Article Information
-    //   * <related-object> Related Object Information
 
     // <abstract> Abstract, zero or more
     var abs = articleMeta.querySelector("abstract");
@@ -347,36 +298,15 @@ NLMImporter.Prototype = function() {
   // ### Article.Body
   //
 
-  /*
-  • Any combination of:
-    ◦ <boxed-text> Boxed Text
-    ◦ <chem-struct-wrap> Chemical Structure Wrapper
-    ◦ <fig> Figure
-    ◦ <graphic> Graphic
-    ◦ <media> Media Object
-    ◦ <preformat> Preformatted Text
-    ◦ <supplementary-material> Supplementary Material ◦ <table-wrap> Table Wrapper
-    ◦ <disp-formula> Formula, Display
-    ◦ <disp-formula-group> Formula, Display Group
-    ◦ <def-list> Definition List
-    ◦ <list> List
-    ◦ <p> Paragraph
-    ◦ <disp-quote> Quote, Displayed
-    ◦ <speech> Speech
-    ◦ <statement> Statement, Formal
-    ◦ <verse-group> Verse Form for Poetry
-  • <sec> Section, zero or more
-  */
   this.body = function(state, body) {
-
     var nodes = this.bodyNodes(state, body.children);
-
     if (nodes.length > 0) {
       this.show(state, nodes);
     }
-
   };
 
+  // Top-level elements as they can be found in the body or
+  // in a section.
   this.bodyNodes = function(state, children, startIndex) {
     var nodes = [];
 
@@ -429,7 +359,6 @@ NLMImporter.Prototype = function() {
 
     // Recursive Descent: get all section body nodes
     var nodes = this.bodyNodes(state, children, 1);
-
     // add the heading at the front
     nodes.unshift(heading);
 
@@ -493,7 +422,8 @@ NLMImporter.Prototype = function() {
         nodes = nodes.concat(this.figGroup(state, child));
       }
       else if (type === "table-wrap") {
-        console.error("NOT YET IMPLEMENTED: <table-wrap> on paragraph level");
+        node = this.tableWrap(state, child);
+        if (node) nodes.push(node);
       }
       else if (type === "list") {
         node = this.list(state, child);
@@ -545,14 +475,6 @@ NLMImporter.Prototype = function() {
 
     return listNode;
   };
-
-  // Ignored annotations:
-  //  - <overline> Overline
-  //  - <roman> Roman
-  //  - <sans-serif> Sans Serif
-  //  - <sc> Small Caps
-  //  - <strike> Strike Through
-  //  - <underline> Underline
 
   var _annotationTypes = {
     "bold": "strong",
@@ -649,8 +571,7 @@ NLMImporter.Prototype = function() {
     }
 
     // Image
-    // (... a first rough sketch)
-    // TODO: implement it following the specification
+    // TODO: implement it more thoroghly
     var graphic = figure.querySelector("graphic");
     var url = graphic.getAttribute("xlink:href");
     var img = {
@@ -671,16 +592,15 @@ NLMImporter.Prototype = function() {
   this.figGroup = function(state, figGroup) {
     var nodes = [];
     var figs = figGroup.querySelectorAll("fig");
-
     for (var i = 0; i < figs.length; i++) {
       nodes.push(this.figure(state, figs[i]));
     }
-
     return nodes;
   };
 
   // Not supported in Substance.Article
   this.media = function(/*state, media*/) {
+    console.error("Not implemented: <media>.");
   };
 
   // Creates an annotation for a given annotation element
@@ -718,6 +638,7 @@ NLMImporter.Prototype = function() {
 
   // Not supported yet in Substance.Article
   this.refList = function(/*state, refList*/) {
+    console.error("Not implemented: <ref-list>.");
   };
 
 };
