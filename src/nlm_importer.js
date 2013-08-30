@@ -458,9 +458,10 @@ NLMImporter.Prototype = function() {
     for (; iterator.pos < iterator.length; iterator.pos++) {
       var child = iterator.childNodes[iterator.pos];
       var type = this.getNodeType(child);
+      var node;
 
       if (type === "text" || this.isAnnotation(type)) {
-        var node = {
+        node = {
           id: state.nextId("paragraph"),
           type: "paragraph",
           content: ""
@@ -485,7 +486,8 @@ NLMImporter.Prototype = function() {
         state.stack.pop();
       }
       else if (type === "fig") {
-        nodes.push(this.figure(state, child));
+        node = this.figure(state, child);
+        if (node) nodes.push(node);
       }
       else if (type === "fig-group") {
         nodes = nodes.concat(this.figGroup(state, child));
@@ -494,13 +496,14 @@ NLMImporter.Prototype = function() {
         console.error("NOT YET IMPLEMENTED: <table-wrap> on paragraph level");
       }
       else if (type === "list") {
-        nodes.push(this.list(state, child));
+        node = this.list(state, child);
+        if (node) nodes.push(node);
       }
       else if (type === "disp-formula") {
         console.error("NOT YET IMPLEMENTED: <disp-formula> on paragraph level");
       }
       else if (type === "media") {
-        var node = this.media(state, child);
+        node = this.media(state, child);
         if (node) nodes.push(node);
       }
       else {
@@ -677,7 +680,7 @@ NLMImporter.Prototype = function() {
   };
 
   // Not supported in Substance.Article
-  this.media = function(state, media) {
+  this.media = function(/*state, media*/) {
   };
 
   // Creates an annotation for a given annotation element
