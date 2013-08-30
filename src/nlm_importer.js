@@ -320,7 +320,7 @@ NLMImporter.Prototype = function() {
       } else if (type === "year") {
         year = parseInt(value, 10);
       }
-    });
+    }, this);
     var date = new Date(year, month, day);
     return {
       date: date
