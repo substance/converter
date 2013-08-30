@@ -548,6 +548,7 @@ NLMImporter.Prototype = function() {
     "bold": "strong",
     "italic": "emphasis",
     "monospace": "code",
+    "ext-link": "link",
 
     // Note: mapping unsupported annotation types to other types (for development)
     "xref": "idea",
@@ -675,13 +676,20 @@ NLMImporter.Prototype = function() {
   // as it is right in the middle of processing it.
   this.createAnnotation = function(state, el, start, end) {
     var type = this.getNodeType(el);
-    var annoType = _annotationTypes[type];
+
     var anno = {
-      id: state.nextId(annoType),
-      type : annoType,
       path: _.last(state.stack).path,
-      range: [start, end],
+      range: [start, end]
     };
+
+    var annoType = _annotationTypes[type];
+    if (type === "ext-link") {
+      anno.url = el.getAttribute("xlink:href");
+    }
+
+    annotation.id = state.nextId(annoType);
+    annotation.type = annoType;
+
     state.annotations.push(anno);
   };
 
