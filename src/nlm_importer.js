@@ -395,6 +395,9 @@ NLMImporter.Prototype = function() {
       else if (type === "fig") {
         nodes.push(this.figure(state, child));
       }
+      else if (type === "fig-group") {
+        nodes = nodes.concat(this.figGroup(state, child));
+      }
       else if (type === "list") {
         nodes.push(this.list(state, child));
       }
@@ -483,6 +486,9 @@ NLMImporter.Prototype = function() {
       }
       else if (type === "fig") {
         nodes.push(this.figure(state, child));
+      }
+      else if (type === "fig-group") {
+        nodes = nodes.concat(this.figGroup(state, child));
       }
       else if (type === "table-wrap") {
         console.log("Paragraph level: table-wrap");
@@ -647,6 +653,19 @@ NLMImporter.Prototype = function() {
     doc.create(figureNode);
 
     return figureNode;
+  };
+
+  // Note: fig-groups are not yet mapped to a dedicated node
+  // Instead the contained figures are added flattened.
+  this.figGroup = function(state, figGroup) {
+    var nodes = [];
+    var figs = figGroup.querySelectorAll("fig");
+
+    for (var i = 0; i < figs.length; i++) {
+      nodes.push(this.figure(state, figs[i]));
+    }
+
+    return nodes;
   };
 
   // Creates an annotation for a given annotation element
