@@ -316,4 +316,4 @@ var PandocImporterTest = function () {
   ];
 };
 
-registerTest(['Converter', 'Pandoc Importer'], new PandocImporterTest());
+registerTest(['Substance.Converter', 'Pandoc Importer'], new PandocImporterTest());
