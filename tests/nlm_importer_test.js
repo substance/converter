@@ -171,6 +171,20 @@ var NLMImporterTest = function () {
       assert.isEqual("This is a Paragraph with a Figure:", p.content);
     },
 
+    "Import: Paragraph and List", function(cb) {
+      this.importFixture("../data/nlm/paragraph_and_list.xml", cb);
+    },
+
+    "Check: Paragraph and List", function() {
+      var p1 = this.doc.get("paragraph_1");
+      var list = this.doc.get("list_1");
+      var p2 = this.doc.get("paragraph_2");
+
+      assert.isDefined(p1);
+      assert.isDefined(list);
+      assert.isDefined(p2);
+    },
+
   ];
 };
 
