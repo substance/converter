@@ -480,8 +480,8 @@ NLMImporter.Prototype = function() {
 
         // popping the stack
         state.stack.pop();
-
-      } else if (type === "fig") {
+      }
+      else if (type === "fig") {
         nodes.push(this.figure(state, child));
       }
       else if (type === "table-wrap") {
@@ -489,6 +489,9 @@ NLMImporter.Prototype = function() {
       }
       else if (type === "list") {
         nodes.push(this.list(state, child));
+      }
+      else {
+        throw new ImporterError("Not yet supported on paragraph level: " + type);
       }
     }
 
