@@ -322,14 +322,28 @@ NLMImporter.Prototype = function() {
       else if (type === "sec") {
         nodes = nodes.concat(this.section(state, child));
       }
+      else if (type === "list") {
+        node = this.list(state, child);
+        if (node) nodes.push(node);
+      }
       else if (type === "fig") {
-        nodes.push(this.figure(state, child));
+        node = this.figure(state, child);
+        if (node) nodes.push(node);
       }
       else if (type === "fig-group") {
         nodes = nodes.concat(this.figGroup(state, child));
       }
-      else if (type === "list") {
-        nodes.push(this.list(state, child));
+      else if (type === "table-wrap") {
+        node = this.tableWrap(state, child);
+        if (node) nodes.push(node);
+      }
+      else if (type === "disp-formula") {
+        node = this.formula(state, child);
+        if (node) nodes.push(node);
+      }
+      else if (type === "media") {
+        node = this.media(state, child);
+        if (node) nodes.push(node);
       }
       else {
         throw new ImporterError("Node not yet supported within section: " + type);
@@ -414,6 +428,10 @@ NLMImporter.Prototype = function() {
         // popping the stack
         state.stack.pop();
       }
+      else if (type === "list") {
+        node = this.list(state, child);
+        if (node) nodes.push(node);
+      }
       else if (type === "fig") {
         node = this.figure(state, child);
         if (node) nodes.push(node);
@@ -423,10 +441,6 @@ NLMImporter.Prototype = function() {
       }
       else if (type === "table-wrap") {
         node = this.tableWrap(state, child);
-        if (node) nodes.push(node);
-      }
-      else if (type === "list") {
-        node = this.list(state, child);
         if (node) nodes.push(node);
       }
       else if (type === "disp-formula") {
