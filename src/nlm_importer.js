@@ -491,10 +491,16 @@ NLMImporter.Prototype = function() {
         nodes = nodes.concat(this.figGroup(state, child));
       }
       else if (type === "table-wrap") {
-        console.log("Paragraph level: table-wrap");
+        console.error("NOT YET IMPLEMENTED: <table-wrap> on paragraph level");
       }
       else if (type === "list") {
         nodes.push(this.list(state, child));
+      }
+      else if (type === "disp-formula") {
+        console.error("NOT YET IMPLEMENTED: <disp-formula> on paragraph level");
+      }
+      else if (type === "media") {
+        console.error("NOT YET IMPLEMENTED: <media> on paragraph level");
       }
       else {
         throw new ImporterError("Not yet supported on paragraph level: " + type);
