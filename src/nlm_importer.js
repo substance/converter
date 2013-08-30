@@ -500,7 +500,8 @@ NLMImporter.Prototype = function() {
         console.error("NOT YET IMPLEMENTED: <disp-formula> on paragraph level");
       }
       else if (type === "media") {
-        console.error("NOT YET IMPLEMENTED: <media> on paragraph level");
+        var node = this.media(state, child);
+        if (node) nodes.push(node);
       }
       else {
         throw new ImporterError("Not yet supported on paragraph level: " + type);
@@ -673,6 +674,10 @@ NLMImporter.Prototype = function() {
     }
 
     return nodes;
+  };
+
+  // Not supported in Substance.Article
+  this.media = function(state, media) {
   };
 
   // Creates an annotation for a given annotation element
