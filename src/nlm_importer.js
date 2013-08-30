@@ -49,7 +49,8 @@ NLMImporter.Prototype = function() {
     // Note: when we are using jqueries get("<file>.xml") we
     // magically get a parsed XML document already
     if (_.isString(input)) {
-      throw new ImporterError("Conversion from XML string is not yet supported.");
+      var parser = new DOMParser();
+      xmlDoc = parser.parseFromString(input,"text/xml");
     } else {
       xmlDoc = input;
     }
