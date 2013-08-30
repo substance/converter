@@ -683,20 +683,20 @@ NLMImporter.Prototype = function() {
   this.createAnnotation = function(state, el, start, end) {
     var type = this.getNodeType(el);
 
-    var anno = {
+    var annotation = {
       path: _.last(state.stack).path,
       range: [start, end]
     };
 
     var annoType = _annotationTypes[type];
     if (type === "ext-link") {
-      anno.url = el.getAttribute("xlink:href");
+      annotation.url = el.getAttribute("xlink:href");
     }
 
     annotation.id = state.nextId(annoType);
     annotation.type = annoType;
 
-    state.annotations.push(anno);
+    state.annotations.push(annotation);
   };
 
   // #### Article.Back
