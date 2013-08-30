@@ -174,4 +174,4 @@ var NLMImporterTest = function () {
   ];
 };
 
-registerTest(['Converter', 'NLMImporter'], new NLMImporterTest());
+registerTest(['Substance.Converter', 'NLMImporter'], new NLMImporterTest());

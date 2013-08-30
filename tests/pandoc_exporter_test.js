@@ -104,4 +104,4 @@ var PandocExporterTest = function () {
   ];
 };
 
-registerTest(['Converter', 'Pandoc Exporter'], new PandocExporterTest());
+registerTest(['Substance.Converter', 'Pandoc Exporter'], new PandocExporterTest());
