@@ -378,34 +378,32 @@ NLMImporter.Prototype = function() {
   };
 
   this.bodyNodes = function(state, children, startIndex) {
-    var result = [];
+    var nodes = [];
 
     startIndex = startIndex || 0;
 
-    var nodes;
     for (var i = startIndex; i < children.length; i++) {
       var child = children[i];
       var type = this.getNodeType(child);
 
       if (type === "p") {
-        nodes = this.paragraph(state, child);
+        nodes = nodes.concat(this.paragraph(state, child));
       }
       else if (type === "sec") {
-        nodes = this.section(state, child);
+        nodes = nodes.concat(this.section(state, child));
       }
       else if (type === "fig") {
-        nodes = [this.figure(state, child)];
+        nodes.push(this.figure(state, child));
+      }
+      else if (type === "list") {
+        nodes.push(this.list(state, child));
       }
       else {
         throw new ImporterError("Node not yet supported within section: " + type);
       }
-
-      if (nodes) {
-        result = result.concat(nodes);
-      }
     }
 
-    return result;
+    return nodes;
   };
 
   this.section = function(state, section) {
@@ -487,14 +485,47 @@ NLMImporter.Prototype = function() {
         nodes.push(this.figure(state, child));
       }
       else if (type === "table-wrap") {
-        console.log("TABLE-WRAP");
+        console.log("Paragraph level: table-wrap");
       }
-
+      else if (type === "list") {
+        nodes.push(this.list(state, child));
+      }
     }
 
     return nodes;
   };
 
+  this.list = function(state, list) {
+    var doc = state.doc;
+
+    var listNode = {
+      "id": state.nextId("list"),
+      "type": "list",
+      "items": [],
+      "ordered": false
+    };
+
+    // TODO: better detect ordererd list types (need examples)
+    if (list.getAttribute("list-type") === "ordered") {
+      listNode.ordered = true;
+    }
+
+    var listItems = list.querySelectorAll("list-item");
+    for (var i = 0; i < listItems.length; i++) {
+      var listItem = listItems[i];
+      // Note: we do not care much about what is served as items
+      // However, we do not have complex nodes on paragraph level
+      // They will be extract as sibling items
+      var nodes = this.bodyNodes(state, listItem.children, 0);
+      for (var j = 0; j < nodes.length; j++) {
+        listNode.items.push(nodes[j].id);
+      }
+    }
+
+    doc.create(listNode);
+
+    return listNode;
+  };
 
   // Ignored annotations:
   //  - <overline> Overline
