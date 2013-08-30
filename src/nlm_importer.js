@@ -476,6 +476,86 @@ NLMImporter.Prototype = function() {
     return listNode;
   };
 
+  this.figure = function(state, figure) {
+    var doc = state.doc;
+
+    var figureNode = {
+      type: "figure",
+      image: null,
+      caption: null
+    };
+    var id = figure.getAttribute("id") || state.nextId(figureNode.type);
+    figureNode.id = id;
+
+    // Caption: is a paragraph
+    var caption = figure.querySelector("caption");
+    if (caption) {
+      var p = caption.querySelector("p");
+      var nodes = this.paragraph(state, p);
+      if (nodes.length > 1) {
+        // Hmmm... what to do if the captions is a wild beast instead of a single paragraph?
+        throw new ImporterError("Ooops. Not ready for that...");
+      }
+      figureNode.caption = nodes[0].id;
+    }
+
+    // Image
+    // TODO: implement it more thoroghly
+    var graphic = figure.querySelector("graphic");
+    var url = graphic.getAttribute("xlink:href");
+    var img = {
+      id: state.nextId("image"),
+      type: "image",
+      url: url
+    };
+    doc.create(img);
+    figureNode.image = img.id;
+
+    doc.create(figureNode);
+
+    return figureNode;
+  };
+
+  // Note: fig-groups are not yet mapped to a dedicated node
+  // Instead the contained figures are added flattened.
+  this.figGroup = function(state, figGroup) {
+    var nodes = [];
+    var figs = figGroup.querySelectorAll("fig");
+    for (var i = 0; i < figs.length; i++) {
+      nodes.push(this.figure(state, figs[i]));
+    }
+    return nodes;
+  };
+
+  // Not supported in Substance.Article
+  this.media = function(/*state, media*/) {
+    console.error("Not implemented: <media>.");
+  };
+
+  // Not supported in Substance.Article
+  this.tableWrap = function(/*state, tableWrap*/) {
+    console.error("Not implemented: <table-wrap>.");
+  };
+
+  // Article.Back
+  // --------
+  // Contains things like references, notes, etc.
+
+  this.back = function(state, back) {
+    var refList = back.querySelector("ref-list");
+    if (refList) {
+      this.refList(state, refList);
+    }
+  };
+
+  // Not supported yet in Substance.Article
+  this.refList = function(/*state, refList*/) {
+    console.error("Not implemented: <ref-list>.");
+  };
+
+  // Annotations
+  // --------
+
   var _annotationTypes = {
     "bold": "strong",
     "italic": "emphasis",
@@ -547,62 +627,6 @@ NLMImporter.Prototype = function() {
     return plainText;
   };
 
-  this.figure = function(state, figure) {
-    var doc = state.doc;
-
-    var figureNode = {
-      type: "figure",
-      image: null,
-      caption: null
-    };
-    var id = figure.getAttribute("id") || state.nextId(figureNode.type);
-    figureNode.id = id;
-
-    // Caption: is a paragraph
-    var caption = figure.querySelector("caption");
-    if (caption) {
-      var p = caption.querySelector("p");
-      var nodes = this.paragraph(state, p);
-      if (nodes.length > 1) {
-        // Hmmm... what to do if the captions is a wild beast instead of a single paragraph?
-        throw new ImporterError("Ooops. Not ready for that...");
-      }
-      figureNode.caption = nodes[0].id;
-    }
-
-    // Image
-    // TODO: implement it more thoroghly
-    var graphic = figure.querySelector("graphic");
-    var url = graphic.getAttribute("xlink:href");
-    var img = {
-      id: state.nextId("image"),
-      type: "image",
-      url: url
-    };
-    doc.create(img);
-    figureNode.image = img.id;
-
-    doc.create(figureNode);
-
-    return figureNode;
-  };
-
-  // Note: fig-groups are not yet mapped to a dedicated node
-  // Instead the contained figures are added flattened.
-  this.figGroup = function(state, figGroup) {
-    var nodes = [];
-    var figs = figGroup.querySelectorAll("fig");
-    for (var i = 0; i < figs.length; i++) {
-      nodes.push(this.figure(state, figs[i]));
-    }
-    return nodes;
-  };
-
-  // Not supported in Substance.Article
-  this.media = function(/*state, media*/) {
-    console.error("Not implemented: <media>.");
-  };
-
   // Creates an annotation for a given annotation element
   // Note: annotations are not created instantly but stored into the state
   // to make sure, that the referenced node already exists.
@@ -625,20 +649,6 @@ NLMImporter.Prototype = function() {
     annotation.type = annoType;
 
     state.annotations.push(annotation);
-  };
-
-  // #### Article.Back
-  // Contains things like references, notes, etc.
-  this.back = function(state, back) {
-    var refList = back.querySelector("ref-list");
-    if (refList) {
-      this.refList(state, refList);
-    }
-  };
-
-  // Not supported yet in Substance.Article
-  this.refList = function(/*state, refList*/) {
-    console.error("Not implemented: <ref-list>.");
   };
 
 };
