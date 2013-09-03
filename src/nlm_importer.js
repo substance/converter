@@ -346,7 +346,8 @@ NLMImporter.Prototype = function() {
         if (node) nodes.push(node);
       }
       else {
-        throw new ImporterError("Node not yet supported within section: " + type);
+        console.error("Node not yet supported within section: " + type);
+        // throw new ImporterError("Node not yet supported within section: " + type);
       }
     }
 
@@ -452,7 +453,8 @@ NLMImporter.Prototype = function() {
         if (node) nodes.push(node);
       }
       else {
-        throw new ImporterError("Not yet supported on paragraph level: " + type);
+        console.error("Not yet supported on paragraph level: " + type);
+        // throw new ImporterError("Not yet supported on paragraph level: " + type);
       }
     }
 
