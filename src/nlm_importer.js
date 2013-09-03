@@ -192,7 +192,6 @@ NLMImporter.Prototype = function() {
     // <conference> Conference Information, zero or more
     // <counts> Counts, zero or one
     // <custom-meta-group> Custom Metadata Group, zero or one
-
   };
 
   // articleIds: array of <article-id> elements
@@ -383,7 +382,7 @@ NLMImporter.Prototype = function() {
     return nodes;
   };
 
-  // A 'paragraph' is given a '<p>' ta
+  // A 'paragraph' is given a '<p>' tag
   this.paragraph = function(state, paragraph) {
     var doc = state.doc;
 
@@ -668,7 +667,6 @@ NLMImporter.Prototype = function() {
 
     annotation.id = state.nextId(annoType);
     annotation.type = annoType;
-
     state.annotations.push(annotation);
   };
 
