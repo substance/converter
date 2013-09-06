@@ -36,6 +36,8 @@ NLMImporter.Prototype = function() {
   this.getNodeType = function(el) {
     if (el.nodeType === Node.TEXT_NODE) {
       return "text";
+    } else if (el.nodeType === Node.COMMENT_NODE) {
+      return "comment";
     } else {
       return el.tagName.toLowerCase();
     }
@@ -344,6 +346,10 @@ NLMImporter.Prototype = function() {
         node = this.media(state, child);
         if (node) nodes.push(node);
       }
+      else if (type === "comment") {
+        // Note: Maybe we could create a Substance.Comment?
+        console.error("Ignoring comment");
+      }
       else {
         console.error("Node not yet supported within section: " + type);
         // throw new ImporterError("Node not yet supported within section: " + type);
@@ -450,6 +456,10 @@ NLMImporter.Prototype = function() {
       else if (type === "media") {
         node = this.media(state, child);
         if (node) nodes.push(node);
+      }
+      else if (type === "comment") {
+        // Note: Maybe we could create a Substance.Comment?
+        console.error("Ignoring comment");
       }
       else {
         console.error("Not yet supported on paragraph level: " + type);
