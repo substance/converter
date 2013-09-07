@@ -427,9 +427,12 @@ NLMImporter.Prototype = function() {
         // and the loop is continued
         var annotatedText = this.annotatedText(state, iterator, 0);
 
-        node.content = annotatedText;
-        doc.create(node);
-        nodes.push(node);
+        // Ignore empty paragraphs
+        if (!util.isEmpty(annotatedText)) {
+          node.content = annotatedText;
+          doc.create(node);
+          nodes.push(node);
+        }
 
         // popping the stack
         state.stack.pop();
@@ -526,7 +529,7 @@ NLMImporter.Prototype = function() {
     }
 
     // Image
-    // TODO: implement it more thoroghly
+    // TODO: implement it more thoroughly
     var graphic = figure.querySelector("graphic");
     var url = graphic.getAttribute("xlink:href");
     var img = {
@@ -534,9 +537,9 @@ NLMImporter.Prototype = function() {
       type: "image",
       url: url
     };
+
     doc.create(img);
     figureNode.image = img.id;
-
     doc.create(figureNode);
 
     return figureNode;
@@ -563,6 +566,7 @@ NLMImporter.Prototype = function() {
     console.error("Not implemented: <table-wrap>.");
   };
 
+  // Not supported in Substance.Article
   this.formula = function(/*state, dispFormula*/) {
     console.error("Not implemented: <disp-formula>.");
   };
