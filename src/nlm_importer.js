@@ -348,7 +348,8 @@ NLMImporter.Prototype = function() {
       }
       else if (type === "comment") {
         // Note: Maybe we could create a Substance.Comment?
-        console.error("Ignoring comment");
+        // Keep it silent for now
+        // console.error("Ignoring comment");
       }
       else {
         console.error("Node not yet supported within section: " + type);
@@ -371,6 +372,7 @@ NLMImporter.Prototype = function() {
     var title = children[0];
     var heading = {
       id: state.nextId("heading"),
+      source_id: section.getAttribute("id"),
       type: "heading",
       level: state.sectionLevel,
       content: title.textContent
@@ -412,6 +414,7 @@ NLMImporter.Prototype = function() {
       if (type === "text" || this.isAnnotation(type)) {
         node = {
           id: state.nextId("paragraph"),
+          source_id: paragraph.getAttribute("id"),
           type: "paragraph",
           content: ""
         };
@@ -462,7 +465,10 @@ NLMImporter.Prototype = function() {
       }
       else if (type === "comment") {
         // Note: Maybe we could create a Substance.Comment?
-        console.error("Ignoring comment");
+        // Be silent for now
+        // console.error("Ignoring comment");
+      } else if (type === "supplementary-material") {
+        // Just skip, this is handled globally
       }
       else {
         console.error("Not yet supported on paragraph level: " + type);
@@ -478,6 +484,7 @@ NLMImporter.Prototype = function() {
 
     var listNode = {
       "id": state.nextId("list"),
+      "source_id": list.getAttribute("id"),
       "type": "list",
       "items": [],
       "ordered": false
@@ -509,12 +516,12 @@ NLMImporter.Prototype = function() {
     var doc = state.doc;
 
     var figureNode = {
+      id: state.nextId("figure"),
+      source_id: figure.getAttribute("id"),
       type: "figure",
       image: null,
       caption: null
     };
-    var id = figure.getAttribute("id") || state.nextId(figureNode.type);
-    figureNode.id = id;
 
     // Caption: is a paragraph
     var caption = figure.querySelector("caption");
