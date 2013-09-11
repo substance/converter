@@ -252,31 +252,14 @@ PandocImporter.Prototype = function() {
 
   this.figure = function(state, input) {
     var doc = state.doc;
-
-    var id = state.nextId("figure");
-    var node = {
-      id: id,
-      type: "figure",
-      image: null,
-      caption: null,
-    };
-
-    id = state.nextId("image");
     var url = input[1][0];
-    var img = {
+
+    var id = state.nextId("image");
+    var node = {
       id: id,
       type: "image",
       url: url
     };
-    doc.create(img);
-    node.image = img.id;
-
-    state.push(node);
-    if (!_.isEmpty(input[0])){
-      node.caption = this.caption(state, input[0]);
-    }
-    state.pop();
-
     return doc.create(node);
   };
 
