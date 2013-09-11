@@ -180,29 +180,26 @@ var PandocImporterTest = function () {
       assert.isArrayEqual(["paragraph_1"], doc.get("content").nodes);
     },
 
-    "Paragraph with Image and caption.", function() {
+    "Paragraph with Image.", function() {
       var input = require("../data/pandoc/paragraph_and_image.json");
 
       var doc = this.importer.import(input);
 
       var p1 = doc.get("paragraph_1");
-      var figure = doc.get("figure_1");
       var img = doc.get("image_1");
-      var caption = doc.get("caption_1");
       var p2 = doc.get("paragraph_2");
 
       assert.isDefined(p1);
-      assert.isDefined(figure);
       assert.isDefined(img);
-      assert.isDefined(caption);
       assert.isDefined(p2);
+
+      // TODO: mql removed figures in favor of simple images
+      // currently only the url is imported
 
       assert.isEqual("This is paragraph 1.", p1.content);
       assert.isEqual("http://backbonejs.org/docs/images/lens.png", img.url);
       assert.isEqual("This is paragraph 2.", p2.content);
-      assert.isEqual(caption.id, figure.getCaption().id);
-      assert.isEqual("lens", caption.content);
-      assert.isArrayEqual(["paragraph_1", "figure_1", "paragraph_2"], doc.get("content").nodes);
+      assert.isArrayEqual(["paragraph_1", "image_1", "paragraph_2"], doc.get("content").nodes);
     },
 
     "Annotated List", function() {
