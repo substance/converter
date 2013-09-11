@@ -20,7 +20,7 @@ NLMImporter.Prototype = function() {
       child = child.nextElementSibling;
     }
     return children;
-  }
+  };
 
   // Helper functions
   // --------
@@ -329,9 +329,10 @@ NLMImporter.Prototype = function() {
     for (var i = startIndex; i < children.length; i++) {
       var child = children[i];
       var type = this.getNodeType(child);
+      var node;
 
       if (type === "p") {
-        nodes = nodes.concat(this.paragraph(state, child));
+        nodes = nodes.concat(this.paragraphGroup(state, child));
       }
       else if (type === "sec") {
         nodes = nodes.concat(this.section(state, child));
@@ -403,93 +404,154 @@ NLMImporter.Prototype = function() {
     return nodes;
   };
 
+  var _ignoredParagraphElements = {
+    "comment": true,
+    "supplementary-material": true,
+  };
+
+  var _acceptedParagraphElements = {
+    "list": { handler: "list" },
+    "fig": { handler: "figure" },
+    "fig-group": { handler: "figGroup" },
+    "table-wrap": { handler: "tableWrap" },
+    "disp-formula": { handler: "formula" },
+    "media": { handler: "media" }
+  };
+
+  // Segments children elements of a NLM <p> element
+  // into blocks grouping according to following rules:
+  // - "text", "inline-graphic", "inline-formula", and annotations
+  // - ignore comments, supplementary-materials
+  // - others are treated as singles
+  this.segmentParagraphElements = function(paragraph) {
+    var blocks = [];
+    var lastType = "";
+    var iterator = new NLMImporter.ChildNodeIterator(paragraph);
+
+    // first fragment the childNodes into blocks
+    while (iterator.hasNext()) {
+      var child = iterator.next();
+      var type = this.getNodeType(child);
+
+      // paragraph elements
+      if (type === "text" || this.isAnnotation(type) || type === "inline-graphic") {
+        if (lastType !== "paragraph") {
+          blocks.push({ handler: "richParagraph", nodes: [] });
+          lastType = "paragraph";
+        }
+        _.last(blocks).nodes.push(child);
+        continue;
+      }
+
+      // ignore some elements
+      if (_ignoredParagraphElements[type]) {
+        // skip
+      }
+      // other elements are treated as single blocks
+      else if (_acceptedParagraphElements[type]) {
+        blocks.push(_.extend({node: child}, _acceptedParagraphElements[type]));
+      }
+      lastType = type;
+    }
+    return blocks;
+  };
+
   // A 'paragraph' is given a '<p>' tag
-  this.paragraph = function(state, paragraph) {
-    var doc = state.doc;
-
-    // Note: there are some elements in the NLM paragraph allowed
-    // which are not allowed in a Substance Paragraph.
-    // I.e., they can not be nested inside, but must be added on top-level
-
+  // An NLM <p> can contain nested elements that are represented flattened in a Substance.Article
+  // Hence, this function returns an array of nodes
+  this.paragraphGroup = function(state, paragraph) {
     var nodes = [];
 
-    var iterator = {
-      childNodes: paragraph.childNodes,
-      length: paragraph.childNodes.length,
-      pos: 0
-    };
+    // Note: there are some elements in the NLM paragraph allowed
+    // which are flattened here. To simplify further processing we
+    // segment the children of the paragraph elements in blocks
+    var blocks = this.segmentParagraphElements(paragraph);
 
-    for (; iterator.pos < iterator.length; iterator.pos++) {
-      var child = iterator.childNodes[iterator.pos];
-      var type = this.getNodeType(child);
+    for (var i = 0; i < blocks.length; i++) {
+      var block = blocks[i];
       var node;
+      if (block.handler === "richParagraph") {
+        node = this.richParagraph(state, block.nodes);
+        node.source_id = paragraph.getAttribute("id");
+      } else {
+        node = this[block.handler](state, block.node);
+      }
+      if (node) nodes.push(node);
+    }
 
+    return nodes;
+  };
+
+  this.richParagraph = function(state, children) {
+    var doc = state.doc;
+
+    var node = {
+      id: state.nextId("richparagraph"),
+      type: "richparagraph",
+      children: null
+    };
+    var nodes = [];
+
+    var iterator = new NLMImporter.ChildNodeIterator(children);
+    while (iterator.hasNext()) {
+      var child = iterator.next();
+      var type = this.getNodeType(child);
+
+      // annotated text node
       if (type === "text" || this.isAnnotation(type)) {
-        node = {
+        var textNode = {
           id: state.nextId("paragraph"),
-          source_id: paragraph.getAttribute("id"),
           type: "paragraph",
-          content: ""
+          content: null
         };
         // pushing information to the stack so that annotations can be created appropriately
         state.stack.push({
-          node: node,
-          path: [node.id, "content"]
+          node: textNode,
+          path: [textNode.id, "content"]
         });
-
         // Note: this will consume as many textish elements (text and annotations)
         // but will return when hitting the first un-textish element.
         // In that case, the iterator will still have more elements
         // and the loop is continued
-        var annotatedText = this.annotatedText(state, iterator, 0);
+        // Before descending, we reset the iterator to provide the current element again.
+        var annotatedText = this.annotatedText(state, iterator.back(), 0);
 
         // Ignore empty paragraphs
         if (!util.isEmpty(annotatedText)) {
-          node.content = annotatedText;
-          doc.create(node);
-          nodes.push(node);
+          textNode.content = annotatedText;
+          doc.create(textNode);
+          nodes.push(textNode);
         }
 
         // popping the stack
         state.stack.pop();
       }
-      else if (type === "list") {
-        node = this.list(state, child);
-        if (node) nodes.push(node);
+
+      // inline image node
+      else if (type === "inline-graphic") {
+        var url = child.getAttribute("xlink:href");
+        var img = {
+          id: state.nextId("image"),
+          type: "image",
+          url: url
+        };
+        doc.create(img);
+        nodes.push(img);
       }
-      else if (type === "fig") {
-        node = this.figure(state, child);
-        if (node) nodes.push(node);
-      }
-      else if (type === "fig-group") {
-        nodes = nodes.concat(this.figGroup(state, child));
-      }
-      else if (type === "table-wrap") {
-        node = this.tableWrap(state, child);
-        if (node) nodes.push(node);
-      }
-      else if (type === "disp-formula") {
-        node = this.formula(state, child);
-        if (node) nodes.push(node);
-      }
-      else if (type === "media") {
-        node = this.media(state, child);
-        if (node) nodes.push(node);
-      }
-      else if (type === "comment") {
-        // Note: Maybe we could create a Substance.Comment?
-        // Be silent for now
-        // console.error("Ignoring comment");
-      } else if (type === "supplementary-material") {
-        // Just skip, this is handled globally
-      }
-      else {
-        console.error("Not yet supported on paragraph level: " + type);
-        // throw new ImporterError("Not yet supported on paragraph level: " + type);
+
+      else if (type === "inline-formula") {
+        console.error("Not supported yet");
       }
     }
 
-    return nodes;
+    // if there is only a single node, return do not create a rich paragraph around it
+    if (nodes.length < 2) {
+      return nodes[0];
+    } else {
+      node.children = _.map(nodes, function(n) { return n.id; } );
+      doc.create(node);
+      return node;
+    }
   };
 
   this.list = function(state, list) {
@@ -540,7 +602,7 @@ NLMImporter.Prototype = function() {
     var caption = figure.querySelector("caption");
     if (caption) {
       var p = caption.querySelector("p");
-      var nodes = this.paragraph(state, p);
+      var nodes = this.paragraphGroup(state, p);
       if (nodes.length > 1) {
         // Hmmm... what to do if the captions is a wild beast instead of a single paragraph?
         throw new ImporterError("Ooops. Not ready for that...");
@@ -627,57 +689,47 @@ NLMImporter.Prototype = function() {
     return _annotationTypes[type] !== undefined;
   };
 
+  // TODO: instead of breaking, we could segment the elements in advance
   this.annotatedText = function(state, iterator, charPos, nested) {
     var plainText = "";
 
-    for (; iterator.pos < iterator.length; iterator.pos++) {
-      var el = iterator.childNodes[iterator.pos];
+    if (charPos === undefined) {
+      charPos = 0;
+    }
 
+    while(iterator.hasNext()) {
+      var el = iterator.next();
       // Plain text nodes...
       if (el.nodeType === Node.TEXT_NODE) {
         plainText += el.textContent;
         charPos += el.textContent.length;
       }
-
       // Annotations...
       else {
-
         var type = this.getNodeType(el);
         if (this.isAnnotation(type)) {
-
           var start = charPos;
-
-          var childIterator = {
-            childNodes: el.childNodes,
-            length: el.childNodes.length,
-            pos: 0
-          };
-
           // recurse into the annotation element to collect nested annotations
           // and the contained plain text
+          var childIterator = new NLMImporter.ChildNodeIterator(el);
           var annotatedText = this.annotatedText(state, childIterator, charPos, "nested");
-
           plainText += annotatedText;
           charPos += annotatedText.length;
-
           this.createAnnotation(state, el, start, charPos);
         }
-
         // Unsupported...
         else {
           if (nested) {
             throw new ImporterError("Node not yet supported in annoted text: " + type);
-          }
-          else {
+          } else {
             // on paragraph level other elements can break a text block
             // we shift back the position and finish this call
-            iterator.pos--;
+            iterator.back();
             break;
           }
         }
       }
     }
-
     return plainText;
   };
 
@@ -731,7 +783,32 @@ NLMImporter.State = function(xmlDoc, doc) {
     ids[type]++;
     return type +"_"+ids[type];
   };
+};
 
+NLMImporter.ChildNodeIterator = function(arg) {
+  if(_.isArray(arg)) {
+    this.nodes = arg;
+  } else {
+    this.nodes = arg.childNodes;
+  }
+  this.length = this.nodes.length;
+  this.pos = -1;
+};
+
+NLMImporter.ChildNodeIterator.prototype = {
+  hasNext: function() {
+    return this.pos < this.length - 1;
+  },
+
+  next: function() {
+    this.pos += 1;
+    return this.nodes[this.pos];
+  },
+
+  back: function() {
+    this.pos -= 1;
+    return this;
+  }
 };
 
 module.exports = NLMImporter;
