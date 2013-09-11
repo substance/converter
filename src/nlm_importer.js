@@ -9,6 +9,19 @@ var NLMImporter = function() {
 
 NLMImporter.Prototype = function() {
 
+  // Note: it is not safe regarding browser in-compatibilities
+  // to access el.children directly.
+  var getChildren = function(el) {
+    if (el.children !== undefined) return el.children;
+    var children = [];
+    var child = el.firstElementChild;
+    while (child) {
+      children.push(child);
+      child = child.nextElementSibling;
+    }
+    return children;
+  }
+
   // Helper functions
   // --------
 
@@ -262,7 +275,7 @@ NLMImporter.Prototype = function() {
     var day = -1;
     var month = -1;
     var year = -1;
-    _.each(pubDate.children, function(el) {
+    _.each(getChildren(pubDate), function(el) {
       var type = this.getNodeType(el);
 
       var value = el.textContent;
@@ -285,7 +298,7 @@ NLMImporter.Prototype = function() {
     var doc = state.doc;
 
     // TODO: extend this when we support more content
-    var children = abs.children;
+    var children = getChildren(abs);
     for (var i = 0; i < children.length; i++) {
       var child = children[i];
       var type = this.getNodeType(child);
@@ -300,7 +313,7 @@ NLMImporter.Prototype = function() {
   //
 
   this.body = function(state, body) {
-    var nodes = this.bodyNodes(state, body.children);
+    var nodes = this.bodyNodes(state, getChildren(body));
     if (nodes.length > 0) {
       this.show(state, nodes);
     }
@@ -366,7 +379,7 @@ NLMImporter.Prototype = function() {
     state.sectionLevel++;
 
     var doc = state.doc;
-    var children = section.children;
+    var children = getChildren(section);
 
     // create a heading
     var title = children[0];
@@ -501,7 +514,7 @@ NLMImporter.Prototype = function() {
       // Note: we do not care much about what is served as items
       // However, we do not have complex nodes on paragraph level
       // They will be extract as sibling items
-      var nodes = this.bodyNodes(state, listItem.children, 0);
+      var nodes = this.bodyNodes(state, getChildren(listItem), 0);
       for (var j = 0; j < nodes.length; j++) {
         listNode.items.push(nodes[j].id);
       }
