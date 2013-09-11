@@ -20,6 +20,8 @@ var NLMImporterTest = function () {
   };
 
   this.importFixture = function(path, cb) {
+    // reset the doc to not advertently work on an old file if import fails.
+    this.doc = null;
     fs.readFile(__dirname, path, {encoding: "utf8"}, function(err, data) {
       if (err) return cb(err);
       try {
@@ -185,6 +187,21 @@ var NLMImporterTest = function () {
       assert.isDefined(p2);
     },
 
+    "Import: Paragraph with Inline-Graphic", function(cb) {
+      this.importFixture("../data/nlm/richparagraph.xml", cb);
+    },
+
+    "Check: Paragraph with Inline-Graphic", function() {
+      var rp = this.doc.get("richparagraph_1");
+      var p1 = this.doc.get("paragraph_1");
+      var image = this.doc.get("image_1");
+      var p2 = this.doc.get("paragraph_2");
+
+      assert.isDefined(rp);
+      assert.isDefined(p1);
+      assert.isDefined(image);
+      assert.isDefined(p2);
+    },
   ];
 };
 
