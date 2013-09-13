@@ -182,10 +182,10 @@ PandocImporter.Prototype = function() {
   this.paragraph = function(state, input) {
     var doc = state.doc;
 
-    var id = state.nextId("paragraph");
+    var id = state.nextId("text");
     var node = {
       id: id,
-      type: "paragraph",
+      type: "text",
       content: null
     };
 
@@ -199,10 +199,10 @@ PandocImporter.Prototype = function() {
   this.rawblock = function(state, input) {
     var doc = state.doc;
 
-    var id = state.nextId("paragraph");
+    var id = state.nextId("text");
     var node = {
       id: id,
-      type: "paragraph",
+      type: "text",
       content: null
     };
 
@@ -266,10 +266,10 @@ PandocImporter.Prototype = function() {
   this.caption = function(state, input) {
     var doc = state.doc;
 
-    var id = state.nextId("caption");
+    var id = state.nextId("text");
     var node = {
       id: id,
-      type: "paragraph",
+      type: "text",
       content: null
     };
     state.push(node);

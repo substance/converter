@@ -56,7 +56,7 @@ PandocExporter.Prototype = function() {
       var node = nodes[nodePos];
 
       // recursive descent:
-      if (node.type === "paragraph") {
+      if (node.type === "text") {
         content.push(this.paragraph(state, node));
       } else if (node.type === "heading") {
         content.push(this.heading(state, node));

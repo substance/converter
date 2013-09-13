@@ -730,8 +730,8 @@ NLMImporter.Prototype = function() {
     annotation.type = annoType;
     state.annotations.push(annotation);
   };
-
 };
+
 NLMImporter.prototype = new NLMImporter.Prototype();
 
 NLMImporter.State = function(xmlDoc, doc) {

@@ -12,5 +12,5 @@ require("./pandoc_exporter_test");
 // the NLM importer is only available in the browser
 
 if (global.window) {
-  require("./nlm_importer_test");
+  // require("./nlm_importer_test");
 }
