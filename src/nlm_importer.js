@@ -31,16 +31,6 @@ NLMImporter.Prototype = function() {
     }
   };
 
-  this.getNodeType = function(el) {
-    if (el.nodeType === Node.TEXT_NODE) {
-      return "text";
-    } else if (el.nodeType === Node.COMMENT_NODE) {
-      return "comment";
-    } else {
-      return el.tagName.toLowerCase();
-    }
-  };
-
   // ### The main entry point for starting an import
 
   this.import = function(input) {
@@ -261,7 +251,7 @@ NLMImporter.Prototype = function() {
     var month = -1;
     var year = -1;
     _.each(util.dom.getChildren(pubDate), function(el) {
-      var type = this.getNodeType(el);
+      var type = util.dom.getNodeType(el);
 
       var value = el.textContent;
       if (type === "day") {
@@ -286,7 +276,7 @@ NLMImporter.Prototype = function() {
     var children = util.dom.getChildren(abs);
     for (var i = 0; i < children.length; i++) {
       var child = children[i];
-      var type = this.getNodeType(child);
+      var type = util.dom.getNodeType(child);
       if (type === "p") {
         doc.abstract = child.textContent;
         return;
@@ -313,7 +303,7 @@ NLMImporter.Prototype = function() {
 
     for (var i = startIndex; i < children.length; i++) {
       var child = children[i];
-      var type = this.getNodeType(child);
+      var type = util.dom.getNodeType(child);
       var node;
 
       if (type === "p") {
@@ -416,7 +406,7 @@ NLMImporter.Prototype = function() {
     // first fragment the childNodes into blocks
     while (iterator.hasNext()) {
       var child = iterator.next();
-      var type = this.getNodeType(child);
+      var type = util.dom.getNodeType(child);
 
       // paragraph elements
       if (type === "text" || this.isAnnotation(type) || type === "inline-graphic") {
@@ -480,7 +470,7 @@ NLMImporter.Prototype = function() {
     var iterator = new util.dom.ChildNodeIterator(children);
     while (iterator.hasNext()) {
       var child = iterator.next();
-      var type = this.getNodeType(child);
+      var type = util.dom.getNodeType(child);
 
       // annotated text node
       if (type === "text" || this.isAnnotation(type)) {
@@ -691,7 +681,7 @@ NLMImporter.Prototype = function() {
       }
       // Annotations...
       else {
-        var type = this.getNodeType(el);
+        var type = util.dom.getNodeType(el);
         if (this.isAnnotation(type)) {
           var start = charPos;
           // recurse into the annotation element to collect nested annotations
@@ -724,7 +714,7 @@ NLMImporter.Prototype = function() {
   // The referenced node does not exist at the moment this method gets called
   // as it is right in the middle of processing it.
   this.createAnnotation = function(state, el, start, end) {
-    var type = this.getNodeType(el);
+    var type = util.dom.getNodeType(el);
 
     var annotation = {
       path: _.last(state.stack).path,
