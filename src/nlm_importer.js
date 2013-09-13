@@ -3,24 +3,9 @@ var _ = require("underscore");
 var util = require("substance-util");
 var ImporterError = require("./converter_errors").ImporterError;
 
-var NLMImporter = function() {
-
-};
+var NLMImporter = function() {};
 
 NLMImporter.Prototype = function() {
-
-  // Note: it is not safe regarding browser in-compatibilities
-  // to access el.children directly.
-  var getChildren = function(el) {
-    if (el.children !== undefined) return el.children;
-    var children = [];
-    var child = el.firstElementChild;
-    while (child) {
-      children.push(child);
-      child = child.nextElementSibling;
-    }
-    return children;
-  };
 
   // Helper functions
   // --------
@@ -275,7 +260,7 @@ NLMImporter.Prototype = function() {
     var day = -1;
     var month = -1;
     var year = -1;
-    _.each(getChildren(pubDate), function(el) {
+    _.each(util.dom.getChildren(pubDate), function(el) {
       var type = this.getNodeType(el);
 
       var value = el.textContent;
@@ -298,7 +283,7 @@ NLMImporter.Prototype = function() {
     var doc = state.doc;
 
     // TODO: extend this when we support more content
-    var children = getChildren(abs);
+    var children = util.dom.getChildren(abs);
     for (var i = 0; i < children.length; i++) {
       var child = children[i];
       var type = this.getNodeType(child);
@@ -313,7 +298,7 @@ NLMImporter.Prototype = function() {
   //
 
   this.body = function(state, body) {
-    var nodes = this.bodyNodes(state, getChildren(body));
+    var nodes = this.bodyNodes(state, util.dom.getChildren(body));
     if (nodes.length > 0) {
       this.show(state, nodes);
     }
@@ -380,7 +365,7 @@ NLMImporter.Prototype = function() {
     state.sectionLevel++;
 
     var doc = state.doc;
-    var children = getChildren(section);
+    var children = util.dom.getChildren(section);
 
     // create a heading
     var title = children[0];
@@ -404,12 +389,12 @@ NLMImporter.Prototype = function() {
     return nodes;
   };
 
-  var _ignoredParagraphElements = {
+  this.ignoredParagraphElements = {
     "comment": true,
     "supplementary-material": true,
   };
 
-  var _acceptedParagraphElements = {
+  this.acceptedParagraphElements = {
     "list": { handler: "list" },
     "fig": { handler: "figure" },
     "fig-group": { handler: "figGroup" },
@@ -426,7 +411,7 @@ NLMImporter.Prototype = function() {
   this.segmentParagraphElements = function(paragraph) {
     var blocks = [];
     var lastType = "";
-    var iterator = new NLMImporter.ChildNodeIterator(paragraph);
+    var iterator = new util.dom.ChildNodeIterator(paragraph);
 
     // first fragment the childNodes into blocks
     while (iterator.hasNext()) {
@@ -444,12 +429,12 @@ NLMImporter.Prototype = function() {
       }
 
       // ignore some elements
-      if (_ignoredParagraphElements[type]) {
+      if (this.ignoredParagraphElements[type]) {
         // skip
       }
       // other elements are treated as single blocks
-      else if (_acceptedParagraphElements[type]) {
-        blocks.push(_.extend({node: child}, _acceptedParagraphElements[type]));
+      else if (this.acceptedParagraphElements[type]) {
+        blocks.push(_.extend({node: child}, this.acceptedParagraphElements[type]));
       }
       lastType = type;
     }
@@ -492,7 +477,7 @@ NLMImporter.Prototype = function() {
     };
     var nodes = [];
 
-    var iterator = new NLMImporter.ChildNodeIterator(children);
+    var iterator = new util.dom.ChildNodeIterator(children);
     while (iterator.hasNext()) {
       var child = iterator.next();
       var type = this.getNodeType(child);
@@ -576,7 +561,7 @@ NLMImporter.Prototype = function() {
       // Note: we do not care much about what is served as items
       // However, we do not have complex nodes on paragraph level
       // They will be extract as sibling items
-      var nodes = this.bodyNodes(state, getChildren(listItem), 0);
+      var nodes = this.bodyNodes(state, util.dom.getChildren(listItem), 0);
       for (var j = 0; j < nodes.length; j++) {
         listNode.items.push(nodes[j].id);
       }
@@ -711,7 +696,7 @@ NLMImporter.Prototype = function() {
           var start = charPos;
           // recurse into the annotation element to collect nested annotations
           // and the contained plain text
-          var childIterator = new NLMImporter.ChildNodeIterator(el);
+          var childIterator = new util.dom.ChildNodeIterator(el);
           var annotatedText = this.annotatedText(state, childIterator, charPos, "nested");
           plainText += annotatedText;
           charPos += annotatedText.length;
@@ -783,32 +768,6 @@ NLMImporter.State = function(xmlDoc, doc) {
     ids[type]++;
     return type +"_"+ids[type];
   };
-};
-
-NLMImporter.ChildNodeIterator = function(arg) {
-  if(_.isArray(arg)) {
-    this.nodes = arg;
-  } else {
-    this.nodes = arg.childNodes;
-  }
-  this.length = this.nodes.length;
-  this.pos = -1;
-};
-
-NLMImporter.ChildNodeIterator.prototype = {
-  hasNext: function() {
-    return this.pos < this.length - 1;
-  },
-
-  next: function() {
-    this.pos += 1;
-    return this.nodes[this.pos];
-  },
-
-  back: function() {
-    this.pos -= 1;
-    return this;
-  }
 };
 
 module.exports = NLMImporter;
