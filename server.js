@@ -19,19 +19,19 @@ function getFile(url, cb) {
 
   protocol.get(url, function(res) {
     var result = "";
-    res.on('data', function ( d ) {
+    res.on('data', function ( d ) {
       result += d.toString();
-    });
+    });
     res.on('end', function() {
       cb(null,result);
     });
   }).on('error', function( e ) {
-    cb(err);
+    cb(err);
   });
 }
 
 // Spawn pandoc child process, run callback
-// added some arguments for more capabilities 
+// added some arguments for more capabilities
 function toPandoc(url, from, to, cb) {
   var spawn = require('child_process').spawn,
       args = [ '-f', from, '-t', to],
