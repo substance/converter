@@ -186,11 +186,15 @@ var PandocImporterTest = function () {
       var doc = this.importer.import(input);
 
       var p1 = doc.get("text_1");
+      var figure = doc.get("figure_1");
       var img = doc.get("image_1");
-      var p2 = doc.get("text_2");
+      var caption = doc.get("text_2");
+      var p2 = doc.get("text_3");
+
 
       assert.isDefined(p1);
       assert.isDefined(img);
+      assert.isDefined(caption);
       assert.isDefined(p2);
 
       // TODO: mql removed figures in favor of simple images
@@ -198,8 +202,9 @@ var PandocImporterTest = function () {
 
       assert.isEqual("This is paragraph 1.", p1.content);
       assert.isEqual("http://backbonejs.org/docs/images/lens.png", img.url);
+      assert.isEqual("lens", caption.content);
       assert.isEqual("This is paragraph 2.", p2.content);
-      assert.isArrayEqual(["text_1", "image_1", "text_2"], doc.get("content").nodes);
+      assert.isArrayEqual(["text_1", "figure_1", "text_3"], doc.get("content").nodes);
     },
 
     "Annotated List", function() {
