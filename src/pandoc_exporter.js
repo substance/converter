@@ -28,12 +28,7 @@ PandocExporter.Prototype = function() {
 
   this.export = function(article) {
     var output = [];
-    var meta = {
-      "docTitle": [],//[article.title],
-      "docAuthors": [],//[article.creator],
-      "docDate": []//[article.created_at]
-    };
-
+    var meta = { "unMeta": {} };
     output.push(meta);
 
     var state = {};
@@ -81,7 +76,8 @@ PandocExporter.Prototype = function() {
     var content = this.annotated_text(state, node.content, annotations);
 
     var output = {
-      "Para": content
+      contents: content,
+      tag: "Para"
     };
 
     return output;
@@ -94,7 +90,8 @@ PandocExporter.Prototype = function() {
     var content = this.annotated_text(state, node.content, annotations);
 
     var output = {
-      "Plain": content
+      contents: content,
+      tag: "Plain"
     };
 
     return output;
@@ -112,11 +109,12 @@ PandocExporter.Prototype = function() {
     var content = this.annotated_text(state, node.content, annotations);
 
     var output = {
-      "Header": [
+      contents: [
         node.level,
         meta,
         content
-      ]
+      ],
+      tag: "Header"
     };
 
     return output;
@@ -126,14 +124,15 @@ PandocExporter.Prototype = function() {
     var content = node.content;
 
     var output = {
-      "CodeBlock": [
+      contents: [
         [
           "",
           [],
           []
         ],
         content
-      ]
+      ],
+      tag: "CodeBlock"
     };
 
     return output;
@@ -141,42 +140,58 @@ PandocExporter.Prototype = function() {
 
   this.image = function(state, node) {
     var output = {
-      "Para": [
+      contents: [
         {
-          "Image": [
-            { "Para": [] },
+          tag: "Image",
+          contents: [
+            [
+              {
+                contents: [],
+                tag: "Str"
+              },
+            ],
             [
               node.url,
               "fig:"
             ]
           ]
         }
-      ]
+      ],
+      tag: "Para"
     };
 
     return output;
   };
 
   this.figure = function(state, node) {
-    var content;
+    var caption;
     if (node.caption !== '') {
-      content = this.paragraph(state, node.getCaption());
+      var p = this.paragraph(state, node.getCaption());
+      caption = p.contents;
     } else {
-      content = { "Para": [] };
+      caption = [
+        {
+          contents: [],
+          tag: "Str"
+        }
+      ];
     }
+
     var img = node.getImage();
     var output = {
-      "Para": [
+      contents: [
         {
-          "Image": [
-            content.Para,
+          contents: [
+            caption,
             [
               img.url,
               "fig:"
             ]
-          ]
+          ],
+          tag: "Image"
         }
-      ]
+      ],
+      tag: "Para"
     };
 
     return output;
@@ -194,14 +209,16 @@ PandocExporter.Prototype = function() {
     var output;
     if (node.properties.ordered) {
       output = {
-        "OrderedList": [
+        tag: "OrderedList",
+        contents: [
           [1,"Decimal","Period"],
           listItems
         ]
       };
     } else {
       output = {
-        "BulletList": listItems
+        tag: "BulletList",
+        contents: listItems
       };
     }
     return output;
@@ -209,7 +226,10 @@ PandocExporter.Prototype = function() {
 
   this.annotated_text = function(state, text, annotations) {
 
-    var fragments = [];
+    var rootContext = {
+      tag: "ROOT",
+      contents: []
+    };
 
     var fragmenter = new Annotator.Fragmenter({
       levels : {
@@ -221,29 +241,34 @@ PandocExporter.Prototype = function() {
     });
 
     fragmenter.onText = function(context, text) {
-      // I would say that this isn't simpleness solution,
-      // we need to something more compact with code and links
-      if (context[0] == 'Link') {
-        context[0] = [];
-        context = context[0];
+      var type = context.tag;
+
+      if (type === 'Code') {
+        // do not split the text
+        context.contents.push(text);
+        return;
       }
 
-      if (context[0] == 'Code') {
-        context.shift();
-        context.push(text);
-      } else {
-        var words = text.split(" ");
-        for (var i = 0; i < words.length; i++) {
-          if (i > 0) {
-            context.push("Space");
-          }
-          // Note: trailing spaces produce empty elements by the word split
-          // Punctuation?
-          if (words[i].length > 0) {
-            context.push({
-              "Str": words[i]
-            });
-          }
+      var container = context.contents;
+      if (type === 'Link') {
+        container = container[0];
+      }
+
+      var words = text.split(" ");
+      for (var i = 0; i < words.length; i++) {
+        if (i > 0) {
+          container.push({
+            contents: [],
+            tag: "Space"
+          });
+        }
+        // Note: trailing spaces produce empty elements by the word split
+        // so we ignore such pieces
+        if (words[i].length > 0) {
+          container.push({
+            contents: words[i],
+            tag: "Str"
+          });
         }
       }
     };
@@ -255,36 +280,35 @@ PandocExporter.Prototype = function() {
         return parentContext;
       }
 
-      var annotation = {};
-      annotation[name] = [];
+      var annotation = {
+        tag: name,
+        contents: []
+      };
 
       // I would say that this isn't simpleness solution,
       // we need to something more compact with code and links
       if (name == 'Link') {
-        annotation[name] = [
-          'Link',
+        annotation.contents = [
+          [],
           [
             state.article.get([entry.id,'url']),
             ""
           ]
         ];
       } else if (name == 'Code') {
-        annotation[name] = [
-          "Code",
-          [
-            "",
-            [],
-            []
-          ]
+        annotation.contents = [
+          [ "", [], [] ]
         ];
       }
 
-      parentContext.push(annotation);
+      parentContext.contents.push(annotation);
 
-      return annotation[name];
+      return annotation;
     };
-    fragmenter.start(fragments, text, annotations);
-    return fragments;
+
+    fragmenter.start(rootContext, text, annotations);
+
+    return rootContext.contents;
   };
 
 };
