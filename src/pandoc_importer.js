@@ -74,13 +74,16 @@ PandocImporter.Prototype = function() {
 
   this.document = function(state, input) {
     var meta = input[0];
-    var doc = new Article({"id": meta.doc_id});
-    var idx;
 
+    var doc = new Article({"id": meta.doc_id});
     state.doc = doc;
 
+    if (meta.unMeta) {
+      this.meta(state, meta.unMeta);
+    }
 
     // Note: First we segment paragraphs into chunks, so that e.g., images are top-level
+    var idx;
     var nodes = [];
     for (idx = 0; idx < input[1].length; idx++) {
       var item = input[1][idx];
@@ -298,7 +301,7 @@ PandocImporter.Prototype = function() {
         listItem = this.paragraph(state, content);
       }
       else {
-        throw new ImporterError("Node not supported as list item: " + JSON.stringify(itemInput));
+        throw new ImporterError("Node not supported as list item: " + JSON.stringify(item));
       }
       node.items.push(listItem.id);
     }
@@ -316,6 +319,7 @@ PandocImporter.Prototype = function() {
     var result = [];
     var pos = startPos || 0;
 
+    var str;
     for (var i = 0; i < textFragments.length; i++) {
       var item = textFragments[i];
       var type = item.tag;
@@ -327,15 +331,15 @@ PandocImporter.Prototype = function() {
         pos++;
         break;
       case "Str":
-        var str = content;
+        str = content;
         result.push(str);
         pos += str.length;
         break;
       default:
         if (_isAnnotation(type)) {
-          var content = this.annotation(state, item, pos);
-          result.push(content);
-          pos += content.length;
+          str = this.annotation(state, item, pos);
+          result.push(str);
+          pos += str.length;
         }
         else {
           throw new ImporterError("Unsupported fragment for textish: " + item);
@@ -360,7 +364,7 @@ PandocImporter.Prototype = function() {
     var type = input.tag;
     var children = input.contents;
 
-    var fragments, content;
+    var content;
 
     if(type === 'Link') {
       options.url = children[1][0];
@@ -387,6 +391,79 @@ PandocImporter.Prototype = function() {
     state.annotations.push(annotation);
 
     return content;
+  };
+
+  this.meta = function(state, meta) {
+    var doc = state.doc;
+
+    if (Object.keys(meta).length === 0) {
+      return;
+    }
+
+    var metaData;
+    if (_.isObject(meta)) {
+      metaData = this.metaMap(state, meta);
+    }
+
+    if (metaData) {
+      console.log("setting meta data", metaData);
+      doc.set(["document", "meta"], metaData);
+    }
+  };
+
+  this.getMetaValue = function(state, item) {
+    var type = item.tag;
+    var content = item.contents;
+    var val;
+    switch (type) {
+    case "MetaMap":
+      val = this.metaMap(state, content);
+      break;
+    case "MetaList":
+      val = this.metaList(state, content);
+      break;
+    case "MetaInlines":
+      val = this.metaInlines(state, content);
+      break;
+    default:
+      val = content;
+    }
+    return val;
+  };
+
+  this.metaMap = function(state, metaMap) {
+    var result = {};
+    _.each(metaMap, function(item, name) {
+      result[name] = this.getMetaValue(state, item);
+    }, this);
+    return result;
+  };
+
+  this.metaList = function(state, metaList) {
+    var result = [];
+    _.each(metaList, function(item) {
+      result.push(this.getMetaValue(state, item));
+    }, this);
+    return result;
+  };
+
+  this.metaInlines = function(state, metaInlines) {
+    var result = [];
+    for (var i = 0; i < metaInlines.length; i++) {
+      var item = metaInlines[i];
+      var type = item.tag;
+      switch (type) {
+      case "Space":
+        result.push(" ");
+        break;
+      case "Str":
+        result.push(item.contents);
+        break;
+      default:
+        console.error("Unknown type for MetaInlines ", type);
+      }
+    }
+    return result.join("");
   };
 
 };

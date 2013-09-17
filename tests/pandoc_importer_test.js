@@ -314,6 +314,26 @@ var PandocImporterTest = function () {
       assert.isArrayEqual([13, 17], c7.range);
       assert.isArrayEqual(expected_nodes, actual_nodes);
     },
+
+    "Document with YAML meta header", function() {
+      var input = require("../data/pandoc/1_12/with_yaml_meta.json");
+      var doc = this.importer.import(input);
+
+      var meta = doc.get(["document", "meta"]);
+      var expected = {
+        title: "MyDoc",
+        author: {
+          name: "Mickey Mouse",
+          address: {
+            street: "The Street 111",
+            zip: "123",
+            state: "Phantasia"
+          }
+        },
+        keywords: ["yaml","meta"]
+      };
+      assert.isObjectEqual(expected, meta);
+    }
   ];
 };
 
