@@ -1,0 +1,67 @@
+[
+    {
+        "unMeta": {}
+    },
+    [
+        {
+            "contents": [
+                {
+                    "contents": "This",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": "is",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": [
+                        [
+                            {
+                                "contents": "an",
+                                "tag": "Str"
+                            },
+                            {
+                                "contents": [],
+                                "tag": "Space"
+                            },
+                            {
+                                "contents": "example",
+                                "tag": "Str"
+                            }
+                        ],
+                        [
+                            "http://example.com/",
+                            ""
+                        ]
+                    ],
+                    "tag": "Link"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": "inline",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": "link.",
+                    "tag": "Str"
+                }
+            ],
+            "tag": "Para"
+        }
+    ]
+]

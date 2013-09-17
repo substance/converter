@@ -1,0 +1,93 @@
+[
+    {
+        "unMeta": {}
+    },
+    [
+        {
+            "contents": [
+                {
+                    "contents": "This",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": "is",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": "paragraph",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": "1.",
+                    "tag": "Str"
+                }
+            ],
+            "tag": "Para"
+        },
+        {
+            "contents": [
+                {
+                    "contents": [
+                        [
+                            {
+                                "contents": "lens",
+                                "tag": "Str"
+                            }
+                        ],
+                        [
+                            "http://backbonejs.org/docs/images/lens.png",
+                            "fig:"
+                        ]
+                    ],
+                    "tag": "Image"
+                }
+            ],
+            "tag": "Para"
+        },
+        {
+            "contents": [
+                {
+                    "contents": "This",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": "is",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": "paragraph",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": "2.",
+                    "tag": "Str"
+                }
+            ],
+            "tag": "Para"
+        }
+    ]
+]

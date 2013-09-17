@@ -1,0 +1,62 @@
+[
+    {
+        "unMeta": {}
+    },
+    [
+        {
+            "contents": [
+                {
+                    "contents": "I",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": "am",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": "an",
+                    "tag": "Str"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": [
+                        {
+                            "contents": "annotated",
+                            "tag": "Str"
+                        }
+                    ],
+                    "tag": "Emph"
+                },
+                {
+                    "contents": [],
+                    "tag": "Space"
+                },
+                {
+                    "contents": [
+                        {
+                            "contents": "paragraph",
+                            "tag": "Str"
+                        }
+                    ],
+                    "tag": "Strong"
+                },
+                {
+                    "contents": ".",
+                    "tag": "Str"
+                }
+            ],
+            "tag": "Para"
+        }
+    ]
+]
