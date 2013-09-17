@@ -30,34 +30,42 @@ var State = function() {
   this.annotations = [];
 };
 
-var Annotations = {
+var _annotationTypes = {
   "Emph": "emphasis",
   "Strong": "strong",
   "Link": "link",
   "Code": "code"
 };
 
-var _isAnnotation = function(item) {
-  for(var id in Annotations) {
-    if(item[id] !== undefined) {
-      return true;
-    }
-  }
-  return false;
-};
-
-var _getAnnotationData = function(item) {
-  for(var id in Annotations) {
-    if(item[id] !== undefined) {
-      return {type: Annotations[id], fragments: item[id]};
-    }
-  }
+var _isAnnotation = function(type) {
+  return (_annotationTypes[type] !== undefined);
 };
 
 var PandocImporter = function() {
 };
 
 PandocImporter.Prototype = function() {
+
+  var _segmentParagraphElements = function(input) {
+    var blocks = [];
+    var last = {tag: "", contents: null};
+    for (var i = 0; i < input.length; i++) {
+      var item = input[i];
+      var type = item.tag;
+      if (type === "Image") {
+        blocks.push(item);
+        last = item;
+      } else {
+        if (last.tag !== "Para") {
+          last = {tag: "Para", contents: []};
+          blocks.push(last);
+        }
+        last.contents.push(item);
+      }
+    }
+
+    return blocks;
+  };
 
   this.import = function(input) {
     var state = new State();
@@ -71,8 +79,19 @@ PandocImporter.Prototype = function() {
 
     state.doc = doc;
 
+
+    // Note: First we segment paragraphs into chunks, so that e.g., images are top-level
+    var nodes = [];
+    for (idx = 0; idx < input[1].length; idx++) {
+      var item = input[1][idx];
+      if (item.tag === "Para") {
+        nodes = nodes.concat(_segmentParagraphElements(item.contents));
+      } else {
+        nodes.push(item);
+      }
+    }
+
     // all nodes on this level are inserted and shown
-    var nodes = input[1];
     for (idx = 0; idx < nodes.length; idx++) {
       var node = this.topLevelNode(state, nodes[idx]);
       if(node) doc.show("content", node.id, idx);
@@ -89,59 +108,33 @@ PandocImporter.Prototype = function() {
 
 
   this.topLevelNode = function(state, input) {
-    if (input == 'HorizontalRule') {
-      return false;
-    }
-    var type = Object.keys(input)[0];
+    var type = input.tag;
+    var content = input.contents;
 
     switch(type) {
+      case "HorizontalRule":
+        return false;
       case "Header":
-        return this.header(state, input["Header"]);
+        return this.header(state, content);
       case "Para":
-        // TODO: why is that?
-        if (!_.isUndefined(input["Para"][0].Image)) {
-          return this.figure(state, input["Para"][0].Image);
-        }
-        else {
-          return this.paragraph(state, input["Para"]);
-        }
-        break;
+        return this.paragraph(state, content);
       case "CodeBlock":
-        return this.codeblock(state, input["CodeBlock"]);
+        return this.codeblock(state, content);
       case 'RawBlock':
-        return this.rawblock(state, input["RawBlock"]);
+        return this.rawblock(state, content);
       case 'BlockQuote':
-        return this.blockquote(state, input["BlockQuote"]);
+        return this.blockquote(state, content);
       case "BulletList":
-        return this.list(state, input["BulletList"], false);
+        return this.list(state, content, false);
       case "OrderedList":
-        return this.list(state, input["OrderedList"], true);
+        return this.list(state, content, true);
       case "Image":
-        return this.figure(state, input["Image"]);
+        return this.figure(state, content);
       default:
         throw new ImporterError("Node not supported: " + type);
     }
-
   };
 
-  /*
-  Example:
-    {
-        "Header": [
-            1,
-            [
-                "heading",
-                [],
-                []
-            ],
-            [
-                {
-                    "Str": "Heading"
-                }
-            ]
-        ]
-    },
-  */
   this.header = function(state, input) {
     var doc = state.doc;
 
@@ -161,24 +154,6 @@ PandocImporter.Prototype = function() {
     return doc.create(node);
   };
 
-  /*
-  Example:
-  {
-      "Para": [
-          {
-              "Str": "And"
-          },
-          "Space",
-          {
-              "Str": "a"
-          },
-          "Space",
-          {
-              "Str": "paragraph"
-          }
-      ]
-  }
-  */
   this.paragraph = function(state, input) {
     var doc = state.doc;
 
@@ -233,14 +208,17 @@ PandocImporter.Prototype = function() {
   this.blockquote = function(state, input) {
     var doc = state.doc;
     for (var idx = 0; idx < input.length; idx++) {
-      var itemInput = input[idx];
+      var item = input[idx];
+      var type = item.tag;
+      var content = item.contents;
+
       var quote;
-      if (itemInput["Para"]) {
-        quote = this.paragraph(state, itemInput["Para"]);
+      if (type === "Para") {
+        quote = this.paragraph(state, content);
         doc.show("content", quote.id, -1);
       }
-      else if (itemInput["BlockQuote"]) {
-        this.blockquote(state, itemInput["BlockQuote"]);
+      else if (type === "BlockQuote") {
+        this.blockquote(state, content);
       }
       else {
         throw new ImporterError("Node not supported as blockquote: " + JSON.stringify(quote));
@@ -296,17 +274,16 @@ PandocImporter.Prototype = function() {
       input = input[1];
     }
     for (var idx = 0; idx < input.length; idx++) {
-      var itemInput = input[idx];
-      if (itemInput.length !== 1) {
-        throw new ImporterError("Oops. Not ready for that. Can only handle one item per list item");
-      }
-      // TODO: find out why this is provided as array
-      itemInput = itemInput[0];
+      // Note: an item's content comes as an array
+      // we do not support this, howevere, keep it in mind...
+      var item = input[idx][0];
+      var type = item.tag;
+      var content = item.contents;
 
       var listItem;
 
-      if (itemInput["Plain"]) {
-        listItem = this.paragraph(state, itemInput["Plain"]);
+      if (type === "Plain") {
+        listItem = this.paragraph(state, content);
       }
       else {
         throw new ImporterError("Node not supported as list item: " + JSON.stringify(itemInput));
@@ -329,23 +306,28 @@ PandocImporter.Prototype = function() {
 
     for (var i = 0; i < textFragments.length; i++) {
       var item = textFragments[i];
+      var type = item.tag;
+      var content = item.contents;
 
-      if (item === "Space") {
+      switch(type) {
+      case "Space":
         result.push(" ");
         pos++;
-      }
-      else if (item["Str"]) {
-        var str = item["Str"];
+        break;
+      case "Str":
+        var str = content;
         result.push(str);
         pos += str.length;
-      }
-      else if (_isAnnotation(item)) {
-        var content = this.annotation(state, item, pos);
-        result.push(content);
-        pos += content.length;
-      }
-      else {
-        throw new ImporterError("Unsupported fragment for textish: " + item);
+        break;
+      default:
+        if (_isAnnotation(type)) {
+          var content = this.annotation(state, item, pos);
+          result.push(content);
+          pos += content.length;
+        }
+        else {
+          throw new ImporterError("Unsupported fragment for textish: " + item);
+        }
       }
     }
 
@@ -363,32 +345,29 @@ PandocImporter.Prototype = function() {
     }
     var options = {};
 
-    var data = _getAnnotationData(input);
-
-    var type = data.type;
+    var type = input.tag;
+    var children = input.contents;
 
     var fragments, content;
 
-    if(type == 'link') {
-      fragments = data.fragments[0];
-      options.url = data.fragments[1][0];
-      content = this.text(state, fragments, startPos);
+    if(type === 'Link') {
+      options.url = children[1][0];
+      content = this.text(state, children[0], startPos);
     }
-    else if(type == 'code') {
-      fragments = data.fragments[1];
-      content = fragments;
+    else if(type === 'Code') {
+      content = children[1];
     }
     else {
-      fragments = data.fragments;
-      content = this.text(state, fragments, startPos);
+      content = this.text(state, children, startPos);
     }
 
     var endPos = startPos + content.length;
 
-    var id = state.nextId(type);
+    var annotationType = _annotationTypes[type];
+    var id = state.nextId(annotationType);
     var annotation = _.extend({
       id: id,
-      type: type,
+      type: annotationType,
       path: [targetNode.id, "content"],
       range: [startPos, endPos]
     },options);
