@@ -49,22 +49,42 @@ PandocImporter.Prototype = function() {
   var _segmentParagraphElements = function(input) {
     var blocks = [];
     var last = {tag: "", contents: null};
+    var isRich = false;
     for (var i = 0; i < input.length; i++) {
       var item = input[i];
       var type = item.tag;
-      if (type === "Image") {
-        blocks.push(item);
-        last = item;
-      } else {
+
+      var isInline;
+      switch (type) {
+      case "Str":
+      case "Space":
+      case "Emph":
+      case "Strong":
+      case "Code":
+      case "Link":
+        isInline = true;
+        break;
+      default:
+        isRich = true;
+        isInline = false;
+      }
+
+      if (isInline) {
         if (last.tag !== "Para") {
           last = {tag: "Para", contents: []};
           blocks.push(last);
         }
         last.contents.push(item);
+      } else {
+        blocks.push(item);
+        last = item;
       }
     }
 
-    return blocks;
+    return {
+      isRichParagraph: isRich,
+      blocks: blocks
+    };
   };
 
   this.import = function(input) {
@@ -88,7 +108,8 @@ PandocImporter.Prototype = function() {
     for (idx = 0; idx < input[1].length; idx++) {
       var item = input[1][idx];
       if (item.tag === "Para") {
-        nodes = nodes.concat(_segmentParagraphElements(item.contents));
+        var segmentation = _segmentParagraphElements(item.contents);
+        nodes = nodes.concat(segmentation.blocks);
       } else {
         nodes.push(item);
       }
@@ -133,9 +154,12 @@ PandocImporter.Prototype = function() {
         return this.list(state, content, true);
       case "Image":
         return this.figure(state, content);
+      case "Math":
+        return this.math(state, content);
       default:
         throw new ImporterError("Node not supported: " + type);
     }
+
   };
 
   this.header = function(state, input) {
@@ -158,53 +182,70 @@ PandocImporter.Prototype = function() {
   };
 
   this.paragraph = function(state, input) {
-    var doc = state.doc;
+    var seg = _segmentParagraphElements(input);
 
+    if (seg.isRichParagraph) {
+      return this.richParagraph(state, seg.blocks);
+    } else {
+      return this.simpleParagraph(state, seg.blocks[0]);
+    }
+  };
+
+  this.richParagraph = function(state, blocks) {
+    var doc = state.doc;
+    var nodes = [];
+    for (var i = 0; i < blocks.length; i++) {
+      var block = blocks[i];
+      var node = this.topLevelNode(block);
+
+      if (node) nodes.push(node);
+    }
+    if (nodes.length < 2) {
+      return nodes[1];
+    }
+    var id = state.nextId("paragraph");
+    var paragraph = {
+      id: id,
+      type: "paragraph",
+      content: _.map(nodes, function(n) {
+        return n.id;
+      })
+    };
+    return doc.create(paragraph);
+  };
+
+  this.simpleParagraph = function(state, input) {
+    var doc = state.doc;
     var id = state.nextId("text");
     var node = {
       id: id,
-      type: "text",
-      content: null
+      type: "text"
     };
-
     state.push(node);
-    node.content = this.text(state, input);
+    node.content = this.text(state, input.contents);
     state.pop();
-
     return doc.create(node);
   };
 
   this.rawblock = function(state, input) {
     var doc = state.doc;
-
     var id = state.nextId("text");
     var node = {
       id: id,
       type: "text",
-      content: null
+      content: input[1]
     };
-
-    state.push(node);
-    node.content = input[1];
-    state.pop();
-
     return doc.create(node);
   };
 
   this.codeblock = function(state, input) {
     var doc = state.doc;
-
     var id = state.nextId("codeblock");
     var node = {
       id: id,
       "type": "codeblock",
-      content: null
+      content: input[1]
     };
-
-    state.push(node);
-    node.content = input[1];
-    state.pop();
-
     return doc.create(node);
   };
 
@@ -308,6 +349,24 @@ PandocImporter.Prototype = function() {
     state.pop();
 
     return doc.create(node);
+  };
+
+  this.math = function(state, math) {
+    var doc = state.doc;
+
+    var isInline = (math[0] === "InlineMath");
+    var data = math[1];
+
+    var id = state.nextId("formula");
+    var formula = {
+      id: id,
+      type: "formula",
+      data: data,
+      format: "latex",
+      inline: isInline
+    };
+
+    return doc.create(formula);
   };
 
   // Retrieves a text block from an array of textish fragments

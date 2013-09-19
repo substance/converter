@@ -333,7 +333,39 @@ var PandocImporterTest = function () {
         keywords: ["yaml","meta"]
       };
       assert.isObjectEqual(expected, meta);
-    }
+    },
+
+    "Inline formula", function() {
+      var input = require("../data/pandoc/1_12/inline_math.json");
+      var doc = this.importer.import(input);
+
+      var p = doc.get("paragraph_1");
+      var t1 = doc.get("text_1");
+      var f1 = doc.get("formula_1");
+      var t2 = doc.get("text_2");
+      var f2 = doc.get("formula_1");
+      var t3 = doc.get("text_2");
+
+      // assert.isDefined(p);
+      // assert.isDefined(t1);
+      // assert.isDefined(f1);
+      // assert.isDefined(t2);
+      // assert.isDefined(f2);
+      // assert.isDefined(t3);
+    },
+
+    // "Equation", function() {
+    //   var input = require("../data/pandoc/1_12/inline_math.json");
+    //   var doc = this.importer.import(input);
+
+    //   var p = doc.get("paragraph_1");
+    //   var t1 = doc.get("text_1");
+    //   var f1 = doc.get("formula_1");
+    //   var t2 = doc.get("text_2");
+    //   var f2 = doc.get("formula_1");
+    //   var t3 = doc.get("text_2");
+    // },
+
   ];
 };
 
