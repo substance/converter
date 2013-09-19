@@ -1,0 +1,248 @@
+[
+    {
+        "unMeta": {}
+    },
+    [
+        {
+            "contents": [
+                [
+                    {
+                        "contents": "Demonstration",
+                        "tag": "Str"
+                    },
+                    {
+                        "contents": [],
+                        "tag": "Space"
+                    },
+                    {
+                        "contents": "of",
+                        "tag": "Str"
+                    },
+                    {
+                        "contents": [],
+                        "tag": "Space"
+                    },
+                    {
+                        "contents": "simple",
+                        "tag": "Str"
+                    },
+                    {
+                        "contents": [],
+                        "tag": "Space"
+                    },
+                    {
+                        "contents": "table",
+                        "tag": "Str"
+                    },
+                    {
+                        "contents": [],
+                        "tag": "Space"
+                    },
+                    {
+                        "contents": "syntax.",
+                        "tag": "Str"
+                    }
+                ],
+                [
+                    "AlignRight",
+                    "AlignLeft",
+                    "AlignCenter",
+                    "AlignDefault"
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                [
+                    [
+                        {
+                            "contents": [
+                                {
+                                    "contents": "Right",
+                                    "tag": "Str"
+                                }
+                            ],
+                            "tag": "Plain"
+                        }
+                    ],
+                    [
+                        {
+                            "contents": [
+                                {
+                                    "contents": "Left",
+                                    "tag": "Str"
+                                }
+                            ],
+                            "tag": "Plain"
+                        }
+                    ],
+                    [
+                        {
+                            "contents": [
+                                {
+                                    "contents": "Center",
+                                    "tag": "Str"
+                                }
+                            ],
+                            "tag": "Plain"
+                        }
+                    ],
+                    [
+                        {
+                            "contents": [
+                                {
+                                    "contents": "Default",
+                                    "tag": "Str"
+                                }
+                            ],
+                            "tag": "Plain"
+                        }
+                    ]
+                ],
+                [
+                    [
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "12",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ],
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "12",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ],
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "12",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ],
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "12",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ]
+                    ],
+                    [
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "123",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ],
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "123",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ],
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "123",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ],
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "123",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ]
+                    ],
+                    [
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "1",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ],
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "1",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ],
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "1",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ],
+                        [
+                            {
+                                "contents": [
+                                    {
+                                        "contents": "1",
+                                        "tag": "Str"
+                                    }
+                                ],
+                                "tag": "Plain"
+                            }
+                        ]
+                    ]
+                ]
+            ],
+            "tag": "Table"
+        }
+    ]
+]
