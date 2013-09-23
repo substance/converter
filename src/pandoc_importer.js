@@ -45,8 +45,9 @@ var _isTextish = function(node) {
 var _isInline = function(node) {
   var type = node.tag;
   if (type === "Math") {
-    return node[0] === "InlineMath";
+    return node.contents[0] === "InlineMath";
   }
+  return false;
 };
 
 var _isAnnotation = function(type) {
@@ -161,6 +162,8 @@ PandocImporter.Prototype = function() {
         return this.figure(state, content);
       case "Math":
         return this.math(state, content);
+      case "Table":
+        return this.table(state, content);
       default:
         throw new ImporterError("Node not supported: " + type);
     }
@@ -216,7 +219,7 @@ PandocImporter.Prototype = function() {
         node = this.text(state, iterator);
       } else if (_isInline(next)) {
         if (type === "Math") {
-          node = this.math(state, next);
+          node = this.math(state, iterator.next().contents);
         } else {
           throw new ImporterError("Paragraph Inline element not yet supported: " + type);
         }
@@ -239,7 +242,7 @@ PandocImporter.Prototype = function() {
       var paragraph = {
         id: id,
         type: "paragraph",
-        content: _.map(nodes, function(n) {
+        children: _.map(nodes, function(n) {
           return n.id;
         })
       };
@@ -354,11 +357,12 @@ PandocImporter.Prototype = function() {
     return doc.create(node);
   };
 
-  this.math = function(state, math) {
+  this.math = function(state, input) {
     var doc = state.doc;
+    var mathType = input[0];
+    var data = input[1].trim();
 
-    var isInline = (math[0] === "InlineMath");
-    var data = math[1];
+    var isInline = (mathType === "InlineMath");
 
     var id = state.nextId("formula");
     var formula = {
@@ -370,6 +374,66 @@ PandocImporter.Prototype = function() {
     };
 
     return doc.create(formula);
+  };
+
+  this.table = function(state, input) {
+    var doc = state.doc;
+
+    var id = state.nextId("table");
+    var table = {
+      id: id,
+      type: "table",
+      headers: [],
+      cells: [],
+      caption: null
+    }
+
+    var caption = this.text(state, input[0]);
+    table.caption = caption.id;
+
+    // TODO: what to do with that?
+    // var alignments = input[1];
+    // var somethingElse = input[2];
+
+    var headerRow = input[3];
+    var col, item, type, node;
+    for (col = 0; col < headerRow.length; col++) {
+      item = headerRow[col];
+      if (item.length !== 1) {
+        throw new ImporterError("Until now I have seen 1-element arrays only.");
+      }
+      item = item[0];
+      type = item.tag;
+      if (type === "Plain") {
+        node = this.text(state, item.contents);
+        table.headers.push(node.id);
+      } else {
+        throw new ImporterError("Table cell type not supported: " + type);
+      }
+    };
+
+    var body = input[4];
+    for (var row = 0; row < body.length; row++) {
+      var rowIds = [];
+      var rowInput = body[row];
+      for (col = 0; col < rowInput.length; col++) {
+        item = rowInput[col];
+        if (item.length !== 1) {
+          throw new ImporterError("Until now I have seen 1-element arrays only.");
+        }
+        item = item[0];
+        type = item.tag;
+        if (type === "Plain") {
+          node = this.text(state, item.contents);
+          rowIds.push(node.id);
+        } else {
+          throw new ImporterError("Table cell type not supported: " + type);
+        }
+      };
+      table.cells.push(rowIds);
+    };
+
+    return doc.create(table);
   };
 
   // Retrieves a text block from an array of textish fragments

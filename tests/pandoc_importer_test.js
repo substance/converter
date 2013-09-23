@@ -13,6 +13,16 @@ var Annotator = Document.Annotator;
 // Test
 // ========
 
+function getIdGenerator() {
+  // an id generator for different types
+  var ids = {};
+  return function(type) {
+    ids[type] = ids[type] || 0;
+    ids[type]++;
+    return type +"_"+ids[type];
+  };
+}
+
 var PandocImporterTest = function () {
 
   this.setup = function() {
@@ -343,29 +353,79 @@ var PandocImporterTest = function () {
       var t1 = doc.get("text_1");
       var f1 = doc.get("formula_1");
       var t2 = doc.get("text_2");
-      var f2 = doc.get("formula_1");
-      var t3 = doc.get("text_2");
+      var f2 = doc.get("formula_2");
+      var t3 = doc.get("text_3");
 
-      // assert.isDefined(p);
-      // assert.isDefined(t1);
-      // assert.isDefined(f1);
-      // assert.isDefined(t2);
-      // assert.isDefined(f2);
-      // assert.isDefined(t3);
+      assert.isDefined(p);
+      assert.isDefined(t1);
+      assert.isDefined(f1);
+      assert.isDefined(t2);
+      assert.isDefined(f2);
+      assert.isDefined(t3);
+
+      assert.isEqual("latex", f1.format);
+      assert.isTrue(f1.inline);
+      assert.isEqual("x^2", f1.data);
+      assert.isEqual("latex", f2.format);
+      assert.isTrue(f2.inline);
+      assert.isEqual("x", f2.data);
+      assert.isArrayEqual(["text_1", "formula_1", "text_2", "formula_2", "text_3"], p.children);
+
+      var expected_nodes = ["paragraph_1"];
+      assert.isArrayEqual(expected_nodes, doc.get("content").nodes);
     },
 
-    // "Equation", function() {
-    //   var input = require("../data/pandoc/1_12/inline_math.json");
-    //   var doc = this.importer.import(input);
+    "Equation", function() {
+      var input = require("../data/pandoc/1_12/math_equation.json");
+      var doc = this.importer.import(input);
 
-    //   var p = doc.get("paragraph_1");
-    //   var t1 = doc.get("text_1");
-    //   var f1 = doc.get("formula_1");
-    //   var t2 = doc.get("text_2");
-    //   var f2 = doc.get("formula_1");
-    //   var t3 = doc.get("text_2");
-    // },
+      var t1 = doc.get("text_1");
+      var f1 = doc.get("formula_1");
 
+      assert.isDefined(t1);
+      assert.isDefined(f1);
+
+      assert.isEqual("latex", f1.format);
+      assert.isFalse(f1.inline);
+      assert.isEqual("f(x) = \\sum x_i^2", f1.data);
+
+      var expected_nodes = ["text_1", "formula_1"];
+      assert.isArrayEqual(expected_nodes, doc.get("content").nodes);
+    },
+
+    "Table", function() {
+      var input = require("../data/pandoc/1_12/table.json");
+      var doc = this.importer.import(input);
+
+      var table = doc.get("table_1");
+
+      var nextId = getIdGenerator();
+
+      assert.isEqual(nextId("text"), table.caption);
+
+      var expectedHeaderIds = [nextId("text"), nextId("text"), nextId("text"), nextId("text")];
+      assert.isArrayEqual(expectedHeaderIds, table.headers);
+      var headers = _.map(expectedHeaderIds, function(id) { return doc.get(id) });
+      assert.isArrayEqual(["Right", "Left", "Center", "Default"], _.map(headers, function(n) { return n.content;}));
+
+      var expectedCellIds = [nextId("text"), nextId("text"), nextId("text"), nextId("text")];
+      assert.isArrayEqual(expectedCellIds, table.cells[0]);
+      var row1 = _.map(expectedCellIds, function(id) { return doc.get(id) });
+      assert.isArrayEqual(["1", "2", "3", "4"], _.map(row1, function(n) { return n.content; }));
+
+      expectedCellIds = [nextId("text"), nextId("text"), nextId("text"), nextId("text")];
+      assert.isArrayEqual(expectedCellIds, table.cells[1]);
+      var row2 = _.map(expectedCellIds, function(id) { return doc.get(id) });
+      assert.isArrayEqual(["5", "6", "7", "8"], _.map(row2, function(n) { return n.content; }));
+
+      expectedCellIds = [nextId("text"), nextId("text"), nextId("text"), nextId("text")];
+      assert.isArrayEqual(expectedCellIds, table.cells[2]);
+      var row3 = _.map(expectedCellIds, function(id) { return doc.get(id) });
+      assert.isArrayEqual(["9", "10", "11", "12"], _.map(row3, function(n) { return n.content; }));
+
+      var expected_nodes = ["table_1"];
+      assert.isArrayEqual(expected_nodes, doc.get("content").nodes);
+    }
   ];
 };
 
