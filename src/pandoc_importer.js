@@ -37,8 +37,24 @@ var _annotationTypes = {
   "Code": "code"
 };
 
+var _isTextish = function(node) {
+  var type = node.tag;
+  return (type === "Str" || type === "Space" || _annotationTypes[type] !== undefined);
+};
+
+var _isInline = function(node) {
+  var type = node.tag;
+  if (type === "Math") {
+    return node[0] === "InlineMath";
+  }
+};
+
 var _isAnnotation = function(type) {
   return (_annotationTypes[type] !== undefined);
+};
+
+var _isParagraphElem = function(item) {
+  return (_isTextish(item) || _isInline(item));
 };
 
 var PandocImporter = function() {
@@ -49,27 +65,9 @@ PandocImporter.Prototype = function() {
   var _segmentParagraphElements = function(input) {
     var blocks = [];
     var last = {tag: "", contents: null};
-    var isRich = false;
     for (var i = 0; i < input.length; i++) {
       var item = input[i];
-      var type = item.tag;
-
-      var isInline;
-      switch (type) {
-      case "Str":
-      case "Space":
-      case "Emph":
-      case "Strong":
-      case "Code":
-      case "Link":
-        isInline = true;
-        break;
-      default:
-        isRich = true;
-        isInline = false;
-      }
-
-      if (isInline) {
+      if (_isParagraphElem(item)) {
         if (last.tag !== "Para") {
           last = {tag: "Para", contents: []};
           blocks.push(last);
@@ -81,10 +79,7 @@ PandocImporter.Prototype = function() {
       }
     }
 
-    return {
-      isRichParagraph: isRich,
-      blocks: blocks
-    };
+    return blocks;
   };
 
   this.import = function(input) {
@@ -94,6 +89,7 @@ PandocImporter.Prototype = function() {
 
   this.document = function(state, input) {
     var meta = input[0];
+    var body = input[1];
 
     var doc = new Article({"id": meta.doc_id});
     state.doc = doc;
@@ -102,23 +98,32 @@ PandocImporter.Prototype = function() {
       this.meta(state, meta.unMeta);
     }
 
-    // Note: First we segment paragraphs into chunks, so that e.g., images are top-level
+    // this flattens the input so that some elements e.g., Image,
+    // are top-level nodes.
     var idx;
     var nodes = [];
-    for (idx = 0; idx < input[1].length; idx++) {
-      var item = input[1][idx];
-      if (item.tag === "Para") {
-        var segmentation = _segmentParagraphElements(item.contents);
-        nodes = nodes.concat(segmentation.blocks);
+    for (var idx = 0; idx < body.length; idx++) {
+      var item = body[idx];
+      var type = item.tag;
+      if (type === "Para") {
+        nodes = nodes.concat(_segmentParagraphElements(item.contents));
       } else {
         nodes.push(item);
       }
     }
 
     // all nodes on this level are inserted and shown
-    for (idx = 0; idx < nodes.length; idx++) {
+    for (var idx = 0; idx < nodes.length; idx++) {
       var node = this.topLevelNode(state, nodes[idx]);
-      if(node) doc.show("content", node.id, idx);
+      if (!node) continue;
+
+      if (_.isArray(node)) {
+        for (var i = 0; i < node.length; i++) {
+          doc.show("content", node[i].id, -1);
+        }
+      } else {
+        doc.show("content", node.id, -1);
+      }
     }
 
     // we are creating the annotations afterwards
@@ -162,6 +167,22 @@ PandocImporter.Prototype = function() {
 
   };
 
+  this.text = function(state, iterator) {
+    if (_.isArray(iterator)) {
+      iterator = new PandocImporter.Iterator(iterator);
+    }
+    var doc = state.doc;
+    var id = state.nextId("text");
+    var node = {
+      id: id,
+      type: "text"
+    };
+    state.push(node);
+    node.content = this.annotatedText(state, iterator);
+    state.pop();
+    return doc.create(node);
+  };
+
   this.header = function(state, input) {
     var doc = state.doc;
 
@@ -175,56 +196,55 @@ PandocImporter.Prototype = function() {
     };
 
     state.push(node);
-    node.content = this.text(state, input[2]);
+    node.content = this.annotatedText(state, input[2]);
     state.pop();
 
     return doc.create(node);
   };
 
-  this.paragraph = function(state, input) {
-    var seg = _segmentParagraphElements(input);
-
-    if (seg.isRichParagraph) {
-      return this.richParagraph(state, seg.blocks);
-    } else {
-      return this.simpleParagraph(state, seg.blocks[0]);
-    }
-  };
-
-  this.richParagraph = function(state, blocks) {
+  this.paragraph = function(state, children) {
     var doc = state.doc;
     var nodes = [];
-    for (var i = 0; i < blocks.length; i++) {
-      var block = blocks[i];
-      var node = this.topLevelNode(block);
+    var node;
 
+    var iterator = new PandocImporter.Iterator(children);
+    while (iterator.hasNext()) {
+      var next = iterator.peek();
+      var type = next.tag;
+
+      if (_isTextish(next)) {
+        node = this.text(state, iterator);
+      } else if (_isInline(next)) {
+        if (type === "Math") {
+          node = this.math(state, next);
+        } else {
+          throw new ImporterError("Paragraph Inline element not yet supported: " + type);
+        }
+      } else {
+        throw new ImporterError("Node supported as element of a rich paragraph: " + type);
+      }
       if (node) nodes.push(node);
     }
-    if (nodes.length < 2) {
-      return nodes[1];
-    }
-    var id = state.nextId("paragraph");
-    var paragraph = {
-      id: id,
-      type: "paragraph",
-      content: _.map(nodes, function(n) {
-        return n.id;
-      })
-    };
-    return doc.create(paragraph);
-  };
 
-  this.simpleParagraph = function(state, input) {
-    var doc = state.doc;
-    var id = state.nextId("text");
-    var node = {
-      id: id,
-      type: "text"
-    };
-    state.push(node);
-    node.content = this.text(state, input.contents);
-    state.pop();
-    return doc.create(node);
+    if (nodes.length === 0) {
+      return null;
+    }
+    // do not wrap single nodes into an extra paragraph
+    else if (nodes.length == 1) {
+      return nodes[0];
+    }
+
+    else {
+      var id = state.nextId("paragraph");
+      var paragraph = {
+        id: id,
+        type: "paragraph",
+        content: _.map(nodes, function(n) {
+          return n.id;
+        })
+      };
+      return doc.create(paragraph);
+    }
   };
 
   this.rawblock = function(state, input) {
@@ -284,34 +304,17 @@ PandocImporter.Prototype = function() {
     };
     doc.create(img);
 
-    var captionId = this.caption(state, input[0]);
+    var caption = this.text(state, input[0]);
 
     var id = state.nextId("figure");
     var node = {
       id: id,
       type: "figure",
       image: img_id,
-      caption: captionId
+      caption: caption.id
     };
 
     return doc.create(node);
-  };
-
-  this.caption = function(state, input) {
-    var doc = state.doc;
-
-    var id = state.nextId("text");
-    var node = {
-      id: id,
-      type: "text",
-      content: null
-    };
-    state.push(node);
-    node.content = this.text(state, input);
-    state.pop();
-
-    doc.create(node);
-    return id;
   };
 
   this.list = function(state, input, ordered) {
@@ -374,35 +377,33 @@ PandocImporter.Prototype = function() {
   // --------
   //
 
-  this.text = function(state, textFragments, startPos) {
+  this.annotatedText = function(state, iterator, startPos) {
     var result = [];
     var pos = startPos || 0;
 
-    var str;
-    for (var i = 0; i < textFragments.length; i++) {
-      var item = textFragments[i];
-      var type = item.tag;
-      var content = item.contents;
+    if (_.isArray(iterator)) {
+      iterator = new PandocImporter.Iterator(iterator);
+    }
 
-      switch(type) {
-      case "Space":
+    var str;
+    while(iterator.hasNext()) {
+      var item = iterator.next();
+      var type = item.tag;
+
+      if (type === "Space") {
         result.push(" ");
         pos++;
-        break;
-      case "Str":
-        str = content;
+      } else if (type === "Str") {
+        str = item.contents;
         result.push(str);
         pos += str.length;
+      } else if (_isAnnotation(type)) {
+        str = this.annotation(state, item, pos);
+        result.push(str);
+        pos += str.length;
+      } else {
+        iterator.back();
         break;
-      default:
-        if (_isAnnotation(type)) {
-          str = this.annotation(state, item, pos);
-          result.push(str);
-          pos += str.length;
-        }
-        else {
-          throw new ImporterError("Unsupported fragment for textish: " + item);
-        }
       }
     }
 
@@ -422,18 +423,19 @@ PandocImporter.Prototype = function() {
 
     var type = input.tag;
     var children = input.contents;
-
-    var content;
+    var iterator, content;
 
     if(type === 'Link') {
       options.url = children[1][0];
-      content = this.text(state, children[0], startPos);
+      iterator = new PandocImporter.Iterator(children[0]);
+      content = this.annotatedText(state, iterator, startPos);
     }
     else if(type === 'Code') {
       content = children[1];
     }
     else {
-      content = this.text(state, children, startPos);
+      iterator = new PandocImporter.Iterator(children);
+      content = this.annotatedText(state, iterator, startPos);
     }
 
     var endPos = startPos + content.length;
@@ -526,6 +528,33 @@ PandocImporter.Prototype = function() {
   };
 
 };
+
+PandocImporter.Iterator = function(elements) {
+  this.elements = elements;
+  this.length = this.elements.length;
+  this.pos = -1;
+};
+
+PandocImporter.Iterator.prototype = {
+  hasNext: function() {
+    return this.pos < this.length - 1;
+  },
+
+  next: function() {
+    this.pos += 1;
+    return this.elements[this.pos];
+  },
+
+  peek: function() {
+    return this.elements[this.pos+1];
+  },
+
+  back: function() {
+    this.pos -= 1;
+    return this;
+  }
+};
+
 
 PandocImporter.prototype = new PandocImporter.Prototype();
 
