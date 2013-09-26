@@ -3,6 +3,7 @@
 // Import
 // ========
 
+var _ = require("underscore");
 var Test = require('substance-test');
 var assert = Test.assert;
 var registerTest = Test.registerTest;
@@ -196,7 +197,6 @@ var PandocImporterTest = function () {
       var doc = this.importer.import(input);
 
       var p1 = doc.get("text_1");
-      var figure = doc.get("figure_1");
       var img = doc.get("image_1");
       var caption = doc.get("text_2");
       var p2 = doc.get("text_3");
@@ -405,22 +405,22 @@ var PandocImporterTest = function () {
 
       var expectedHeaderIds = [nextId("text"), nextId("text"), nextId("text"), nextId("text")];
       assert.isArrayEqual(expectedHeaderIds, table.headers);
-      var headers = _.map(expectedHeaderIds, function(id) { return doc.get(id) });
+      var headers = _.map(expectedHeaderIds, function(id) { return doc.get(id); });
       assert.isArrayEqual(["Right", "Left", "Center", "Default"], _.map(headers, function(n) { return n.content;}));
 
       var expectedCellIds = [nextId("text"), nextId("text"), nextId("text"), nextId("text")];
       assert.isArrayEqual(expectedCellIds, table.cells[0]);
-      var row1 = _.map(expectedCellIds, function(id) { return doc.get(id) });
+      var row1 = _.map(expectedCellIds, function(id) { return doc.get(id); });
       assert.isArrayEqual(["1", "2", "3", "4"], _.map(row1, function(n) { return n.content; }));
 
       expectedCellIds = [nextId("text"), nextId("text"), nextId("text"), nextId("text")];
       assert.isArrayEqual(expectedCellIds, table.cells[1]);
-      var row2 = _.map(expectedCellIds, function(id) { return doc.get(id) });
+      var row2 = _.map(expectedCellIds, function(id) { return doc.get(id); });
       assert.isArrayEqual(["5", "6", "7", "8"], _.map(row2, function(n) { return n.content; }));
 
       expectedCellIds = [nextId("text"), nextId("text"), nextId("text"), nextId("text")];
       assert.isArrayEqual(expectedCellIds, table.cells[2]);
-      var row3 = _.map(expectedCellIds, function(id) { return doc.get(id) });
+      var row3 = _.map(expectedCellIds, function(id) { return doc.get(id); });
       assert.isArrayEqual(["9", "10", "11", "12"], _.map(row3, function(n) { return n.content; }));
 
       var expected_nodes = ["table_1"];
