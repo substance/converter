@@ -2,7 +2,7 @@
   "name": "substance-converter",
   "private": true,
   "dependencies": {
-    "substance-article": "git+https://github.com/substance/article.git#0.1.x",
+    "substance-article": "git+https://github.com/substance/article.git#extended_nodeset",
     "substance-util": "git+https://github.com/substance/util.git#0.2.x",
     "underscore": "1.5.x",
     "request": "2.24.x",
