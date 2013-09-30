@@ -177,14 +177,14 @@ PandocExporter.Prototype = function() {
       ];
     }
 
-    var img = node.getImage();
+    var url = node.url;
     var output = {
       contents: [
         {
           contents: [
             caption,
             [
-              img.url,
+              url,
               "fig:"
             ]
           ],

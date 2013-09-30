@@ -197,7 +197,7 @@ var PandocImporterTest = function () {
       var doc = this.importer.import(input);
 
       var p1 = doc.get("text_1");
-      var img = doc.get("image_1");
+      var img = doc.get("figure_1");
       var caption = doc.get("text_2");
       var p2 = doc.get("text_3");
 
