@@ -190,9 +190,11 @@ PandocImporter.Prototype = function() {
     var doc = state.doc;
 
     var level = input[0];
+    var source_id = input[1][0];
     var id = state.nextId("header");
     var node = {
       id: id,
+      source_id: source_id,
       type: "heading",
       level: level,
       content: null
