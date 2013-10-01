@@ -89,8 +89,12 @@ var doc = '';
 
 function toSubstance(url,syntax,id,cb){
   toPandoc(url, syntax, 'json', function(err, pandocJSON) {
-    var converter = new Converter(pandocJSON,id);
-    cb(null, converter.convert());
+    try {
+      var converter = new Converter(pandocJSON,id);
+      cb(null, converter.convert());
+    } catch (err) {
+      cb(err);
+    }
   });
 }
 

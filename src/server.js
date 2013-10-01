@@ -88,8 +88,12 @@ Server.Prototype = function() {
 
     var converter;
     if (inputFormat === "json" && outputFormat === "substance") {
-      converter = new Importer();
-      cb(null, converter.import(JSON.parse(input)));
+      try {
+        converter = new Importer();
+        cb(null, converter.import(JSON.parse(input)));
+      } catch(err) {
+        cb(err);
+      }
     } else if(inputFormat === "substance") {
       converter = new Exporter();
       var json = converter.export(input);
