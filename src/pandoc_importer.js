@@ -37,15 +37,29 @@ var _annotationTypes = {
   "Code": "code"
 };
 
+// NOTE: aeson 0.6.2 format uses {"tag": <type>, "contents": ...} which actually
+// would have been nicer to use
+// However, jgm bent his implementation back to conform to the former layout,
+// which has the type as name of the first (and only) child of an object, and the content as its value.
+// We use these functions to generalize the usage, just for the case that the jgm changes his decision
+
+var _getType = function(node) {
+  return Object.keys(node)[0];
+};
+
+var _getContent = function(node, type) {
+  return node[type];
+};
+
 var _isTextish = function(node) {
-  var type = node.tag;
+  var type = _getType(node);
   return (type === "Str" || type === "Space" || _annotationTypes[type] !== undefined);
 };
 
 var _isInline = function(node) {
-  var type = node.tag;
+  var type = _getType(node);
   if (type === "Math") {
-    return node.contents[0] === "InlineMath";
+    return _getContent(node, type) === "InlineMath";
   }
   return false;
 };
@@ -65,18 +79,20 @@ PandocImporter.Prototype = function() {
 
   var _segmentParagraphElements = function(input) {
     var blocks = [];
-    var last = {tag: "", contents: null};
+    var lastType = null;
+    var last = null;
     for (var i = 0; i < input.length; i++) {
       var item = input[i];
       if (_isParagraphElem(item)) {
-        if (last.tag !== "Para") {
-          last = {tag: "Para", contents: []};
+        if (lastType !== "Para") {
+          last = { "Para": [] };
           blocks.push(last);
         }
-        last.contents.push(item);
+        last["Para"].push(item);
       } else {
         blocks.push(item);
         last = item;
+        lastType = _getType(item);
       }
     }
 
@@ -100,21 +116,21 @@ PandocImporter.Prototype = function() {
     }
 
     // this flattens the input so that some elements e.g., Image,
-    // are top-level nodes.
+    // become top-level nodes.
     var idx;
     var nodes = [];
-    for (var idx = 0; idx < body.length; idx++) {
+    for (idx = 0; idx < body.length; idx++) {
       var item = body[idx];
-      var type = item.tag;
+      var type = _getType(item);
       if (type === "Para") {
-        nodes = nodes.concat(_segmentParagraphElements(item.contents));
+        nodes = nodes.concat(_segmentParagraphElements(_getContent(item, type)));
       } else {
         nodes.push(item);
       }
     }
 
     // all nodes on this level are inserted and shown
-    for (var idx = 0; idx < nodes.length; idx++) {
+    for (idx = 0; idx < nodes.length; idx++) {
       var node = this.topLevelNode(state, nodes[idx]);
       if (!node) continue;
 
@@ -138,8 +154,8 @@ PandocImporter.Prototype = function() {
 
 
   this.topLevelNode = function(state, input) {
-    var type = input.tag;
-    var content = input.contents;
+    var type = _getType(input);
+    var content = _getContent(input, type);
 
     switch(type) {
       case "HorizontalRule":
@@ -215,13 +231,13 @@ PandocImporter.Prototype = function() {
     var iterator = new PandocImporter.Iterator(children);
     while (iterator.hasNext()) {
       var next = iterator.peek();
-      var type = next.tag;
+      var type = _getType(next);
 
       if (_isTextish(next)) {
         node = this.text(state, iterator);
       } else if (_isInline(next)) {
         if (type === "Math") {
-          node = this.math(state, iterator.next().contents);
+          node = this.math(state, _getContent(iterator.next(), type));
         } else {
           throw new ImporterError("Paragraph Inline element not yet supported: " + type);
         }
@@ -278,8 +294,8 @@ PandocImporter.Prototype = function() {
     var doc = state.doc;
     for (var idx = 0; idx < input.length; idx++) {
       var item = input[idx];
-      var type = item.tag;
-      var content = item.contents;
+      var type = _getType(item);
+      var content = _getContent(item, type);
 
       var quote;
       if (type === "Para") {
@@ -333,8 +349,8 @@ PandocImporter.Prototype = function() {
       // Note: an item's content comes as an array
       // we do not support this, howevere, keep it in mind...
       var item = input[idx][0];
-      var type = item.tag;
-      var content = item.contents;
+      var type = _getType(item);
+      var content = _getContent(item, type);
 
       var listItem;
 
@@ -380,7 +396,7 @@ PandocImporter.Prototype = function() {
       headers: [],
       cells: [],
       caption: null
-    }
+    };
 
     var caption = this.text(state, input[0]);
     table.caption = caption.id;
@@ -397,14 +413,14 @@ PandocImporter.Prototype = function() {
         throw new ImporterError("Until now I have seen 1-element arrays only.");
       }
       item = item[0];
-      type = item.tag;
+      type = _getType(item);
       if (type === "Plain") {
-        node = this.text(state, item.contents);
+        node = this.text(state, _getContent(item, type));
         table.headers.push(node.id);
       } else {
         throw new ImporterError("Table cell type not supported: " + type);
       }
-    };
+    }
 
     var body = input[4];
     for (var row = 0; row < body.length; row++) {
@@ -416,16 +432,16 @@ PandocImporter.Prototype = function() {
           throw new ImporterError("Until now I have seen 1-element arrays only.");
         }
         item = item[0];
-        type = item.tag;
+        type = _getType(item);
         if (type === "Plain") {
-          node = this.text(state, item.contents);
+          node = this.text(state, _getContent(item, type));
           rowIds.push(node.id);
         } else {
           throw new ImporterError("Table cell type not supported: " + type);
         }
-      };
+      }
       table.cells.push(rowIds);
-    };
+    }
 
     return doc.create(table);
   };
@@ -446,13 +462,13 @@ PandocImporter.Prototype = function() {
     var str;
     while(iterator.hasNext()) {
       var item = iterator.next();
-      var type = item.tag;
+      var type = _getType(item);
 
       if (type === "Space") {
         result.push(" ");
         pos++;
       } else if (type === "Str") {
-        str = item.contents;
+        str = _getContent(item, type);
         result.push(str);
         pos += str.length;
       } else if (_isAnnotation(type)) {
@@ -479,8 +495,8 @@ PandocImporter.Prototype = function() {
     }
     var options = {};
 
-    var type = input.tag;
-    var children = input.contents;
+    var type = _getType(input);
+    var children = _getContent(input, type);
     var iterator, content;
 
     if(type === 'Link') {
@@ -531,8 +547,8 @@ PandocImporter.Prototype = function() {
   };
 
   this.getMetaValue = function(state, item) {
-    var type = item.tag;
-    var content = item.contents;
+    var type = _getType(item);
+    var content = _getContent(item, type);
     var val;
     switch (type) {
     case "MetaMap":
@@ -570,13 +586,13 @@ PandocImporter.Prototype = function() {
     var result = [];
     for (var i = 0; i < metaInlines.length; i++) {
       var item = metaInlines[i];
-      var type = item.tag;
+      var type = _getType(item);
       switch (type) {
       case "Space":
         result.push(" ");
         break;
       case "Str":
-        result.push(item.contents);
+        result.push(_getContent(item, type));
         break;
       default:
         console.error("Unknown type for MetaInlines ", type);
