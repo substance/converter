@@ -29,7 +29,7 @@
         {
           "Image": [
             {
-              "Para": []
+              "Para": [{"Str": "lens"}]
             },
             [
               "http://backbonejs.org/docs/images/lens.png",

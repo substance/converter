@@ -1,0 +1,21 @@
+[{
+    "unMeta": {}
+  },
+  [{
+    "Para": [{
+      "Str": "See"
+    }, {
+      "Space": []
+    }, {
+      "Str": "this"
+    }, {
+      "Space": []
+    }, {
+      "Str": "formula:"
+    }]
+  }, {
+    "Para": [{
+      "Math": ["DisplayMath", "\nf(x) = \\sum x_i^2\n"]
+    }]
+  }]
+]

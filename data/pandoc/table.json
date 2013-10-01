@@ -1,0 +1,119 @@
+[{
+    "unMeta": {}
+  },
+  [{
+    "Table": [
+      [{
+        "Str": "Demonstration"
+      }, {
+        "Space": []
+      }, {
+        "Str": "of"
+      }, {
+        "Space": []
+      }, {
+        "Str": "simple"
+      }, {
+        "Space": []
+      }, {
+        "Str": "table"
+      }, {
+        "Space": []
+      }, {
+        "Str": "syntax."
+      }],
+      ["AlignRight", "AlignLeft", "AlignCenter", "AlignDefault"],
+      [0.0, 0.0, 0.0, 0.0],
+      [
+        [{
+          "Plain": [{
+            "Str": "Right"
+          }]
+        }],
+        [{
+          "Plain": [{
+            "Str": "Left"
+          }]
+        }],
+        [{
+          "Plain": [{
+            "Str": "Center"
+          }]
+        }],
+        [{
+          "Plain": [{
+            "Str": "Default"
+          }]
+        }]
+      ],
+      [
+        [
+          [{
+            "Plain": [{
+              "Str": "1"
+            }]
+          }],
+          [{
+            "Plain": [{
+              "Str": "2"
+            }]
+          }],
+          [{
+            "Plain": [{
+              "Str": "3"
+            }]
+          }],
+          [{
+            "Plain": [{
+              "Str": "4"
+            }]
+          }]
+        ],
+        [
+          [{
+            "Plain": [{
+              "Str": "5"
+            }]
+          }],
+          [{
+            "Plain": [{
+              "Str": "6"
+            }]
+          }],
+          [{
+            "Plain": [{
+              "Str": "7"
+            }]
+          }],
+          [{
+            "Plain": [{
+              "Str": "8"
+            }]
+          }]
+        ],
+        [
+          [{
+            "Plain": [{
+              "Str": "9"
+            }]
+          }],
+          [{
+            "Plain": [{
+              "Str": "10"
+            }]
+          }],
+          [{
+            "Plain": [{
+              "Str": "11"
+            }]
+          }],
+          [{
+            "Plain": [{
+              "Str": "12"
+            }]
+          }]
+        ]
+      ]
+    ]
+  }]
+]
