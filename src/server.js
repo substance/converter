@@ -4,7 +4,7 @@ var Importer = require('./pandoc_importer');
 var Exporter = require('./pandoc_exporter');
 var request = require("request");
 var spawn = require('child_process').spawn;
-
+var util = require("substance-util");
 
 // Serves a Converter
 // ========
@@ -92,6 +92,7 @@ Server.Prototype = function() {
         converter = new Importer();
         cb(null, converter.import(JSON.parse(input)));
       } catch(err) {
+        util.printStackTrace(err);
         cb(err);
       }
     } else if(inputFormat === "substance") {
