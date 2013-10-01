@@ -329,7 +329,11 @@ PandocImporter.Prototype = function() {
     var doc = state.doc;
 
     var captionContent = _getContent(input[0])
-    var caption = this.text(state, captionContent);
+    var caption;
+    if (captionContent) {
+      caption = this.text(state, captionContent);
+
+    }
     var url = input[1][0];
 
     var id = state.nextId("figure");
@@ -337,8 +341,11 @@ PandocImporter.Prototype = function() {
       id: id,
       type: "figure",
       url: url,
-      caption: caption.id
     };
+
+    if (caption) {
+      node.caption = caption.id
+    }
 
     return doc.create(node);
   };
