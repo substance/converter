@@ -44,10 +44,20 @@ var _annotationTypes = {
 // We use these functions to generalize the usage, just for the case that the jgm changes his decision
 
 var _getType = function(node) {
+  // E.g., "Space", "HorizontalRule"
+  if (_.isString(node)) {
+    return node;
+  }
   return Object.keys(node)[0];
 };
 
 var _getContent = function(node, type) {
+  if (_.isString(node)) {
+    return [];
+  }
+  if (type === undefined) {
+    type = _getType(node);
+  }
   return node[type];
 };
 
@@ -58,8 +68,9 @@ var _isTextish = function(node) {
 
 var _isInline = function(node) {
   var type = _getType(node);
+  var content = _getContent(node, type);
   if (type === "Math") {
-    return _getContent(node, type) === "InlineMath";
+    return content[0] === "InlineMath";
   }
   return false;
 };
@@ -85,6 +96,7 @@ PandocImporter.Prototype = function() {
       var item = input[i];
       if (_isParagraphElem(item)) {
         if (lastType !== "Para") {
+          lastType = "Para";
           last = { "Para": [] };
           blocks.push(last);
         }
@@ -316,7 +328,8 @@ PandocImporter.Prototype = function() {
   this.figure = function(state, input) {
     var doc = state.doc;
 
-    var caption = this.text(state, input[0]);
+    var captionContent = _getContent(input[0])
+    var caption = this.text(state, captionContent);
     var url = input[1][0];
 
     var id = state.nextId("figure");

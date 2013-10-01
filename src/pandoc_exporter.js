@@ -1,5 +1,6 @@
 "use strict";
 
+var _ = require("underscore");
 var Document = require("substance-document");
 var Annotator = Document.Annotator;
 //var ExporterError = require("./converter_errors").ExporterError;
@@ -11,13 +12,36 @@ var _annotations = [
   ["Link","link"]
 ];
 
+var _createNode = function(type, content) {
+  if (content === undefined) {
+    return type;
+  }
+  var output = {};
+  output[type] = content;
+  return output;
+};
+
+var _getType = function(node) {
+  // E.g., "Space", "HorizontalRule"
+  if (_.isString(node)) {
+    return node;
+  }
+  return Object.keys(node)[0];
+};
+
+var _getContent = function(node, type) {
+  if (_.isString(node)) {
+    return [];
+  }
+  return node[type];
+};
+
 var mapAnnotationType = function(type) {
   for (var i = 0; i < _annotations.length; i++) {
     if (_annotations[i][1] === type) {
       return _annotations[i][0];
     }
   }
-
   return undefined;
 };
 
@@ -71,95 +95,50 @@ PandocExporter.Prototype = function() {
 
   this.paragraph = function(state, node) {
     var annotations = state.annotationIndex.get(node.id);
-
-    // recursive descent:
     var content = this.annotated_text(state, node.content, annotations);
-
-    var output = {
-      contents: content,
-      tag: "Para"
-    };
-
+    var output = _createNode("Para", content);
     return output;
   };
 
   this.plain = function(state, node) {
     var annotations = state.annotationIndex.get(node.id);
-
-    // recursive descent:
     var content = this.annotated_text(state, node.content, annotations);
-
-    var output = {
-      contents: content,
-      tag: "Plain"
-    };
-
+    var output = _createNode("Plain", content);
     return output;
   };
 
   this.heading = function(state, node) {
     var annotations = state.annotationIndex.get(node.id);
-
     var tag = node.content.toLowerCase().split(" ").join("-");
     var meta = [
       tag, [], []
     ];
-
-    // recursive descent:
     var content = this.annotated_text(state, node.content, annotations);
-
-    var output = {
-      contents: [
-        node.level,
-        meta,
-        content
-      ],
-      tag: "Header"
-    };
-
+    var output = _createNode("Header", [ node.level, meta, content ]);
     return output;
   };
 
   this.codeblock = function(state, node) {
     var content = node.content;
-
-    var output = {
-      contents: [
-        [
-          "",
-          [],
-          []
-        ],
-        content
-      ],
-      tag: "CodeBlock"
-    };
-
+    var output = _createNode("CodeBlock", [ ["", [], [] ], content ]);
     return output;
   };
 
   this.image = function(state, node) {
-    var output = {
-      contents: [
+    var imageContent = [
+      [
         {
-          tag: "Image",
-          contents: [
-            [
-              {
-                contents: [],
-                tag: "Str"
-              },
-            ],
-            [
-              node.url,
-              "fig:"
-            ]
-          ]
-        }
+          contents: [],
+          tag: "Str"
+        },
       ],
-      tag: "Para"
-    };
-
+      [
+        node.url,
+        "fig:"
+      ]
+    ];
+    var imageNode = _createNode("Image", imageContent);
+    var output = _createNode("Para", [imageNode]);
     return output;
   };
 
@@ -167,33 +146,20 @@ PandocExporter.Prototype = function() {
     var caption;
     if (node.caption !== '') {
       var p = this.paragraph(state, node.getCaption());
-      caption = p.contents;
+      caption = p;
     } else {
-      caption = [
-        {
-          contents: [],
-          tag: "Str"
-        }
-      ];
+      caption = _createNode("Str", []);
     }
-
     var url = node.url;
-    var output = {
-      contents: [
-        {
-          contents: [
-            caption,
-            [
-              url,
-              "fig:"
-            ]
-          ],
-          tag: "Image"
-        }
-      ],
-      tag: "Para"
-    };
-
+    var imageContent = [
+      caption,
+      [
+        url,
+        "fig:"
+      ]
+    ];
+    var imageNode = _createNode("Image", imageContent);
+    var output = _createNode("Para", [imageNode]);
     return output;
   };
 
@@ -208,28 +174,19 @@ PandocExporter.Prototype = function() {
     }
     var output;
     if (node.properties.ordered) {
-      output = {
-        tag: "OrderedList",
-        contents: [
-          [1,"Decimal","Period"],
-          listItems
-        ]
-      };
+      var olContent = [
+        [1,"Decimal","Period"],
+        listItems
+      ];
+      output = _createNode("OrderedList", olContent);
     } else {
-      output = {
-        tag: "BulletList",
-        contents: listItems
-      };
+      output = _createNode("BulletList", listItems);
     }
     return output;
   };
 
   this.annotated_text = function(state, text, annotations) {
-
-    var rootContext = {
-      tag: "ROOT",
-      contents: []
-    };
+    var rootContext = _createNode("ROOT", []);
 
     var fragmenter = new Annotator.Fragmenter({
       levels : {
@@ -241,15 +198,14 @@ PandocExporter.Prototype = function() {
     });
 
     fragmenter.onText = function(context, text) {
-      var type = context.tag;
+      var type = _getType(context);
 
+      var container = _getContent(context, type);
       if (type === 'Code') {
         // do not split the text
-        context.contents.push(text);
+        container.push(text);
         return;
       }
-
-      var container = context.contents;
       if (type === 'Link') {
         container = container[0];
       }
@@ -257,18 +213,12 @@ PandocExporter.Prototype = function() {
       var words = text.split(" ");
       for (var i = 0; i < words.length; i++) {
         if (i > 0) {
-          container.push({
-            contents: [],
-            tag: "Space"
-          });
+          container.push(_createNode("Space"));
         }
         // Note: trailing spaces produce empty elements by the word split
         // so we ignore such pieces
         if (words[i].length > 0) {
-          container.push({
-            contents: words[i],
-            tag: "Str"
-          });
+          container.push(_createNode("Str", words[i]));
         }
       }
     };
@@ -280,15 +230,12 @@ PandocExporter.Prototype = function() {
         return parentContext;
       }
 
-      var annotation = {
-        tag: name,
-        contents: []
-      };
+      var content = [];
 
       // I would say that this isn't simpleness solution,
       // we need to something more compact with code and links
       if (name == 'Link') {
-        annotation.contents = [
+        content = [
           [],
           [
             state.article.get([entry.id,'url']),
@@ -296,19 +243,23 @@ PandocExporter.Prototype = function() {
           ]
         ];
       } else if (name == 'Code') {
-        annotation.contents = [
+        content = [
           [ "", [], [] ]
         ];
       }
 
-      parentContext.contents.push(annotation);
+      var annotation = _createNode(name, content);
+
+      var parentType = _getType(parentContext);
+      var parentContent = _getContent(parentContext, parentType);
+      parentContent.push(annotation);
 
       return annotation;
     };
 
     fragmenter.start(rootContext, text, annotations);
 
-    return rootContext.contents;
+    return _getContent(rootContext, "ROOT");
   };
 
 };

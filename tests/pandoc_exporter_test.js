@@ -22,7 +22,7 @@ var PandocExporterTest = function () {
   this.actions = [
 
     "Paragraph and Heading", function() {
-      var expected = require("../data/pandoc/1_12/heading_and_paragraph.json");
+      var expected = require("../data/pandoc/heading_and_paragraph.json");
 
       var doc = this.importer.import(expected);
       var actual = this.exporter.export(doc);
@@ -31,7 +31,7 @@ var PandocExporterTest = function () {
     },
 
     "Annotated Paragraph", function() {
-      var expected = require("../data/pandoc/1_12/annotated_paragraph.json");
+      var expected = require("../data/pandoc/annotated_paragraph.json");
 
       var doc = this.importer.import(expected);
       var actual = this.exporter.export(doc);
@@ -40,7 +40,7 @@ var PandocExporterTest = function () {
     },
 
     "List", function() {
-      var expected = require("../data/pandoc/1_12/list.json");
+      var expected = require("../data/pandoc/list.json");
 
       var doc = this.importer.import(expected);
       var actual = this.exporter.export(doc);
@@ -49,7 +49,7 @@ var PandocExporterTest = function () {
     },
 
     "Paragraph and List", function() {
-      var expected = require("../data/pandoc/1_12/paragraph_and_list.json");
+      var expected = require("../data/pandoc/paragraph_and_list.json");
 
       var doc = this.importer.import(expected);
       var actual = this.exporter.export(doc);
@@ -58,7 +58,7 @@ var PandocExporterTest = function () {
     },
 
     "Codeblock", function() {
-      var expected = require("../data/pandoc/1_12/paragraph_and_codeblock.json");
+      var expected = require("../data/pandoc/paragraph_and_codeblock.json");
 
       var doc = this.importer.import(expected);
       var actual = this.exporter.export(doc);
@@ -67,7 +67,7 @@ var PandocExporterTest = function () {
     },
 
     "Links", function() {
-      var expected = require("../data/pandoc/1_12/inline_link.json");
+      var expected = require("../data/pandoc/inline_link.json");
 
       var doc = this.importer.import(expected);
       var actual = this.exporter.export(doc);
@@ -76,7 +76,7 @@ var PandocExporterTest = function () {
     },
 
     "Inline code", function() {
-      var expected = require("../data/pandoc/1_12/inline_code.json");
+      var expected = require("../data/pandoc/inline_code.json");
 
       var doc = this.importer.import(expected);
       var actual = this.exporter.export(doc);
@@ -85,7 +85,7 @@ var PandocExporterTest = function () {
     },
 
     "Paragraph with Image and caption", function() {
-      var expected = require("../data/pandoc/1_12/paragraph_and_image.json");
+      var expected = require("../data/pandoc/paragraph_and_image.json");
 
       var doc = this.importer.import(expected);
       var actual = this.exporter.export(doc);
@@ -94,7 +94,7 @@ var PandocExporterTest = function () {
     },
 
     "Annotated List", function() {
-      var expected = require("../data/pandoc/1_12/annotated_list.json");
+      var expected = require("../data/pandoc/annotated_list.json");
 
       var doc = this.importer.import(expected);
       var actual = this.exporter.export(doc);
