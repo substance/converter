@@ -4,19 +4,17 @@ var errors = require("./src/converter_errors");
 var PandocImporter = require("./src/pandoc_importer");
 var PandocExporter = require("./src/pandoc_exporter");
 
-//disabled because of cyclic deps.
-//var Server = require("./src/server");
-
-// currently not supported under node.js as we use the DOM for XML parsing
-if (global.window) {
-  var NLMImporter = require("./src/nlm_importer");
-}
-
-module.exports = {
+var exports = {
   ImporterError: errors.ImporterError,
   ExporterError: errors.ExporterError,
   PandocImporter: PandocImporter,
   PandocExporter: PandocExporter,
-  NLMImporter: NLMImporter,
-//  Server: Server
-};
+}
+
+// currently not supported under node.js as we use the DOM for XML parsing
+if (global.window) {
+  exports.NLMImporter = require("./src/nlm_importer");
+  exports.CNXImporter = require("./src/cnx_importer");
+}
+
+module.exports = exports;
