@@ -290,7 +290,7 @@ CNXImporter.Prototype = function() {
 
   this.paragraphElem = function(state, iterator) {
     var doc = state.doc;
-    var input = iterator.peak();
+    var input = iterator.next();
     var type = util.dom.getNodeType(input);
 
     var node, id;
@@ -307,19 +307,20 @@ CNXImporter.Prototype = function() {
         content: ""
       };
       state.push(node);
+      // set the iterator back by one
+      iterator.back();
       node.content = this.annotatedText(state, iterator, 0);
       state.pop();
       doc.create(node);
       break;
     case "list":
-      node = this.list(state, iterator.next());
+      node = this.list(state, input);
       break;
     case "para":
-      node = this.paragraph(state, iterator.next());
+      node = this.paragraph(state, input);
       break;
     default:
       console.error("Not yet supported: ", type, "Skipping.");
-      iterator.next();
     }
 
     return node;
