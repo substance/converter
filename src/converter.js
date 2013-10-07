@@ -1,13 +1,8 @@
 "use strict";
 
-// Deprecated
-// --------
-//
-// Just remains here for backward compatibility
-
-var Importer = require('./pandoc_importer');
-var Exporter = require('./pandoc_exporter');
-var request = require("request");
+var PandocImporter = require('./pandoc_importer');
+var PandocExporter = require('./pandoc_exporter');
+var errors = require("./converter_errors");
 var spawn = require('child_process').spawn;
 var util = require("substance-util");
 
@@ -15,12 +10,11 @@ var util = require("substance-util");
 // ========
 //
 
-var Server = function(app) {
-  this.app = app;
+var Converter = function() {
+  
 };
 
-
-Server.Prototype = function() {
+Converter.Prototype = function() {
 
   // Run Pandoc
   // --------
@@ -69,19 +63,8 @@ Server.Prototype = function() {
       child.stdin.write(input, 'utf8');
       child.stdin.end();
     });
-
   };
 
-  // Fetch a file from the web
-  // --------
-  //
-
-  this.getFile = function(url, cb) {
-    request(url, function (err, res, body) {
-      if (err || res.statusCode !== 200) return cb(err || 'Nope');
-      cb(null, body);
-    });
-  };
 
   // Takes input data as a string
   // --------
@@ -94,14 +77,14 @@ Server.Prototype = function() {
     var converter;
     if (inputFormat === "json" && outputFormat === "substance") {
       try {
-        converter = new Importer();
+        converter = new PandocImporter();
         cb(null, converter.import(JSON.parse(input)));
       } catch(err) {
         util.printStackTrace(err);
         cb(err);
       }
     } else if(inputFormat === "substance") {
-      converter = new Exporter();
+      converter = new PandocExporter();
       var json = converter.export(input);
       this.pandoc(JSON.stringify(json), 'json', 'html', function(err, result) {
         if (err) return cb(err);
@@ -124,46 +107,19 @@ Server.Prototype = function() {
       });
     }
   };
-
-  // Serve the Converter API
-  // --------
-  //
-  // Call this from your app to serve the convert through your Express.js instance
-  //
-
-  this.serve = function() {
-    var that = this;
-
-    // Should read input and output from the params
-    this.app.get("/convert", function(req, res) {
-      // Using provided input or defaults
-      var url = req.query.url || "http://raw.github.com/michael/documents/master/eventually-consistent.md";
-      var inputFormat = req.query.in || "markdown";
-      var outputFormat = req.query.out || "substance";
-
-      that.getFile(url, function(err, inputData) {
-        that.convert(inputData, inputFormat, outputFormat, function(err, output) {
-          if (err) return res.send(500, err);
-          res.send(output);
-        });
-      });
-    });
-    this.app.get("/export", function(req, res) {
-      // Parsing file while debugging
-      //var url = req.query.url || "https://raw.github.com/substance/substance/0.5.x/data/lorem_ipsum.json";
-      var inputFormat = "substance";
-      var outputFormat = req.query.out || "html";
-      var doc = req.doc || false;
-      if (!doc) res.send(500, 'You must send document!');
-      that.convert(doc, inputFormat, outputFormat, function(err, output) {
-        if (err) return res.send(500, err);
-        res.send(output);
-      });
-    });
-  };
 };
 
+// currently not supported under node.js as we use the DOM for XML parsing
 
-Server.prototype = new Server.Prototype();
+Converter.ImporterError = errors.ImporterError;
+Converter.ExporterError = errors.ExporterError;
+Converter.PandocImporter = PandocImporter;
+Converter.PandocExporter = PandocExporter;
 
-module.exports = Server;
+if (global.window) {
+  Converter.NLMImporter = require("./nlm_importer");
+}
+
+Converter.prototype = new Converter.Prototype();
+
+module.exports = Converter;
