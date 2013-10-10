@@ -1,6 +1,10 @@
 {
   "name": "substance-converter",
-  "private": true,
+  "description": "Takes the Pandoc JSON format and turns it into the Substance Article.",
+  "keywords": ["pandoc", "markdown", "json", "import", "export"],
+  "author": "Oliver Buchtala",
+  "contributors": ["Michael Aufreiter", "Daniel Beilinson"],
+
   "dependencies": {
     "substance-article": "",
     "substance-util": "",
@@ -16,7 +20,6 @@
     "substance-document": ""
   },
   "scripts": {
-    "start": "nodemon playground.js",
     "test": "mocha -R spec tests/run.js"
   },
   "version": "0.1.0"
