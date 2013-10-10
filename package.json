@@ -14,8 +14,8 @@
     "Daniel Beilinson"
   ],
   "dependencies": {
-    "substance-article": "master",
-    "substance-util": "master",
+    "substance-article": "0.1.0",
+    "substance-util": "0.2.0",
     "underscore": "1.5.x",
     "request": "2.24.x",
     "xmlhttprequest": "1.5.0"
@@ -24,8 +24,8 @@
     "nodemon": "*",
     "express": "3.3.x",
     "mocha": "1.12.x",
-    "substance-test": "0.2.x",
-    "substance-document": "master"
+    "substance-test": "0.2.0",
+    "substance-document": "0.5.0"
   },
   "scripts": {
     "test": "mocha -R spec tests/run.js"
