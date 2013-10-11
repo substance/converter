@@ -192,6 +192,8 @@ PandocImporter.Prototype = function() {
         return this.math(state, content);
       case "Table":
         return this.table(state, content);
+      case "DefinitionList":
+        return this.definitions(state, content);
       default:
         throw new ImporterError("Node not supported: " + type);
     }
@@ -328,7 +330,7 @@ PandocImporter.Prototype = function() {
   this.figure = function(state, input) {
     var doc = state.doc;
 
-    var captionContent = _getContent(input[0])
+    var captionContent = _getContent(input[0]);
     var caption;
     if (captionContent) {
       caption = this.text(state, captionContent);
@@ -344,7 +346,7 @@ PandocImporter.Prototype = function() {
     };
 
     if (caption) {
-      node.caption = caption.id
+      node.caption = caption.id;
     }
 
     return doc.create(node);
@@ -464,6 +466,34 @@ PandocImporter.Prototype = function() {
     }
 
     return doc.create(table);
+  };
+
+  this.definitions = function(state, definitionList) {
+    var definitions = [];
+
+    var descriptionNode, topicContent, topicNode, bodyContent, bodyNode;
+
+    for (var i = 0; i < definitionList.length; i++) {
+      var def = definitionList[i];
+
+      topicContent = def[0];
+      topicNode = this.text(state, topicContent);
+
+      // TODO: this is a rather strange format... find out why
+      bodyContent = def[1][0][0];
+      bodyNode = this.topLevelNode(state, bodyContent);
+
+      descriptionNode = {
+        id: state.nextId("description"),
+        type: "description",
+        topic: topicNode.id,
+        body: bodyNode.id
+      };
+      state.doc.create(descriptionNode);
+      definitions.push(descriptionNode);
+    }
+
+    return definitions;
   };
 
   // Retrieves a text block from an array of textish fragments
