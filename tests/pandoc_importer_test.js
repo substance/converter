@@ -425,6 +425,28 @@ var PandocImporterTest = function () {
 
       var expected_nodes = ["table_1"];
       assert.isArrayEqual(expected_nodes, doc.get("content").nodes);
+    },
+
+    "Definition list", function() {
+      var input = require("../data/pandoc/definition_list.json");
+      var doc = this.importer.import(input);
+
+      var d1 = doc.get("description_1");
+      var d2 = doc.get("description_2");
+
+      assert.isDefined(d1);
+      assert.isDefined(d2);
+
+      var t1 = d1.getTopic();
+      var b1 = d1.getBody();
+
+      var t2 = d2.getTopic();
+      var b2 = d2.getBody();
+
+      assert.isEqual("Topic 1", t1.content);
+      assert.isEqual("This is the first topic.", b1.content);
+      assert.isEqual("Topic 2", t2.content);
+      assert.isEqual("This is the second topic.", b2.content);
     }
   ];
 };
