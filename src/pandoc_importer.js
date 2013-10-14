@@ -283,14 +283,25 @@ PandocImporter.Prototype = function() {
   };
 
   this.rawblock = function(state, input) {
-    var doc = state.doc;
-    var id = state.nextId("text");
-    var node = {
-      id: id,
-      type: "text",
-      content: input[1]
-    };
-    return doc.create(node);
+    // Note: raw blocks are e.g. html comments.
+    // Probably, depending on the raw block type (which is provided)
+    // we could do different things...
+    // E.g., if the raw-block was html and contained a comment we would be able
+    // to create a comment node (instead of skipping)
+    var type = input[0];
+    if (type === "html") {
+      // skip
+      return null;
+    } else {
+      var doc = state.doc;
+      var id = state.nextId("text");
+      var node = {
+        id: id,
+        type: "text",
+        content: input[1]
+      };
+      return doc.create(node);
+    }
   };
 
   this.codeblock = function(state, input) {

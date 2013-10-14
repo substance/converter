@@ -471,6 +471,16 @@ var PandocImporterTest = function () {
       assert.isEqual("Item 1.1", t2.content);
       assert.isEqual("Item 1.2", t3.content);
       assert.isEqual("Item 2", t4.content);
+    },
+
+    "HTML comments", function() {
+      var input = require("../data/pandoc/html_comments.json");
+      var doc = this.importer.import(input);
+
+      var t1 = doc.get("text_1");
+      assert.isDefined(t1);
+
+      assert.isArrayEqual(["text_1"], doc.get(["content", "nodes"]));
     }
   ];
 };

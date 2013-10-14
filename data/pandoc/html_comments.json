@@ -1,0 +1,44 @@
+[
+    {
+        "unMeta": {}
+    },
+    [
+        {
+            "Para": [
+                {
+                    "Str": "This"
+                },
+                {
+                    "Space": []
+                },
+                {
+                    "Str": "text"
+                },
+                {
+                    "Space": []
+                },
+                {
+                    "Str": "should"
+                },
+                {
+                    "Space": []
+                },
+                {
+                    "Str": "be"
+                },
+                {
+                    "Space": []
+                },
+                {
+                    "Str": "visible"
+                }
+            ]
+        },
+        {
+            "RawBlock": [
+                "html",
+                "<!-- And this block is just there\n  as to leave a comment in the source -->\n\n"
+            ]
+        }
+    ]
+]
