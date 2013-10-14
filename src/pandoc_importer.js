@@ -368,21 +368,29 @@ PandocImporter.Prototype = function() {
       input = input[1];
     }
     for (var idx = 0; idx < input.length; idx++) {
-      // Note: an item's content comes as an array
-      // we do not support this, howevere, keep it in mind...
-      var item = input[idx][0];
-      var type = _getType(item);
-      var content = _getContent(item, type);
-
-      var listItem;
-
-      if (type === "Plain") {
-        listItem = this.paragraph(state, content);
+      // Note: a list item's content comes as array when it
+      // contains a nested list
+      var itemContent = input[idx];
+      for (var j = 0; j < itemContent.length; j++) {
+        var item = itemContent[j];
+        var type = _getType(item);
+        var content = _getContent(item, type);
+        var listItem;
+        switch (type) {
+        case "Plain":
+          listItem = this.paragraph(state, content);
+          break;
+        case "OrderedList":
+          listItem = this.list(state, content, true);
+          break;
+        case "BulletList":
+          listItem = this.list(state, content, false);
+          break;
+        default:
+          throw new ImporterError("Node not supported as list item: " + JSON.stringify(item));
+        }
+        node.items.push(listItem.id);
       }
-      else {
-        throw new ImporterError("Node not supported as list item: " + JSON.stringify(item));
-      }
-      node.items.push(listItem.id);
     }
     state.pop();
 

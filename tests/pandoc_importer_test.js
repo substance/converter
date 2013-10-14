@@ -447,6 +447,30 @@ var PandocImporterTest = function () {
       assert.isEqual("This is the first topic.", b1.content);
       assert.isEqual("Topic 2", t2.content);
       assert.isEqual("This is the second topic.", b2.content);
+    },
+
+    "Nested Lists", function() {
+      var input = require("../data/pandoc/nested_lists.json");
+      var doc = this.importer.import(input);
+
+      var l1 = doc.get("list_1");
+      var l2 = doc.get("list_2");
+
+      assert.isDefined(l1);
+      assert.isDefined(l2);
+
+      assert.isArrayEqual(["text_1", "list_2", "text_4"], l1.items);
+      assert.isArrayEqual(["text_2", "text_3"], l2.items);
+
+      var t1 = doc.get("text_1");
+      var t2 = doc.get("text_2");
+      var t3 = doc.get("text_3");
+      var t4 = doc.get("text_4");
+
+      assert.isEqual("Item 1", t1.content);
+      assert.isEqual("Item 1.1", t2.content);
+      assert.isEqual("Item 1.2", t3.content);
+      assert.isEqual("Item 2", t4.content);
     }
   ];
 };
