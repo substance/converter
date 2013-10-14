@@ -4,7 +4,10 @@
   "keywords": ["pandoc", "markdown", "json", "import", "export"],
   "author": "Oliver Buchtala",
   "contributors": ["Michael Aufreiter", "Daniel Beilinson"],
-
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/substance/converter"
+  },
   "dependencies": {
     "substance-article": "",
     "substance-util": "",
