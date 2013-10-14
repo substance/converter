@@ -14,9 +14,9 @@
     "Daniel Beilinson"
   ],
   "dependencies": {
-    "substance-article": "git+https://github.com/substance/article.git#0.1.x",
-    "substance-util": "git+https://github.com/substance/util.git#0.2.x",
-    "substance-document": "git+https://github.com/substance/document.git#0.5.x",
+    "substance-article": "git+https://github.com/substance/article.git#0.2.x",
+    "substance-util": "git+https://github.com/substance/util.git#0.3.x",
+    "substance-document": "git+https://github.com/substance/document.git#0.6.x",
     "underscore": "1.5.x",
     "request": "2.24.x",
     "xmlhttprequest": "1.5.0"
@@ -25,13 +25,13 @@
     "nodemon": "*",
     "express": "3.3.x",
     "mocha": "1.12.x",
-    "substance-test": "git+https://github.com/substance/test.git#0.2.x",
-    "substance-document": "git+https://github.com/substance/document.git#0.5.x"
+    "substance-test": "git+https://github.com/substance/test.git#0.3.x",
+    "substance-document": "git+https://github.com/substance/document.git#0.6.x"
   },
   "scripts": {
     "test": "mocha -R spec tests/run.js"
   },
-  "version": "0.2.0",
+  "version": "0.3.0",
   "engines": {
     "node": ">=0.8.x",
     "npm": ">=1.1.x"
