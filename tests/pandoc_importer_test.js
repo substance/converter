@@ -288,43 +288,6 @@ var PandocImporterTest = function () {
       assert.isArrayEqual([12, 17], e3.range);
     },
 
-    "Convert eLife Lens README", function() {
-      var input = require("../data/pandoc/lens_readme.json");
-      var doc = this.importer.import(input);
-      var annotationIndex = Annotator.createIndex(doc);
-      var annotations = annotationIndex.get();
-
-      // Document elements
-      var expected_nodes = ["header_1","codeblock_1","text_1","text_2","header_2","text_3","text_4","header_3","list_1","text_6","list_2","text_8","list_3","text_10","list_4","text_12","header_4","text_13","text_14","text_15","text_16","text_17","text_18","header_5","text_19","text_20","text_21","codeblock_2","text_22","header_6","codeblock_3","header_7","text_23","codeblock_4","text_24","header_8","text_25"];
-      var actual_nodes = doc.get("content").nodes;
-
-      // All inline-code annotations at the right place?
-      var c1 = annotations["code_1"];
-      var c2 = annotations["code_2"];
-      var c3 = annotations["code_3"];
-      var c4 = annotations["code_4"];
-      var c5 = annotations["code_5"];
-      var c6 = annotations["code_6"];
-      var c7 = annotations["code_7"];
-
-      assert.isArrayEqual(["text_6", "content"],c1.path);
-      assert.isArrayEqual([0, 118], c1.range);
-      assert.isArrayEqual(["text_8", "content"],c2.path);
-      assert.isArrayEqual([0, 61], c2.range);
-      assert.isArrayEqual(["text_10", "content"],c3.path);
-      assert.isArrayEqual([0, 41], c3.range);
-      assert.isArrayEqual(["text_11", "content"],c4.path);
-      assert.isArrayEqual([51, 72], c4.range);
-      assert.isArrayEqual(["text_12", "content"],c5.path);
-      assert.isArrayEqual([0, 19], c5.range);
-      assert.isArrayEqual(["text_21", "content"],c6.path);
-      assert.isArrayEqual([32, 44], c6.range);
-      assert.isArrayEqual(["text_24", "content"],c7.path);
-      assert.isArrayEqual([13, 17], c7.range);
-      assert.isArrayEqual([13, 17], c7.range);
-      assert.isArrayEqual(expected_nodes, actual_nodes);
-    },
-
     "Document with YAML meta header", function() {
       var input = require("../data/pandoc/with_yaml_meta.json");
       var doc = this.importer.import(input);
