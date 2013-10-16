@@ -341,7 +341,7 @@ PandocImporter.Prototype = function() {
   this.figure = function(state, input) {
     var doc = state.doc;
 
-    var captionContent = _getContent(input[0]);
+    var captionContent = input[0];
     var caption;
     if (captionContent) {
       caption = this.text(state, captionContent);
