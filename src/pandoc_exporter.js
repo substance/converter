@@ -146,7 +146,7 @@ PandocExporter.Prototype = function() {
     var caption;
     if (node.caption !== '') {
       var p = this.paragraph(state, node.getCaption());
-      caption = p;
+      caption = p["Para"];
     } else {
       caption = _createNode("Str", []);
     }
@@ -213,7 +213,7 @@ PandocExporter.Prototype = function() {
       var words = text.split(" ");
       for (var i = 0; i < words.length; i++) {
         if (i > 0) {
-          container.push(_createNode("Space"));
+          container.push(_createNode("Space", []));
         }
         // Note: trailing spaces produce empty elements by the word split
         // so we ignore such pieces
