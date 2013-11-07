@@ -37,28 +37,15 @@ var _annotationTypes = {
   "Code": "code"
 };
 
-// NOTE: aeson 0.6.2 format uses {"tag": <type>, "contents": ...} which actually
-// would have been nicer to use
-// However, jgm bent his implementation back to conform to the former layout,
-// which has the type as name of the first (and only) child of an object, and the content as its value.
-// We use these functions to generalize the usage, just for the case that the jgm changes his decision
+// NOTE: since Pandoc 1.12.1 the JSON output format changed to:
+// {"t": <tag-name>, "c": <content}
 
 var _getType = function(node) {
-  // E.g., "Space", "HorizontalRule"
-  if (_.isString(node)) {
-    return node;
-  }
-  return Object.keys(node)[0];
+  return node["t"];
 };
 
 var _getContent = function(node, type) {
-  if (_.isString(node)) {
-    return [];
-  }
-  if (type === undefined) {
-    type = _getType(node);
-  }
-  return node[type];
+  return node["c"];
 };
 
 var _isTextish = function(node) {
@@ -97,10 +84,10 @@ PandocImporter.Prototype = function() {
       if (_isParagraphElem(item)) {
         if (lastType !== "Para") {
           lastType = "Para";
-          last = { "Para": [] };
+          last = { "t": "Para", "c": [] };
           blocks.push(last);
         }
-        last["Para"].push(item);
+        last["c"].push(item);
       } else {
         blocks.push(item);
         last = item;

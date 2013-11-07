@@ -13,27 +13,18 @@ var _annotations = [
 ];
 
 var _createNode = function(type, content) {
-  if (content === undefined) {
-    return type;
+  return {
+    "t": type,
+    "c": content || []
   }
-  var output = {};
-  output[type] = content;
-  return output;
 };
 
 var _getType = function(node) {
-  // E.g., "Space", "HorizontalRule"
-  if (_.isString(node)) {
-    return node;
-  }
-  return Object.keys(node)[0];
+  return node["t"];
 };
 
 var _getContent = function(node, type) {
-  if (_.isString(node)) {
-    return [];
-  }
-  return node[type];
+  return node["c"];
 };
 
 var mapAnnotationType = function(type) {
