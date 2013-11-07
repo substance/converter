@@ -59,6 +59,7 @@ PandocExporter.Prototype = function() {
   };
 
   this.document = function(state) {
+
     var content = [];
     var nodes = state.article.query(["content", "nodes"]);
 
@@ -137,7 +138,7 @@ PandocExporter.Prototype = function() {
     var caption;
     if (node.caption !== '') {
       var p = this.paragraph(state, node.getCaption());
-      caption = p["Para"];
+      caption = p.c;
     } else {
       caption = _createNode("Str", []);
     }
