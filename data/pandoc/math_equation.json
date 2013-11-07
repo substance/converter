@@ -1,1 +1,1 @@
-[{"unMeta":{}},[{"Para":[{"Str":"See"},{"Space":[]},{"Str":"this"},{"Space":[]},{"Str":"formula:"}]},{"Para":[{"Math":["DisplayMath","\nf(x) = \\sum x_i^2\n"]}]}]]
+[{"unMeta":{}},[{"t":"Para","c":[{"t":"Str","c":"See"},{"t":"Space","c":[]},{"t":"Str","c":"this"},{"t":"Space","c":[]},{"t":"Str","c":"formula:"}]},{"t":"Para","c":[{"t":"Math","c":[{"t":"DisplayMath","c":[]},"\nf(x) = \\sum x_i^2\n"]}]}]]

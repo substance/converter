@@ -1,1 +1,1 @@
-[{"unMeta":{}},[{"Para":[{"Str":"This"},{"Space":[]},{"Str":"is"},{"Space":[]},{"Link":[[{"Str":"an"},{"Space":[]},{"Str":"example"}],["http://example.com/",""]]},{"Space":[]},{"Str":"inline"},{"Space":[]},{"Str":"link."}]}]]
+[{"unMeta":{}},[{"t":"Para","c":[{"t":"Str","c":"This"},{"t":"Space","c":[]},{"t":"Str","c":"is"},{"t":"Space","c":[]},{"t":"Link","c":[[{"t":"Str","c":"an"},{"t":"Space","c":[]},{"t":"Str","c":"example"}],["http://example.com/",""]]},{"t":"Space","c":[]},{"t":"Str","c":"inline"},{"t":"Space","c":[]},{"t":"Str","c":"link."}]}]]

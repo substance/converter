@@ -1,1 +1,1 @@
-[{"unMeta":{}},[{"Para":[{"Str":"This"},{"Space":[]},{"Str":"is"},{"Space":[]},{"Str":"a"},{"Space":[]},{"Str":"normal"},{"Space":[]},{"Str":"paragraph:"}]},{"CodeBlock":[["",[],[]],"function foo() {\n  returb \"bar\";\n}"]}]]
+[{"unMeta":{}},[{"t":"Para","c":[{"t":"Str","c":"This"},{"t":"Space","c":[]},{"t":"Str","c":"is"},{"t":"Space","c":[]},{"t":"Str","c":"a"},{"t":"Space","c":[]},{"t":"Str","c":"normal"},{"t":"Space","c":[]},{"t":"Str","c":"paragraph:"}]},{"t":"CodeBlock","c":[["",[],[]],"function foo() {\n  returb \"bar\";\n}"]}]]
