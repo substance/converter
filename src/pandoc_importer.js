@@ -57,7 +57,7 @@ var _isInline = function(node) {
   var type = _getType(node);
   var content = _getContent(node, type);
   if (type === "Math") {
-    return content[0] === "InlineMath";
+    return content[0].t === "InlineMath";
   }
   return false;
 };
@@ -79,6 +79,7 @@ PandocImporter.Prototype = function() {
     var blocks = [];
     var lastType = null;
     var last = null;
+
     for (var i = 0; i < input.length; i++) {
       var item = input[i];
       if (_isParagraphElem(item)) {
@@ -94,7 +95,6 @@ PandocImporter.Prototype = function() {
         lastType = _getType(item);
       }
     }
-
     return blocks;
   };
 
@@ -400,7 +400,7 @@ PandocImporter.Prototype = function() {
     var mathType = input[0];
     var data = input[1].trim();
 
-    var isInline = (mathType === "InlineMath");
+    var isInline = (mathType.t === "InlineMath");
 
     var id = state.nextId("formula");
     var formula = {
