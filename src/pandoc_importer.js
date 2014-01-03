@@ -34,7 +34,8 @@ var _annotationTypes = {
   "Emph": "emphasis",
   "Strong": "strong",
   "Link": "link",
-  "Code": "code"
+  "Code": "code",
+  "Math": "math"
 };
 
 // NOTE: since Pandoc 1.12.1 the JSON output format changed to:
@@ -48,22 +49,24 @@ var _getContent = function(node, type) {
   return node["c"];
 };
 
+var _isAnnotation = function(node) {
+  var type = _getType(node);
+  if (type === "Math") {
+    var content = _getContent(node, type);
+    return content[0].t === "InlineMath";
+  } else {
+    return (_annotationTypes[type] !== undefined);
+  }
+};
+
 var _isTextish = function(node) {
   var type = _getType(node);
-  return (type === "Str" || type === "Space" || _annotationTypes[type] !== undefined);
+  return (type === "Str" || type === "Space" || _isAnnotation(node));
 };
 
 var _isInline = function(node) {
-  var type = _getType(node);
-  var content = _getContent(node, type);
-  if (type === "Math") {
-    return content[0].t === "InlineMath";
-  }
+  // currently no inline elements which are not handled via annotations
   return false;
-};
-
-var _isAnnotation = function(type) {
-  return (_annotationTypes[type] !== undefined);
 };
 
 var _isParagraphElem = function(item) {
@@ -179,8 +182,8 @@ PandocImporter.Prototype = function() {
         return this.math(state, content);
       case "Table":
         return this.table(state, content);
-      case "DefinitionList":
-        return this.definitions(state, content);
+      // case "DefinitionList":
+      //   return this.definitions(state, content);
       default:
         throw new ImporterError("Node not supported: " + type);
     }
@@ -474,33 +477,35 @@ PandocImporter.Prototype = function() {
     return doc.create(table);
   };
 
-  this.definitions = function(state, definitionList) {
-    var definitions = [];
 
-    var descriptionNode, topicContent, topicNode, bodyContent, bodyNode;
+  // Deactivated for now, as its node will be reimplemented.
+  // this.definitions = function(state, definitionList) {
+  //   var definitions = [];
 
-    for (var i = 0; i < definitionList.length; i++) {
-      var def = definitionList[i];
+  //   var descriptionNode, topicContent, topicNode, bodyContent, bodyNode;
 
-      topicContent = def[0];
-      topicNode = this.text(state, topicContent);
+  //   for (var i = 0; i < definitionList.length; i++) {
+  //     var def = definitionList[i];
 
-      // TODO: this is a rather strange format... find out why
-      bodyContent = def[1][0][0];
-      bodyNode = this.topLevelNode(state, bodyContent);
+  //     topicContent = def[0];
+  //     topicNode = this.text(state, topicContent);
 
-      descriptionNode = {
-        id: state.nextId("description"),
-        type: "description",
-        topic: topicNode.id,
-        body: bodyNode.id
-      };
-      state.doc.create(descriptionNode);
-      definitions.push(descriptionNode);
-    }
+  //     // TODO: this is a rather strange format... find out why
+  //     bodyContent = def[1][0][0];
+  //     bodyNode = this.topLevelNode(state, bodyContent);
 
-    return definitions;
-  };
+  //     descriptionNode = {
+  //       id: state.nextId("description"),
+  //       type: "description",
+  //       topic: topicNode.id,
+  //       body: bodyNode.id
+  //     };
+  //     state.doc.create(descriptionNode);
+  //     definitions.push(descriptionNode);
+  //   }
+
+  //   return definitions;
+  // };
 
   // Retrieves a text block from an array of textish fragments
   // and creates annotations on the fly.
@@ -527,7 +532,7 @@ PandocImporter.Prototype = function() {
         str = _getContent(item, type);
         result.push(str);
         pos += str.length;
-      } else if (_isAnnotation(type)) {
+      } else if (_isAnnotation(item)) {
         str = this.annotation(state, item, pos);
         result.push(str);
         pos += str.length;
@@ -561,6 +566,9 @@ PandocImporter.Prototype = function() {
       content = this.annotatedText(state, iterator, startPos);
     }
     else if(type === 'Code') {
+      content = children[1];
+    }
+    else if(type === 'Math') {
       content = children[1];
     }
     else {

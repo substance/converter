@@ -312,29 +312,18 @@ var PandocImporterTest = function () {
       var input = require("../data/pandoc/inline_math.json");
       var doc = this.importer.import(input);
 
-      var p = doc.get("paragraph_1");
-      var t1 = doc.get("text_1");
-      var f1 = doc.get("formula_1");
-      var t2 = doc.get("text_2");
-      var f2 = doc.get("formula_2");
-      var t3 = doc.get("text_3");
+      var t = doc.get("text_1");
+      var m1 = doc.get("math_1");
+      var m2 = doc.get("math_2");
 
-      assert.isDefined(p);
-      assert.isDefined(t1);
-      assert.isDefined(f1);
-      assert.isDefined(t2);
-      assert.isDefined(f2);
-      assert.isDefined(t3);
+      assert.isDefined(t);
+      assert.isDefined(m1);
+      assert.isDefined(m2);
 
-      assert.isEqual("latex", f1.format);
-      assert.isTrue(f1.inline);
-      assert.isEqual("x^2", f1.data);
-      assert.isEqual("latex", f2.format);
-      assert.isTrue(f2.inline);
-      assert.isEqual("x", f2.data);
-      assert.isArrayEqual(["text_1", "formula_1", "text_2", "formula_2", "text_3"], p.children);
+      assert.isEqual("x^2", m1.getContent());
+      assert.isEqual("x", m2.getContent());
 
-      var expected_nodes = ["paragraph_1"];
+      var expected_nodes = ["text_1"];
       assert.isArrayEqual(expected_nodes, doc.get("content").nodes);
     },
 
@@ -390,27 +379,25 @@ var PandocImporterTest = function () {
       assert.isArrayEqual(expected_nodes, doc.get("content").nodes);
     },
 
-    "Definition list", function() {
-      var input = require("../data/pandoc/definition_list.json");
-      var doc = this.importer.import(input);
+    // Deactivated. Will be reimplemented.
+    // "Description list", function() {
+    //   var input = require("../data/pandoc/definition_list.json");
+    //   var doc = this.importer.import(input);
 
-      var d1 = doc.get("description_1");
-      var d2 = doc.get("description_2");
+    //   var d1 = doc.get("description_1");
+    //   var d2 = doc.get("description_2");
 
-      assert.isDefined(d1);
-      assert.isDefined(d2);
+    //   assert.isDefined(d1);
+    //   assert.isDefined(d2);
 
-      var t1 = d1.getTopic();
-      var b1 = d1.getBody();
+    //   var b1 = d1.getBody();
+    //   var b2 = d2.getBody();
 
-      var t2 = d2.getTopic();
-      var b2 = d2.getBody();
-
-      assert.isEqual("Topic 1", t1.content);
-      assert.isEqual("This is the first topic.", b1.content);
-      assert.isEqual("Topic 2", t2.content);
-      assert.isEqual("This is the second topic.", b2.content);
-    },
+    //   assert.isEqual("Topic 1", d1.topic);
+    //   assert.isEqual("This is the first topic.", b1.content);
+    //   assert.isEqual("Topic 2", d2.topic);
+    //   assert.isEqual("This is the second topic.", b2.content);
+    // },
 
     "Nested Lists", function() {
       var input = require("../data/pandoc/nested_lists.json");

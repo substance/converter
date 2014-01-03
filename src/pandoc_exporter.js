@@ -1,29 +1,39 @@
 "use strict";
 
-var _ = require("underscore");
+// var _ = require("underscore");
+var util = require("substance-util");
 var Document = require("substance-document");
 var Annotator = Document.Annotator;
+var Fragmenter = util.Fragmenter;
 //var ExporterError = require("./converter_errors").ExporterError;
 
 var _annotations = [
   ["Emph", "emphasis"],
   ["Strong", "strong"],
-  ["Code","code"],
-  ["Link","link"]
+  ["Code", "code"],
+  ["Link", "link"]
 ];
+
+var _levels = {
+  "emphasis" : 1,
+  "strong": 1,
+  "code": 1,
+  "link": 1,
+  "math": 1
+};
 
 var _createNode = function(type, content) {
   return {
     "t": type,
     "c": content || []
-  }
+  };
 };
 
 var _getType = function(node) {
   return node["t"];
 };
 
-var _getContent = function(node, type) {
+var _getContent = function(node) {
   return node["c"];
 };
 
@@ -180,14 +190,7 @@ PandocExporter.Prototype = function() {
   this.annotated_text = function(state, text, annotations) {
     var rootContext = _createNode("ROOT", []);
 
-    var fragmenter = new Annotator.Fragmenter({
-      levels : {
-        "emphasis" : 1,
-        "strong": 1,
-        "code": 1,
-        "link": 1
-      }
-    });
+    var fragmenter = new Fragmenter(_levels);
 
     fragmenter.onText = function(context, text) {
       var type = _getType(context);
