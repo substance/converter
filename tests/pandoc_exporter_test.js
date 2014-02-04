@@ -5,7 +5,6 @@
 
 var Test = require('substance-test');
 var assert = Test.assert;
-var registerTest = Test.registerTest;
 var Importer = require('../src/pandoc_importer');
 var Exporter = require('../src/pandoc_exporter');
 
@@ -13,6 +12,10 @@ var Exporter = require('../src/pandoc_exporter');
 // ========
 
 var PandocExporterTest = function () {
+  Test.call(this);
+};
+
+PandocExporterTest.Prototype = function() {
 
   this.setup = function() {
     this.importer = new Importer();
@@ -103,5 +106,7 @@ var PandocExporterTest = function () {
     }
   ];
 };
+PandocExporterTest.Prototype.prototype = Test.prototype;
+PandocExporterTest.prototype = new PandocExporterTest.Prototype();
 
-registerTest(['Substance.Converter', 'Pandoc Exporter'], new PandocExporterTest());
+Test.registerTest(['Substance.Converter', 'Pandoc Exporter'], new PandocExporterTest());

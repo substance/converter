@@ -6,7 +6,6 @@
 var _ = require("underscore");
 var Test = require('substance-test');
 var assert = Test.assert;
-var registerTest = Test.registerTest;
 var Importer = require('../src/pandoc_importer');
 var Document = require("substance-document");
 var Annotator = Document.Annotator;
@@ -25,6 +24,10 @@ function getIdGenerator() {
 }
 
 var PandocImporterTest = function () {
+  Test.call(this);
+};
+
+PandocImporterTest.Prototype = function() {
 
   this.setup = function() {
     this.importer = new Importer();
@@ -434,5 +437,7 @@ var PandocImporterTest = function () {
     }
   ];
 };
+PandocImporterTest.Prototype.prototype = Test.prototype;
+PandocImporterTest.prototype = new PandocImporterTest.Prototype();
 
-registerTest(['Substance.Converter', 'Pandoc Importer'], new PandocImporterTest());
+Test.registerTest(['Substance.Converter', 'Pandoc Importer'], new PandocImporterTest());

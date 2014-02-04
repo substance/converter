@@ -5,7 +5,6 @@
 
 var Test = require('substance-test');
 var assert = Test.assert;
-var registerTest = Test.registerTest;
 var NLMImporter = require('../src/nlm_importer');
 var fs = require("substance-util/src/fs");
 var Data = require("substance-data");
@@ -14,6 +13,10 @@ var Data = require("substance-data");
 // ========
 
 var NLMImporterTest = function () {
+  Test.call(this);
+};
+
+NLMImporterTest.Prototype = function() {
 
   this.setup = function() {
     this.importer = new NLMImporter();
@@ -204,5 +207,7 @@ var NLMImporterTest = function () {
     },
   ];
 };
+NLMImporterTest.Prototype.prototype = Test.prototype;
+NLMImporterTest.prototype = new NLMImporterTest.Prototype();
 
-registerTest(['Substance.Converter', 'NLMImporter'], new NLMImporterTest());
+Test.registerTest(['Substance.Converter', 'NLMImporter'], new NLMImporterTest());
