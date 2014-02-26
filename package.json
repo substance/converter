@@ -18,9 +18,9 @@
     "url": "https://github.com/substance/converter"
   },
   "dependencies": {
-    "substance-article": "git+https://github.com/substance/article.git#refactor",
-    "substance-util": "git+https://github.com/substance/util.git#0.3.x",
-    "substance-document": "git+https://github.com/substance/document.git#refactor",
+    "substance-article": "0.3.0",
+    "substance-util": "0.3.0",
+    "substance-document": "0.6.0",
     "underscore": "1.5.x",
     "request": "2.24.x",
     "xmlhttprequest": "1.5.0"
@@ -29,8 +29,8 @@
     "nodemon": "*",
     "express": "3.3.x",
     "mocha": "1.12.x",
-    "substance-test": "git+https://github.com/substance/test.git#0.3.x",
-    "substance-document": "git+https://github.com/substance/document.git#refactor"
+    "substance-test": "0.3.0",
+    "substance-document": "0.6.0"
   },
   "scripts": {
     "test": "mocha -R spec tests/run.js"
