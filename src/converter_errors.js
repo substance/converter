@@ -1,5 +1,4 @@
 var util = require("substance-util");
-var _ = require("underscore");
 var errors = util.errors;
 
 var ImporterError = errors.define("ImporterError");

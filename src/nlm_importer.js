@@ -2,6 +2,7 @@
 var _ = require("underscore");
 var util = require("substance-util");
 var ImporterError = require("./converter_errors").ImporterError;
+var DOMParser = window.DOMParser;
 
 var NLMImporter = function() {};
 
@@ -675,7 +676,7 @@ NLMImporter.Prototype = function() {
     while(iterator.hasNext()) {
       var el = iterator.next();
       // Plain text nodes...
-      if (el.nodeType === Node.TEXT_NODE) {
+      if (el.nodeType === window.Node.TEXT_NODE) {
         plainText += el.textContent;
         charPos += el.textContent.length;
       }

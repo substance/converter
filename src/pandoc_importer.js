@@ -45,7 +45,7 @@ var _getType = function(node) {
   return node["t"];
 };
 
-var _getContent = function(node, type) {
+var _getContent = function(node /*, type*/) {
   return node["c"];
 };
 
@@ -64,7 +64,7 @@ var _isTextish = function(node) {
   return (type === "Str" || type === "Space" || _isAnnotation(node));
 };
 
-var _isInline = function(node) {
+var _isInline = function(/*node*/) {
   // currently no inline elements which are not handled via annotations
   return false;
 };
