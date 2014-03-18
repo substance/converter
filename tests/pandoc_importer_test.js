@@ -162,15 +162,18 @@ PandocImporterTest.Prototype = function() {
       var annotations = annotationIndex.get();
 
       var p = doc.get("text_1");
-      var link = annotations["link_1"];
+      var link = doc.get("link_1");
+      var link_ref = annotations["link_reference_1"];
 
       assert.isDefined(p);
       assert.isDefined(link);
+      assert.isDefined(link_ref);
       assert.isEqual("link", link.type);
+      assert.isEqual("link_reference", link_ref.type);
 
       assert.isEqual("This is an example inline link.", p.content);
-      assert.isArrayEqual(["text_1", "content"], link.path);
-      assert.isArrayEqual([8, 18], link.range);
+      assert.isArrayEqual(["text_1", "content"], link_ref.path);
+      assert.isArrayEqual([8, 18], link_ref.range);
       assert.isArrayEqual(["text_1"], doc.get("content").nodes);
     },
 

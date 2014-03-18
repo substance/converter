@@ -30,12 +30,15 @@ var State = function() {
   this.annotations = [];
 };
 
+// TODO: we switched to a different scheme regarding certain annotations.
+// E.g., former links are now splitted into two parts: 'link_reference' and 'link'
+// 'link_reference' being the annotation and 'link' the actual entity, seen as a kind of citation.
 var _annotationTypes = {
   "Emph": "emphasis",
   "Strong": "strong",
-  "Link": "link",
   "Code": "code",
-  "Math": "math"
+  "Math": "math",
+  "Link": "link_reference"
 };
 
 // NOTE: since Pandoc 1.12.1 the JSON output format changed to:
@@ -554,16 +557,23 @@ PandocImporter.Prototype = function() {
     if (targetNode === undefined) {
       throw new ImporterError("No target for annotation available");
     }
-    var options = {};
 
     var type = _getType(input);
     var children = _getContent(input, type);
     var iterator, content;
+    var target;
 
     if(type === 'Link') {
-      options.url = children[1][0];
       iterator = new PandocImporter.Iterator(children[0]);
       content = this.annotatedText(state, iterator, startPos);
+      var url = children[1][0];
+      var link = {
+        type: 'link',
+        id: state.nextId('link'),
+        url: url
+      }
+      state.doc.create(link);
+      target = link.id;
     }
     else if(type === 'Code') {
       content = children[1];
@@ -580,12 +590,13 @@ PandocImporter.Prototype = function() {
 
     var annotationType = _annotationTypes[type];
     var id = state.nextId(annotationType);
-    var annotation = _.extend({
+    var annotation = {
       id: id,
       type: annotationType,
       path: [targetNode.id, "content"],
-      range: [startPos, endPos]
-    },options);
+      range: [startPos, endPos],
+      target: target // note: this won't be there if target is not set before
+    };
 
     state.annotations.push(annotation);
 
