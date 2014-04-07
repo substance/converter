@@ -81,8 +81,8 @@ PandocExporter.Prototype = function() {
         content.push(this.paragraph(state, node));
       } else if (node.type === "heading") {
         content.push(this.heading(state, node));
-      } else if (node.type == "codeblock") {
-        content.push(this.codeblock(state, node));
+      } else if (node.type == "code_block") {
+        content.push(this.codelock(state, node));
       } else if (node.type == "image") {
         content.push(this.image(state, node));
       } else if (node.type == "figure") {

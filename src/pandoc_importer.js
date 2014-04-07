@@ -299,10 +299,10 @@ PandocImporter.Prototype = function() {
 
   this.codeblock = function(state, input) {
     var doc = state.doc;
-    var id = state.nextId("codeblock");
+    var id = state.nextId("code_block");
     var node = {
       id: id,
-      "type": "codeblock",
+      "type": "code_block",
       content: input[1]
     };
     return doc.create(node);

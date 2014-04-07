@@ -141,11 +141,11 @@ PandocImporterTest.Prototype = function() {
 
       var doc = this.importer.import(input);
       var p1 = doc.get("text_1");
-      var c1 = doc.get("codeblock_1");
+      var c1 = doc.get("code_block_1");
 
       assert.isEqual("This is a normal paragraph:", p1.content);
       assert.isEqual("function foo() {\n  returb \"bar\";\n}", c1.content);
-      assert.isArrayEqual(["text_1", "codeblock_1"], doc.get("content").nodes);
+      assert.isArrayEqual(["text_1", "code_block_1"], doc.get("content").nodes);
     },
 
     "Horizontal rulers are ignored.", function() {
