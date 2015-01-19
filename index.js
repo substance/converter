@@ -1,3 +1,7 @@
 "use strict";
 
-module.exports = require("./src/converter");
+var Converter = require("./src/converter");
+
+Converter.HtmlConverter = require('./src/html_converter');
+
+module.exports = Converter;
