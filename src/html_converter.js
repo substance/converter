@@ -31,7 +31,6 @@ HTMLConverter.Prototype = function HTMLConverterPrototype() {
     var state = this.createState(doc, htmlDoc);
     var body = htmlDoc.getElementsByTagName( 'body' )[0];
     this.body(state, body);
-
     // create annotations afterwards so that the targeted nodes
     // exist for sure
     for (var i = 0; i < state.annotations.length; i++) {
@@ -39,30 +38,60 @@ HTMLConverter.Prototype = function HTMLConverterPrototype() {
     }
   };
 
-  this.body = function(state, body) {
-    var children = $( body ).children();
-    for (var i = 0; i < children.length; i++) {
-      var node = this.bodyElement(state, children[i]);
-      if (node) {
-        state.doc.show('content', node.id);
-      }
-    }
+  var _topLevelElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5'];
+
+  var _isTopLevel = function(type) {
+    return _topLevelElements.indexOf(type) >= 0;
   };
 
-  this.bodyElement = function(state, el) {
-    var type = this.getNodeType(el);
-    switch (type) {
-      case 'p':
-        return this.paragraph(state, el);
-      case 'h1':
-      case 'h2':
-      case 'h3':
-      case 'h4':
-      case 'h5':
-        return this.heading(state, el);
-      default:
+  this.body = function(state, body) {
+    // HACK: this is not a general solution just adapted to the
+    // content provided by pasting from Microsoft Word: when pasting
+    // only some words of a paragraph then there is no wrapping p element
+    var catchBin = null;
+    var handlers = {
+      'p': this.paragraph,
+      'h1': this.heading,
+      'h2': this.heading,
+      'h3': this.heading,
+      'h4': this.heading,
+      'h5': this.heading,
+    };
+    var childIterator = new HTMLConverter.ChildNodeIterator(body);
+    while(childIterator.hasNext()) {
+      var child = childIterator.next();
+      var type = this.getNodeType(child);
+      if (handlers[type]) {
+        // if there is an open catch bin node add it to document and reset
+        if (catchBin && catchBin.content.length > 0) {
+          state.doc.create(catchBin);
+          state.doc.show('content', catchBin.id);
+          catchBin = null;
+        }
+        var node = handlers[type].call(this, state, child);
+        if (node) {
+          state.doc.show('content', node.id);
+        }
+      } else {
         // Wrap all other stuff into a paragraph
-        return this.paragraph(state, el);
+        if (!catchBin) {
+          catchBin = {
+            type: 'text',
+            id: util.uuid('text'),
+            content: ''
+          };
+        }
+        state.contexts.push({
+          path: [catchBin.id, 'content']
+        });
+        catchBin.content += this._annotatedText(state, childIterator, catchBin.content.length);
+        state.contexts.pop();
+      }
+    }
+    if (catchBin && catchBin.content.length > 0) {
+      state.doc.create(catchBin);
+      state.doc.show('content', catchBin.id);
+      catchBin = null;
     }
   };
 
@@ -117,15 +146,21 @@ HTMLConverter.Prototype = function HTMLConverterPrototype() {
     }
     while(iterator.hasNext()) {
       var el = iterator.next();
+      var type = this.getNodeType(el);
       // Plain text nodes...
       if (el.nodeType === window.Document.TEXT_NODE) {
         var text = this._prepareText(state, el.textContent);
         plainText = plainText.concat(text);
         charPos += text.length;
+      } else if (el.nodeType === window.Document.COMMENT_NODE) {
+        // skip comment nodes
+        continue;
+      } else if (_isTopLevel(type)) {
+        iterator.back();
+        break;
       }
       // Other...
       else {
-        var type = this.getNodeType(el);
         if ( !state.skipTypes[type] ) {
           var start = charPos;
           // recurse into the annotation element to collect nested annotations
