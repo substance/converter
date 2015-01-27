@@ -73,6 +73,7 @@ HTMLConverter.Prototype = function HTMLConverterPrototype() {
           state.doc.show('content', node.id);
         }
       } else {
+        childIterator.back();
         // Wrap all other stuff into a paragraph
         if (!catchBin) {
           catchBin = {
